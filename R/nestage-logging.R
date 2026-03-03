@@ -1,16 +1,21 @@
-# R/nestage-logging.R
+# =============================================================================
+# NeStage logging (very light)
+# =============================================================================
 
-#' Append a one-line entry to logs/CHANGELOG.md
-#'
-#' @param message Text to log.
-#' @param log_path Path to changelog (default 'logs/CHANGELOG.md').
-#' @return Invisibly returns the appended line.
-#' @export
-nestage_log_run <- function(message, log_path = "logs/CHANGELOG.md") {
-  ver <- nestage_version()
-  stamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")
-  line <- sprintf("%s | %s | %s\n", stamp, ver, message)
-  dir.create(dirname(log_path), showWarnings = FALSE, recursive = TRUE)
-  cat(line, file = log_path, append = TRUE)
-  invisible(line)
+# Toggle with options(nestage.verbose = TRUE/FALSE)
+.ns_verbose <- function() {
+  opt <- getOption("nestage.verbose")
+  if (is.null(opt)) TRUE else isTRUE(opt)
+}
+
+ns_log_info <- function(...) {
+  if (.ns_verbose()) cat(sprintf("[NeStage][INFO] %s\n", paste0(..., collapse = "")))
+}
+
+ns_log_warn <- function(...) {
+  cat(sprintf("[NeStage][WARN] %s\n", paste0(..., collapse = "")))
+}
+
+ns_log_error <- function(...) {
+  stop(sprintf("[NeStage][ERROR] %s", paste0(..., collapse = "")), call. = FALSE)
 }

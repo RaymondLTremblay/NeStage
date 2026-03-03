@@ -1,12 +1,114 @@
 ---
-title: "Estimating Ny/N and Ne/N with NeStage"
-author: "Raymond L. Tremblay Lalande"
-output:
-  html_document:
-    toc: true
-    number_sections: true
+title: "NeStage: Reproducing Yonezawa (2000) Table 4 and Using the Exact Backend"
+author: "Raymond L. Tremblay"
+output: html_vignette
+vignette: >
+  %\VignetteIndexEntry{NeStage: Reproducing Yonezawa (2000) Table 4 and Using the Exact Backend}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-library(NeStage)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 4.5)
+
+```
+
+## Overview
+
+This vignette demonstrates how to compute generation time (L), Ny/N, and Ne/N using the **exact Yonezawa (2000)** definitions as implemented in NeStage’s `"paper_v1"` backend. We:
+
+-   Reproduce **Table 4** results for the **Mizuyajiri (Miz)** and **Nanryu (Nan)** populations using **observed** and **expected** stage fractions.
+
+-   Show a simple **sex-only** example (illustrative).
+
+-   Provide guidance for running the exact backend on **your own U, F, D** inputs (with optional L computation).
+
+> Important: To reproduce Yonezawa Table 4 exactly, we use `meta$estimator = "paper_v1"` and the paper’s stage fractions (D) and L values. For new datasets, you can compute L internally by the paper’s age-by-stage definition when `L` is not provided.
+
+## Loading NeStage
+
+If you have installed the package, simply:
+
+```{r}
+
+```
+
+For development (sourcing from `R/` files), use:
+
+```{r}
+
+```
+
+## Reproducing Yonezawa (2000) Table 4
+
+We use helper inputs for Miz/Nan (U, F, D_obs, D_exp, L) and call `nestage_exact()` with the exact backend.
+
+```{r}
+
+```
+
+You should see values that match Table 4 (rounded):
+
+-   
+
+-   Miz: L = **13.399**, Ny/N = **2.932 (2.976)**, Ne/N = **0.219 (0.222)**
+
+-   
+
+-   Nan: L = **8.353**, Ny/N = **2.428 (2.446)**, Ne/N = **0.291 (0.293)**
+
+-   
+
+> Note on rounding: Formatting in the original table may reflect rounding at the third decimal. Small differences (±0.001–0.002) are expected depending on rounding conventions.
+
+### Quick point-only plot (no bars)
+
+We can visualize Ny/N and Ne/N for the four results (Miz/Nan and their parenthetical values) using **points** (not bars). If `ggplot2` is available we use it; otherwise base plots.
+
+```{r}
+
+```
+
+## Sex-only example (illustrative)
+
+This shows how to run a **sex-only** variant by scaling fecundity for a given stage while keeping the exact backend. Here we reduce stage-3 reproduction to 10% of the original for Miz, and we keep the observed stage fractions D_obs for reporting.
+
+> Caution: Under extreme down-scaling of fecundity, `1 - overline(u^2)` can become very small, and `L` may increase, which can yield large Ny/N and Ne/N. These are mathematically consistent with the formulation but should be interpreted with care.
+
+## Using your own U, F, D (and L)
+
+For a general dataset:
+
+-   
+
+-   Provide `U` (square transition matrix) and `F` (length k fecundity vector).
+
+-   
+
+-   Provide stage fractions `D` (length k, non-negative, sum to 1) for reporting weights.
+
+-   
+
+-   Optionally provide `L`. If omitted, NeStage will compute L using the paper’s age-by-stage definition `L(U, F)`.
+
+-   
+
+-   Force the exact backend via `meta$estimator = "paper_v1"`.
+
+### Stage-order alignment and assembly notes
+
+1.  
+
+2.  **Stage order** must be consistent across `U`, `F`, and `D`.
+
+3.  
+
+4.  **Lambda reporting** uses `A_full <- U; A_full[1, ] <- F` (row 1 is fecundity only).
+
+5.  
+
+6.  If you only have a full projection matrix `A` and no split into `U` and `F`, you can heuristically set `F <- A[1, ]` and `U <- A; U[1, ] <- 0`, but exact replication of Table 4 requires the correct paper `U` and `F`.
+
+7.  
+
+## Session info

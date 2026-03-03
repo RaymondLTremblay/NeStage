@@ -1,0 +1,15 @@
+Package: NeStage
+Type: Package
+Title: Estimation of Ny/N, Ne/N, and Stage-Based Genetic Metrics
+Version: 0.6.0
+Authors@R: person("Raymond L.", "Tremblay Lalande", email = "youremail@example.com", role = c("aut", "cre"))
+Description: Provides tools to compute Ny/N, Ne/N, generation time, and 
+    related demographic-genetic metrics from stage-structured projection 
+    matrices. Implements the Yonezawa-based workflow used in population 
+    genetics and plant demography, including exact (observed and expected) 
+    matrix estimators and a sex-only transformation. Includes helper 
+    functions for comparisons, reproducible logging, and minimal plotting.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

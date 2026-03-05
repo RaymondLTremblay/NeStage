@@ -1,0 +1,33 @@
+# R artifacts
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*.Rproj.user/
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# knitr / R Markdown build outputs
+inst/doc/
+vignettes/*.html
+vignettes/*.pdf
+vignettes/*.R
+
+# Package build artifacts
+*.tar.gz
+*.zip
+
+# roxygen2 / devtools
+/doc/
+/Meta/
+
+# Compiled R code
+src/*.o
+src/*.so
+src/*.dll
+

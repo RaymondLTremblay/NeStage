@@ -1,0 +1,53 @@
+# R/nestage-plots.R
+
+#' @importFrom graphics par axis plot
+NULL
+
+#' Plot Ny/N and Ne/N by population and model (points only)
+#' @param df Tidy table from nestage_run_all() or combined tables.
+#' @export
+nestage_plot_ratios <- function(df) {
+  # Validate required columns
+  req <- c("population", "model", "NyN", "NeN")
+  if (!all(req %in% names(df))) {
+    stop("nestage_plot_ratios(): df must contain columns: ", paste(req, collapse = ", "))
+  }
+
+  # Filter to finite values
+  i_nyn <- which(is.finite(df$NyN))
+  i_nen <- which(is.finite(df$NeN))
+
+  if (length(i_nyn) == 0) {
+    stop("nestage_plot_ratios(): All Ny/N values are NA/Non-finite. ",
+         "Did you paste your v0.6.0 estimators into NeStage? (NyN is still NA.)")
+  }
+  if (length(i_nen) == 0) {
+    stop("nestage_plot_ratios(): All Ne/N values are NA/Non-finite. ",
+         "Did you paste your v0.6.0 estimators into NeStage? (NeN is still NA.)")
+  }
+
+  op <- graphics::par(mfrow = c(1, 2))
+  on.exit(graphics::par(op), add = TRUE)
+
+  # --- Ny/N ---
+  d1 <- df[i_nyn, , drop = FALSE]
+  x1 <- seq_len(nrow(d1))
+  ylim1 <- range(d1$NyN, finite = TRUE)
+  graphics::plot(x1, d1$NyN, pch = 16, xaxt = "n",
+                 xlab = "Population x Model", ylab = "Ny/N",
+                 main = "Ny/N across models", ylim = ylim1)
+  labs1 <- paste0(d1$population, " | ", d1$model)
+  graphics::axis(1, at = x1, labels = labs1, las = 2, cex.axis = 0.6)
+
+  # --- Ne/N ---
+  d2 <- df[i_nen, , drop = FALSE]
+  x2 <- seq_len(nrow(d2))
+  ylim2 <- range(d2$NeN, finite = TRUE)
+  graphics::plot(x2, d2$NeN, pch = 16, xaxt = "n",
+                 xlab = "Population x Model", ylab = "Ne/N",
+                 main = "Ne/N across models", ylim = ylim2)
+  labs2 <- paste0(d2$population, " | ", d2$model)
+  graphics::axis(1, at = x2, labels = labs2, las = 2, cex.axis = 0.6)
+
+  invisible(list(NyN = d1, NeN = d2))
+}

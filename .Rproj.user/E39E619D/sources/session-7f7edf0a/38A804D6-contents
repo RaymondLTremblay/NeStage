@@ -1,0 +1,105 @@
+# R/nestage-plots-gg.R
+
+#' @title Plot Ny/N and Ne/N with ggplot2 (points only)
+#' @description
+#' Produces facet plots for Ny/N and Ne/N by population and model using ggplot2.
+#' Handles NA/non-finite values gracefully and stops with an informative message
+#' if no plottable values are available.
+#'
+#' @param df A data.frame from \code{nestage_run_all()} or a rbind of many runs.
+#'   Must contain columns: population, model, NyN, NeN.
+#' @return A ggplot object (invisibly) and prints the plot.
+#' @examples
+#' \dontrun{
+#'   p <- nestage_plot_ratios_gg(res_all)
+#' }
+#' @export
+#' @import ggplot2
+nestage_plot_ratios_gg <- function(df) {
+  req <- c("population", "model", "NyN", "NeN")
+  if (!all(req %in% names(df))) {
+    stop("nestage_plot_ratios_gg(): df must contain columns: ",
+         paste(req, collapse = ", "))
+  }
+
+  # Build long table (no dplyr dependency)
+  d1 <- data.frame(population = df$population,
+                   model      = df$model,
+                   metric     = "Ny/N",
+                   value      = df$NyN,
+                   stringsAsFactors = FALSE)
+  d2 <- data.frame(population = df$population,
+                   model      = df$model,
+                   metric     = "Ne/N",
+                   value      = df$NeN,
+                   stringsAsFactors = FALSE)
+  dd <- rbind(d1, d2)
+
+  # Keep finite values only
+  dd <- dd[is.finite(dd$value), , drop = FALSE]
+
+  if (nrow(dd) == 0L) {
+    stop("nestage_plot_ratios_gg(): No finite Ny/N or Ne/N to plot. ",
+         "Paste your v0.6.0 estimators (NyN/NeN) into NeStage, ",
+         "or check your input data.")
+  }
+
+  # Ensure nicer ordering if repeated populations
+  dd$population <- factor(dd$population, levels = unique(dd$population))
+
+  p <- ggplot(dd, aes(x = population, y = value,
+                      color = model, shape = model)) +
+    geom_point(size = 2.2, position = position_dodge(width = 0.6), na.rm = TRUE) +
+    facet_wrap(~ metric, scales = "free_y", nrow = 1) +
+    labs(title = "Ny/N and Ne/N across models",
+         x = "Population",
+         y = NULL,
+         color = "Model",
+         shape = "Model") +
+    theme_bw(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(face = "bold"))
+
+  print(p)
+  invisible(p)
+}
+
+#' @title Plot generation time L (sex-only) with ggplot2 (points only)
+#' @description
+#' Plots L for Sex-only model(s). Stops with a clear message if no finite L exists.
+#'
+#' @param df A data.frame from \code{nestage_run_all()} or a rbind of many runs.
+#'   Must contain columns: population, model, L.
+#' @return A ggplot object (invisibly) and prints the plot.
+#' @examples
+#' \dontrun{
+#'   p <- nestage_plot_generation_time_gg(res_all)
+#' }
+#' @export
+#' @import ggplot2
+nestage_plot_generation_time_gg <- function(df) {
+  req <- c("population", "model", "L")
+  if (!all(req %in% names(df))) {
+    stop("nestage_plot_generation_time_gg(): df must contain columns: ",
+         paste(req, collapse = ", "))
+  }
+
+  dL <- df[grepl("^Sex-only", df$model) & is.finite(df$L), , drop = FALSE]
+  if (nrow(dL) == 0L) {
+    stop("nestage_plot_generation_time_gg(): No finite L for Sex-only models. ",
+         "Paste your v0.6.0 sex-only estimator (that computes L) into NeStage.")
+  }
+
+  dL$population <- factor(dL$population, levels = unique(dL$population))
+
+  p <- ggplot(dL, aes(x = population, y = L)) +
+    geom_point(size = 2.4, na.rm = TRUE) +
+    labs(title = "Generation time (L) — Sex-only",
+         x = "Population", y = "L (years)") +
+    theme_bw(base_size = 11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(face = "bold"))
+
+  print(p)
+  invisible(p)
+}

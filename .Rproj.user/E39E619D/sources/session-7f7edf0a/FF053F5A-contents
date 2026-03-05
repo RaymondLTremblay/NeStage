@@ -1,0 +1,222 @@
+# R/nestage-core.R
+
+# ---- internal helpers (not exported) -----------------------------------------
+
+# Given a projection matrix A, return the dominant eigenvalue (lambda).
+.nestage_lambda <- function(A) {
+  # If you have a more stable routine, paste it here.
+  Re(eigen(A)$values[1])
+}
+
+# TEMPORARY estimator just to enable plotting; replace with v0.6.0 math later
+.nestage_estimate_core <- function(A, compute_L = FALSE) {
+  # dominant eigen structure
+  eig <- eigen(A)
+  lambda <- Re(eig$values[1])
+
+  # right eigenvector (stable stage dist), normalize to sum 1
+  w <- Re(eig$vectors[, 1]); w <- w / sum(w)
+
+  # left eigenvector (reproductive value), normalize so v^T w = 1
+  v <- Re(eigen(t(A))$vectors[, 1])
+  v <- v / sum(v * w)
+
+  # crude stage-based proxies until you paste real formulas
+  NyN <- sum(v * w)
+  NeN <- (sum(v * w))^2 / sum((v^2) * w)
+
+  L <- if (isTRUE(compute_L)) {
+    idx <- seq_along(w)
+    sum(idx * v * w) / sum(v * w)
+  } else {
+    NA_real_
+  }
+
+  list(NyN = as.numeric(NyN), NeN = as.numeric(NeN), L = as.numeric(L))
+}
+
+# ---- exported API ------------------------------------------------------------
+
+#' Return the current NeStage version tag
+#' @export
+nestage_version <- function() {
+  "v0.6.0"
+}
+
+#' Validate a projection matrix
+#'
+#' @param A A square numeric matrix (projection matrix).
+#' @return Invisibly TRUE or stops with an informative message.
+#' @export
+nestage_check_matrix <- function(A) {
+  stopifnot(is.matrix(A), is.numeric(A))
+  d <- dim(A)
+  if (length(d) != 2 || d[1] != d[2]) stop("A must be a square matrix.")
+  if (any(!is.finite(A))) stop("A contains non-finite values.")
+  if (any(A < 0)) warning("A contains negative entries; verify biological plausibility.")
+  invisible(TRUE)
+}
+
+#' Observed (Exact) estimator: Ny/N, Ne/N, and lambda
+#'
+#' @param A_obs Observed projection matrix.
+#' @param meta Optional list with identifiers (for example, list(population = "Miz")).
+#' @return A list of class 'nestage_result' with fields: model, NyN, NeN, lambda, L, version, meta.
+#' @export
+nestage_exact <- function(A_obs, meta = list()) {
+  nestage_check_matrix(A_obs)
+
+  # If your pipeline does preprocessing on observed matrices, apply it here.
+  A_clean <- A_obs
+
+  est <- .nestage_estimate_core(A_clean, compute_L = FALSE)
+  lambda <- .nestage_lambda(A_clean)
+
+  out <- list(
+    model   = "Exact-Observed",
+    NyN     = est$NyN,
+    NeN     = est$NeN,
+    lambda  = lambda,
+    L       = est$L,  # typically NA for exact
+    version = nestage_version(),
+    meta    = meta
+  )
+  class(out) <- c("nestage_result", class(out))
+  out
+}
+
+#' Expected estimator: Ny/N, Ne/N, and lambda
+#'
+#' @param A_exp Expected projection matrix.
+#' @param meta Optional list with identifiers.
+#' @return A list of class 'nestage_result'.
+#' @export
+nestage_expected <- function(A_exp, meta = list()) {
+  nestage_check_matrix(A_exp)
+
+  A_clean <- A_exp
+
+  est <- .nestage_estimate_core(A_clean, compute_L = FALSE)
+  lambda <- .nestage_lambda(A_clean)
+
+  out <- list(
+    model   = "Exact-Expected",
+    NyN     = est$NyN,
+    NeN     = est$NeN,
+    lambda  = lambda,
+    L       = est$L,  # typically NA for exact
+    version = nestage_version(),
+    meta    = meta
+  )
+  class(out) <- c("nestage_result", class(out))
+  out
+}
+
+#' Sex-only estimator: Ny/N, Ne/N, L, and lambda
+#'
+#' @description
+#' Applies the sex-only transformation to an observed projection matrix and returns
+#' Ny/N, Ne/N, generation time (L), and the dominant eigenvalue (lambda).
+#'
+#' @param A_obs A square numeric projection matrix (observed).
+#' @param repro_stage Integer or integer vector with stage index(es) considered reproductive (for example, 3).
+#' @param frac_repro Numeric in (0, 1). Fraction of individuals considered reproductive in the given stage(s).
+#'   Default is 0.10.
+#' @param meta Optional named list of identifiers (for example, list(population = "Miz")).
+#'
+#' @return A named list with elements: model, NyN, NeN, lambda, L, version, meta.
+#'
+#' @export
+nestage_sex_only <- function(A_obs, repro_stage, frac_repro = 0.10, meta = list()) {
+  nestage_check_matrix(A_obs)
+  stopifnot(is.numeric(repro_stage), all(repro_stage %in% seq_len(nrow(A_obs))))
+  stopifnot(is.numeric(frac_repro), frac_repro > 0, frac_repro < 1)
+
+  # >>> PASTE your v0.6.0 sex-only transformation here to obtain A_sex <<<
+  # Concept:
+  # - Remove vegetative demography as per your rule.
+  # - Apply frac_repro to the specified reproductive stage(s).
+  # - The resulting A_sex is used to compute Ny/N, Ne/N, and L.
+  A_sex <- A_obs  # placeholder; replace with your transformation
+
+  est <- .nestage_estimate_core(A_sex, compute_L = TRUE)
+  lambda <- .nestage_lambda(A_sex)
+
+  out <- list(
+    model   = sprintf("Sex-only (%.0f%% stage)", 100 * frac_repro),
+    NyN     = est$NyN,
+    NeN     = est$NeN,
+    lambda  = lambda,
+    L       = est$L,
+    version = nestage_version(),
+    meta    = c(meta, list(repro_stage = repro_stage, frac_repro = frac_repro))
+  )
+  class(out) <- c("nestage_result", class(out))
+  out
+}
+
+#' Run Observed, Expected, and Sex-only in one call
+#'
+#' @param A_obs Observed matrix.
+#' @param A_exp Expected matrix (optional).
+#' @param repro_stage Reproductive stage(s), for example, 3.
+#' @param frac_repro Default 0.10.
+#' @param meta Optional identifiers list.
+#' @return Tidy data.frame with rows per model.
+#' @export
+nestage_run_all <- function(A_obs, A_exp = NULL, repro_stage, frac_repro = 0.10, meta = list()) {
+  res <- list()
+  res[["Exact-Observed"]] <- nestage_exact(A_obs, meta)
+  if (!is.null(A_exp)) res[["Exact-Expected"]] <- nestage_expected(A_exp, meta)
+  res[["Sex-only"]] <- nestage_sex_only(A_obs, repro_stage, frac_repro, meta)
+
+  td <- do.call(rbind, lapply(res, function(x) {
+    data.frame(
+      population = if (!is.null(meta$population)) meta$population else NA_character_,
+      model      = x$model,
+      NyN        = x$NyN,
+      NeN        = x$NeN,
+      L          = x$L,
+      lambda     = x$lambda,
+      version    = x$version,
+      stringsAsFactors = FALSE
+    )
+  }))
+  rownames(td) <- NULL
+  td
+}
+
+#' Compute deltas and fold changes across models
+#'
+#' @param df Output from nestage_run_all() or rbind of many populations.
+#' @return Data.frame with comparisons per population.
+#' @export
+nestage_compare <- function(df) {
+  by_pop <- split(df, df$population)
+  out <- lapply(by_pop, function(dd) {
+    eo <- dd[dd$model == "Exact-Observed", , drop = FALSE]
+    so <- dd[grepl("^Sex-only", dd$model), , drop = FALSE]
+    ex <- dd[dd$model == "Exact-Expected", , drop = FALSE]
+
+    merge_pairs <- function(a, b, prefix) {
+      if (nrow(a) == 1 && nrow(b) == 1) {
+        data.frame(
+          population = a$population,
+          compare    = prefix,
+          d_NyN      = b$NyN - a$NyN,
+          fc_NyN     = b$NyN / a$NyN,
+          d_NeN      = b$NeN - a$NeN,
+          fc_NeN     = b$NeN / a$NeN,
+          d_L        = b$L - a$L,
+          stringsAsFactors = FALSE
+        )
+      } else NULL
+    }
+
+    rbind(
+      merge_pairs(eo, so, "Sex-only vs Exact-Observed"),
+      if (nrow(ex) == 1) merge_pairs(eo, ex, "Exact-Expected vs Exact-Observed")
+    )
+  })
+  do.call(rbind, out)
+}

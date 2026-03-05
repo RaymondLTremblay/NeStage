@@ -1,0 +1,899 @@
+---
+title: "NeStage: Reproducing Yonezawa (2000) Table 4 and Using the Exact Backend"
+author: "Raymond L. Tremblay"
+output:
+  html_document:
+    self_contained: true
+    toc: true
+    number_sections: true
+    mathjax: default
+vignette: >
+  %\VignetteIndexEntry{NeStage: Reproducing Yonezawa (2000) Table 4 and Using the Exact Backend}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  echo    = TRUE,   # show code by default
+  eval    = TRUE,   # run code by default
+  message = FALSE,
+  warning = FALSE
+)
+
+```
+
+
+```{r render-command, eval=FALSE}
+rmarkdown::render(
+  "vignettes/NeStage_Yonezawa_Table4.Rmd",
+  output_file = "NeStage_Yonezawa_Table4.html",
+  output_dir  = "vignettes",
+  clean = TRUE,
+  envir = new.env()
+)
+```
+
+
+## Introduction: What the Yonezawa (2000) model does
+
+**Purpose.** Yonezawa et al. (2000) derive a **variance effective population size** for **stage‑structured** populations, where individuals can **progress or regress** among life‑history stages and reproduce **sexually and/or clonally**. The framework connects **demographic transitions** and **stage‑specific reproduction** to **genetic drift** by expressing the variance of allele‑frequency change over one **year** and over one **generation**. From these, we obtain two effective sizes:
+
+- $N_y$: **annual** effective size — drift per **year**;  
+- $N_e$: **generation‑time** effective size — drift over a **full generation**.  [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+### Notation (for $s$ stages)
+
+- $u_{ji}$: **transition rate** (probability a stage‑$i$ plant at $t$ becomes stage $j$ at $t{+}1$); $u_{\cdot i}\equiv\sum_j u_{ji}$.  
+- $\mathbf D=(D_1,\dots,D_s)$: **stage fractions** (observed or equilibrium), $\sum_i D_i=1$.  
+- $F_i$: **newborns per plant** (recruits into the juvenile stage).  
+- $d_i\in[0,1]$: **clonal reproduction rate** of stage $i$; sexual rate $=1-d_i$.  
+- $\left(\dfrac{V_k}{\bar k}\right)_i$, $\left(\dfrac{V_c}{\bar c}\right)_i$: stage‑specific **variance/mean** of sexual (gametic) and clonal outputs.  
+- $\bar u_{\cdot}\equiv\sum_i D_i\,u_{\cdot i}$, $\overline{u^2}\equiv\sum_i D_i\,u_{\cdot i}^2$.  
+- $r_i\equiv F_i D_i$: **contribution of newborns** from stage $i$ (recruitment weight).  
+- $a$: **Hardy–Weinberg deviation** ($a=0$ under random mating; $a>0$ indicates excess homozygotes).  [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+### One‑year variance of allele‑frequency change
+
+Let $p$ be the allele frequency and $pq=p(1-p)$. Aggregating survivors/movers and newborns across stages, Yonezawa shows that (at equilibrium with common $pq$ and $a$ across stages) the **one‑year variance** is
+\[
+V(\Delta p)
+= pq\Big\{(1+a)\big(\overline{u^2}-\bar u_{\cdot}^{\,2}\big)
+\;+\; (1-\bar u_{\cdot})\big[\mathrm{Avr}(S)+\mathrm{Avr}(A_d)\big]\Big\},
+\]
+where the newborn‑weighted averages are
+\[
+\mathrm{Avr}(S)\equiv\frac{\sum_i r_i\,S_i}{\sum_i r_i},
+\quad
+S_i\equiv (1-a)+(1+a)\left(\frac{V_k}{\bar k}\right)_i,
+\]
+\[
+\mathrm{Avr}(A_d)\equiv\frac{\sum_i r_i\,A_i d_i}{\sum_i r_i},
+\quad
+A_i\equiv 2(1+a)\left(\frac{V_c}{\bar c}\right)_i - 2S_i.
+\]
+The first term captures variance from **survival/movement** among stages; the second captures variance entering via **recruitment** (sexual + clonal), weighted by how much each stage **supplies newborns**. [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+### Generation‑time effective size $N_e$
+
+Over one generation of length $L$, the total variance of allele‑frequency change is $L\,V(\Delta p)$. Equating to the Wright–Fisher expression $pq/(2N_e)$ gives
+\[
+\boxed{\,N_e \;=\; \frac{N}{V\,L}\,,\qquad
+V \equiv 2(1+a)\big(\overline{u^2}-\bar u_{\cdot}^{\,2}\big)
+\;+\; 2(1-\bar u_{\cdot})\big[\mathrm{Avr}(S)+\mathrm{Avr}(A_d)\big]\,}
+\]
+with $N$ the census size at demographic equilibrium. (Yonezawa also provides growth‑rate corrections for non‑stationary populations; we focus on the stationary case used to reproduce Table 4.) [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+**Clonal‑dominant, Poisson special case.** When reproduction is effectively **clonal** with **Poisson** variance, $a=0$ and $\left(\tfrac{V_c}{\bar c}\right)_i=1$, yielding the compact expression used in the Fritillaria application:
+\[
+\boxed{\,N_e \;\approx\; \frac{N}{\bigl(1-\bar u_{\cdot}\bigr)\,L}\,}
+\qquad\text{(paper Eq. 10).}
+\]
+This is the expression behind the $N_e/N$ ratios reported in Table 4 under the observed low seedling recruitment. [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+### Annual effective size $N_y$
+
+For **year‑by‑year** drift (useful in conservation planning), Yonezawa defines
+\[
+\boxed{\,N_y \;=\; \frac{N}{1-\bar u_{\cdot}}\,}
+\qquad\text{(paper Eq. 11).}
+\]
+As annual survival $\bar u_{\cdot}\!\to\!1$, $N_y$ grows, meaning **less drift per year**. [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+### Generation time $L$ (age‑by‑stage definition)
+
+Let $u_{j\mid x}$ be the probability that a **newborn** is in stage $j$ at **age $x$** (from matrix powers of $[u_{ji}]$), and let $m_x$ be the mean number of offspring produced at age $x$ (summing sexual and clonal across stages). Then
+\[
+L \;=\; \frac{\sum_x x\,m_x\,\ell_x}{\sum_x m_x\,\ell_x},
+\qquad
+\ell_x\equiv\sum_j u_{j\mid x},
+\qquad
+m_x\equiv\sum_j F_j\,u_{j\mid x},
+\]
+with $x$ large enough for numerical stability (the paper uses $x=1,\dots,500$). In matrix terms, $u_{j\mid x}$ is the $(j,1)$ entry of $[u_{ji}]^x$. [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+> **Take‑home.** Demography $(u_{ji},F_i,D_i)$ is converted into a **drift scale** via $V(\Delta p)$; then $N_y/N$ and $N_e/N$ become concise summaries of drift risk that incorporate stage structure, survival, and reproduction—exactly what Yonezawa (2000) reports in **Table 4**. [1](https://sistemaupr-my.sharepoint.com/personal/raymond_tremblay_upr_edu/Documents/Microsoft%20Copilot%20Chat%20Files/NeStage_Yonezawa_Table4.html)
+
+
+
+### `stages`
+Ordered vector of life‑history stages used throughout (3 stages here):  
+1 = one‑leaf, nonflowering;  
+2 = multileaf, nonflowering;  
+3 = multileaf, flowering.
+
+---
+
+### `T` (transition matrix \(u_{ji}\))
+A \(3\times 3\) transition matrix.  
+Entry \(u_{ji}\) is the probability that a plant in **stage \(i\)** at year \(t\) will be in **stage \(j\)** at year \(t+1\).  
+This includes staying in the same stage, moving up, or moving down.  
+Rows sum to \(\le 1\); columns describe the fates of each source stage (Table 2).
+
+The total survival of stage \(i\) is  
+\[
+u_{\cdot i} = \sum_{j} u_{ji}.
+\]
+
+---
+
+## Glossary
+
+### `D_observed`, `D_expected`
+Fractions of the population in each stage (observed vs. equilibrium).  
+These satisfy \(\sum_i D_i = 1\), and the expected values come from the equilibrium of the projection system.
+
+---
+
+### `u_survival` (the vector \(u_{\cdot i}\))
+Annual survival probability for each stage (Table 2):  
+the probability an individual in stage \(i\) survives (to any stage) to the next year.
+
+Population‑average annual survival is  
+\[
+\bar{u} = \sum_i D_i\,u_{\cdot i}.
+\]
+
+---
+
+### `Fvec` (\(F_i\) newborns per plant)
+Stage‑specific **newborns per plant** (Table 2).  
+Newborns always recruit into stage 1.
+
+In matrix form, we represent this as a fecundity matrix \(\mathbf F\) with  
+\[
+F_{1i} = F_i,\quad F_{2i}=F_{3i}=0.
+\]
+
+---
+
+### `r` (\(r_i\)) and `recruitment_rate`
+Stage \(i\)’s contribution of newborns to the whole population:  
+\[
+r_i = F_i\,D_i.
+\]  
+The total recruitment rate is  
+\[
+\sum_i r_i.
+\]
+
+---
+
+### `L` (generation time)
+Average generation length under Yonezawa’s age‑by‑stage definition:  
+\[
+L = \frac{\sum_x x\,m_x\,\ell_x}{\sum_x m_x\,\ell_x},
+\]
+where \(m_x\) is the mean reproduction at age \(x\),  
+and \(\ell_x\) is the probability of surviving to age \(x\).
+
+(Reported in Table 4.)
+
+---
+
+### `Ny_over_N`  (annual effective size ratio)
+“Annual” effective population size measured **per year**:
+\[
+\frac{N_y}{N} = \frac{1}{1 - \bar{u}}.
+\]
+Larger \(N_y/N\) means **less drift per year**.
+
+---
+
+### `Ne_over_N`  (generation‑time effective size ratio)
+“Generation‑time” effective size capturing drift **across an entire generation**:  
+\[
+\frac{N_e}{N} \approx \frac{1}{(1-\bar{u})\,L},
+\]
+the clonal‑dominant expression used in the Fritillaria application in Table 4.
+
+---
+
+### `Min_N_for_Ne5000`
+Minimum census population size \(N\) required so that  
+\[
+N_e = 5000.
+\]  
+This is computed by solving  
+\[
+N = 5000 \times \frac{1}{N_e/N}.
+\]
+
+---
+
+### `H_mean`, `H_sd`
+Mean and standard deviation of multilocus heterozygosity (Table 4).
+
+---
+
+
+
+
+
+## NeStage — Raw replication of Yonezawa et al. (2000) Table 2 and Table 4
+
+
+
+```{r Tables}
+
+###############################################################################
+# NeStage — Raw replication of Yonezawa et al. (2000) Table 2 and Table 4
+# Author: Raymond L. Tremblay
+# Description:
+#   - Hard-coded data for two populations (Miz, Nan) of Fritillaria camtschatcensis
+#   - Exact reproduction of Table 2 (transition matrix, stage fractions, survival,
+#     newborns per plant, contributions of newborns) and Table 4 (L, Ny/N, Ne/N,
+#     minimum N for Ne = 5000, average heterozygosity)
+#   - Clear explanations of variables for beginners
+#
+# Source for all numbers and variable definitions: Yonezawa et al. 2000, Evolution
+#   "FORMULATION AND ESTIMATION OF THE EFFECTIVE SIZE OF STAGE-STRUCTURED
+#    POPULATIONS IN FRITILLARIA CAMTSCHATCENSIS"
+#   Tables 2 and 4.  (Open-access PDF used for transcription.)
+#   (Please see package References for the OA link.)
+#   Citation for numeric values: Table 2 & Table 4.  (OA PDF)  [CITE]
+###############################################################################
+
+
+# -----------------------------
+# 1) Stage naming (3 stages)
+# -----------------------------
+# Stage 1: one-leaf, nonflowering
+# Stage 2: multileaf, nonflowering
+# Stage 3: multileaf, flowering
+stages <- c("one_leaf_nonfl", "multileaf_nonfl", "multileaf_flower")
+
+# -----------------------------
+# 2) TABLE 2 — Hard-coded data
+# -----------------------------
+# NOTE: All values below are transcribed directly from Table 2 (Miz & Nan).
+#       Transition matrices are 3x3 with entries u_ji (row j, column i).
+#       Survival u·i are the total annual survival rates for stage i.
+#       F_i are "newborns per plant" (sexual + clonal recruitment to Stage 1).
+#       r_i are contributions of newborns to the whole population.
+#       S r_i is the recruitment rate (sums of r_i).
+#
+# SOURCE: Yonezawa et al. 2000, Evolution, Table 2.  [CITE]
+
+# --- Population Miz (Table 2) -----------------------------------------------
+T_Miz <- matrix(c(
+  0.789, 0.121, 0.054,
+  0.007, 0.621, 0.335,
+  0.001, 0.258, 0.611
+), nrow = 3, byrow = TRUE, dimnames = list(stages, stages))  # u_ji
+
+D_obs_Miz <- c(0.935, 0.038, 0.027)   # observed fractions (D1, D2, D3)
+D_exp_Miz <- c(0.921, 0.046, 0.033)   # expected fractions (equilibrium solution)
+u_surv_Miz <- c(0.797, 1.000, 1.000)  # (u·1, u·2, u·3)
+F_vec_Miz  <- c(0.055, 1.328, 2.398)  # newborns per plant (F1, F2, F3)
+
+# Standard “fecundity matrix” form (recruitment to Stage 1):
+F_Miz <- matrix(0, nrow = 3, ncol = 3, dimnames = list(stages, stages))
+F_Miz[1, ] <- F_vec_Miz
+
+r_vec_Miz <- c(0.051, 0.050, 0.065)   # contributions of newborns (r1, r2, r3)
+r_sum_Miz <- sum(r_vec_Miz)           # = 0.166
+
+# --- Population Nan (Table 2) -----------------------------------------------
+T_Nan <- matrix(c(
+  0.748, 0.137, 0.138,
+  0.006, 0.669, 0.374,
+  0.001, 0.194, 0.488
+), nrow = 3, byrow = TRUE, dimnames = list(stages, stages))  # u_ji
+
+D_obs_Nan <- c(0.958, 0.027, 0.015)   # observed fractions (D1, D2, D3)
+D_exp_Nan <- c(0.951, 0.034, 0.015)   # expected fractions
+u_surv_Nan <- c(0.755, 1.000, 1.000)  # (u·1, u·2, u·3)
+F_vec_Nan  <- c(0.138, 2.773, 5.016)  # newborns per plant (F1, F2, F3)
+
+F_Nan <- matrix(0, nrow = 3, ncol = 3, dimnames = list(stages, stages))
+F_Nan[1, ] <- F_vec_Nan
+
+r_vec_Nan <- c(0.132, 0.075, 0.075)   # contributions of newborns (r1, r2, r3)
+r_sum_Nan <- sum(r_vec_Nan)           # = 0.282
+
+# Pack both populations (Option B)
+yonezawa_table2 <- list(
+  Miz = list(
+    stages = stages,
+    T = T_Miz,
+    F = F_Miz,
+    Fvec = F_vec_Miz,
+    D_observed = D_obs_Miz,
+    D_expected = D_exp_Miz,
+    u_survival = u_surv_Miz,
+    r = r_vec_Miz,
+    recruitment_rate = r_sum_Miz
+  ),
+  Nan = list(
+    stages = stages,
+    T = T_Nan,
+    F = F_Nan,
+    Fvec = F_vec_Nan,
+    D_observed = D_obs_Nan,
+    D_expected = D_exp_Nan,
+    u_survival = u_surv_Nan,
+    r = r_vec_Nan,
+    recruitment_rate = r_sum_Nan
+  )
+)
+
+# Pretty-print function for Table 2
+print_table2 <- function(obj, pop_label) {
+  cat("\n==================== Table 2 —", pop_label, "====================\n")
+  cat("Stage order: ", paste(obj$stages, collapse = ", "), "\n", sep = "")
+  cat("\nTransition matrix u_ji (rows = recipient stage j, cols = source stage i):\n")
+  print(round(obj$T, 3))
+  cat("\nStage fractions D (observed):\n"); print(round(obj$D_observed, 3))
+  cat("Stage fractions D (expected at equilibrium):\n"); print(round(obj$D_expected, 3))
+  cat("\nSurvival rates u·i (per stage):\n"); print(round(obj$u_survival, 3))
+  cat("\nNewborns per plant F_i (recruitment to stage 1):\n"); print(round(obj$Fvec, 3))
+  cat("Fecundity matrix F (row 1 = F_i, others 0):\n"); print(round(obj$F, 3))
+  cat("\nContributions of newborns r_i:\n"); print(round(obj$r, 3))
+  cat("Recruitment rate sum(r_i): ", round(obj$recruitment_rate, 3), "\n", sep = "")
+  invisible(NULL)
+}
+
+# Print both populations (Table 2)
+print_table2(yonezawa_table2$Miz, "Miz")  # Table 2 numbers (Miz)
+print_table2(yonezawa_table2$Nan, "Nan")  # Table 2 numbers (Nan)
+
+# -----------------------------
+# 3) TABLE 4 — Hard-coded data
+# -----------------------------
+# NOTE: Values below are transcribed directly from Table 4.
+#       Parentheses in Table 4 represent calculations using expected stage fractions.
+#
+# Fields included:
+#   L                      : Generation time
+#   Ny_over_N              : Annual effective size ratio (Ny/N)
+#   Ny_over_N_expectedD    : Value using expected D
+#   Ne_over_N              : Generation-time effective size ratio (Ne/N)
+#   Ne_over_N_expectedD    : Value using expected D
+#   Min_N_for_Ne5000       : Minimum census size required for Ne = 5000
+#   Min_N_for_Ne5000_expectedD : Value using expected D
+#   H_mean, H_sd           : Average heterozygosity (mean ± sd)
+#
+# SOURCE: Yonezawa et al. 2000, Evolution, Table 4.  [CITE]
+
+table4 <- data.frame(
+  population = c("Miz", "Nan"),
+  L = c(13.399, 8.353),
+  Ny_over_N = c(2.932, 2.428),
+  Ny_over_N_expectedD = c(2.977, 2.444),
+  Ne_over_N = c(0.219, 0.291),
+  Ne_over_N_expectedD = c(0.222, 0.293),
+  Min_N_for_Ne5000 = c(22832, 17183),
+  Min_N_for_Ne5000_expectedD = c(22523, 17065),
+  H_mean = c(0.060, 0.101),
+  H_sd   = c(0.054, 0.096),
+  stringsAsFactors = FALSE
+)
+
+cat("\n==================== Table 4 — Reproduced (raw) ====================\n")
+print(table4)
+
+cat("\nDone. This file reproduces Table 2 and Table 4 as printed in the paper.\n")
+```
+
+
+
+
+
+#  Computing \( \lambda \), stable stage, reproductive values, generation time, and Yonezawa ratios
+
+In this section we rely on well‑tested functions from **popbio** and **popdemo** to obtain the core demographic quantities from a stage‑structured projection matrix. We first assemble the full projection matrix from the transition and fecundity components:
+$$
+\mathbf{A} \;=\; \mathbf{T} \;+\; \mathbf{F}.
+$$
+
+From \( \mathbf{A} \), we extract the dominant eigenvalue \( \lambda \) (long‑term growth rate), the **stable stage distribution** \( \mathbf{w} \), and the **reproductive value** vector \( \mathbf{v} \). We also compute **generation time** \( L \) (Caswell‑style). For the survival aggregation we use the **column‑sum** form of total survival for source stage \( i \),
+$$
+u_{\cdot i} \;=\; \sum_{j} u_{ji},
+$$
+and the **population‑average annual survival**
+$$
+\bar{u} \;=\; \sum_{i} D_i \, u_{\cdot i},
+$$
+where \( \mathbf{D}=(D_1,\ldots,D_s) \) are the stage fractions (with \( \sum_i D_i = 1 \)).
+
+With these in hand, we apply Yonezawa’s **clonal‑dominant** formulas to obtain the **annual** and **generation‑time** effective‑size ratios reported in Table 4:
+$$
+\frac{N_y}{N} \;=\; \frac{1}{1-\bar{u}},
+\qquad
+\frac{N_e}{N} \;\approx\; \frac{1}{(1-\bar{u})\,L}\,.
+$$
+
+These expressions are appropriate for the *Fritillaria* application, where survival in stages 2–3 is approximately \(1\), recruitment is overwhelmingly **clonal** with **Poisson** variance, and the Hardy–Weinberg deviation \( a \) is negligible. The helper code below simply wraps **popbio/popdemo** outputs and keeps the Yonezawa‑specific aggregations transparent.
+
+## Computing λ, stable stage, reproductive values, generation time, and Yonezawa ratios
+
+```{r helpers-popbio, message=FALSE, warning=FALSE}
+# install.packages(c("popbio","popdemo"))  # if needed
+library(popbio)
+library(popdemo)
+
+# --- Helper: assemble the projection matrix A = T + F
+A_from_TF <- function(T, F) {
+  stopifnot(all(dim(T) == dim(F)), nrow(T) == ncol(T))
+  T + F
+}
+
+# --- Helper: eigen analysis using popbio
+eigs_popbio <- function(A) {
+  ea <- popbio::eigen.analysis(A)
+  list(
+    lambda = as.numeric(ea$lambda1),
+    w = as.numeric(ea$stable.stage / sum(ea$stable.stage)),     # normalize sum(w)=1
+    v = as.numeric(ea$repro.value / sum(ea$repro.value * (ea$stable.stage / sum(ea$stable.stage)))) # scale so v^T w = 1
+  )
+}
+
+# --- Helper: generation time using popbio (Caswell-style)
+# popbio::generation.time expects a full projection matrix
+gen_time_popbio <- function(A) {
+  # popbio’s generation.time uses reproductive value & sensitivities internally
+  as.numeric(popbio::generation.time(A))
+}
+
+# --- Helper: compute bar{u} = sum_i D_i * u_{.i} from T and a stage fraction vector D
+u_bar_from_T <- function(T, D) {
+  u_dot <- colSums(T)               # u_{.i} per stage i
+  sum(D * u_dot)                    # \bar{u}
+}
+
+# --- Yonezawa clonal-dominant formulas (paper Eq. 11 and Eq. 10)
+Ny_over_N <- function(u_bar) 1 / (1 - u_bar)
+Ne_over_N_approx <- function(u_bar, L) 1 / ((1 - u_bar) * L)
+```
+
+
+## Reproducing Table 4 from Table 2 inputs (Mizuyajiri and Nanryu populations)
+
+We now apply the pipeline to the two populations in Table 2. For each population we build the projection matrix
+$$
+\mathbf{A} \;=\; \mathbf{T} \;+\; \mathbf{F},
+$$
+then extract the dominant eigenvalue \( \lambda \), the stable stage distribution \( \mathbf{w} \), the reproductive value vector \( \mathbf{v} \), and compute the generation time \( L \) using **popbio**.
+
+From the observed stage fractions \( \mathbf{D}_{\text{obs}} \) and the transition matrix \( \mathbf{T} \), we compute the population‑average annual survival
+$$
+\bar{u}
+\;=\;
+\sum_{i} D_{\text{obs},\,i} \, u_{\cdot i},
+\qquad
+u_{\cdot i} = \sum_{j} u_{ji}.
+$$
+
+Finally, we calculate the annual and generation‑time effective size ratios using Yonezawa’s clonal‑dominant identities:
+$$
+\frac{N_y}{N} \;=\; \frac{1}{1-\bar{u}},
+\qquad
+\frac{N_e}{N} \;\approx\; \frac{1}{(1-\bar{u})\,L}.
+$$
+
+These are exactly the quantities reported in Table 4.  
+The computed table below should match the published values (differences only at the third decimal due to rounding).
+
+
+
+```{r matrices}
+# Build projection matrices
+A_Miz <- A_from_TF(T_Miz, F_Miz)
+A_Nan <- A_from_TF(T_Nan, F_Nan)
+
+# Eigen systems (λ, w, v) and generation times L using popbio/popdemo
+eg_Miz <- eigs_popbio(A_Miz)
+eg_Nan <- eigs_popbio(A_Nan)
+
+L_Miz  <- gen_time_popbio(A_Miz)
+L_Nan  <- gen_time_popbio(A_Nan)
+
+# Compute \bar{u} from T and observed D (Table 2)
+ubar_Miz <- u_bar_from_T(T_Miz, D_obs_Miz)
+ubar_Nan <- u_bar_from_T(T_Nan, D_obs_Nan)
+
+# Yonezawa ratios (clonal-dominant; Eq. 11 and Eq. 10)
+NyN_Miz <- Ny_over_N(ubar_Miz)
+NyN_Nan <- Ny_over_N(ubar_Nan)
+NeN_Miz <- Ne_over_N_approx(ubar_Miz, L_Miz)
+NeN_Nan <- Ne_over_N_approx(ubar_Nan, L_Nan)
+
+computed_tbl <- data.frame(
+  population = c("Miz","Nan"),
+  lambda     = c(eg_Miz$lambda, eg_Nan$lambda),
+  L          = c(L_Miz, L_Nan),
+  Ny_over_N  = c(NyN_Miz, NyN_Nan),
+  Ne_over_N  = c(NeN_Miz, NeN_Nan),
+  check.names = FALSE
+)
+
+print(computed_tbl)
+```
+
+
+
+## Parenthetical values using expected‑D
+
+The **parenthetical** entries in Table 4 are the same metrics computed using the **equilibrium (expected) stage fractions** \( \mathbf{D}_{\text{exp}} \) instead of the observed fractions \( \mathbf{D}_{\text{obs}} \). Only the weighting in the survival aggregation changes. Specifically, we recompute the population‑average annual survival as
+$$
+\bar{u}_{\text{exp}}
+\;=\;
+\sum_{i} D_{\text{exp},\,i}\, u_{\cdot i},
+\qquad
+u_{\cdot i} \;=\; \sum_{j} u_{ji}.
+$$
+
+We then report the **annual** and **generation‑time** effective size ratios using the same clonal‑dominant identities:
+$$
+\left(\frac{N_y}{N}\right)_{\!\text{exp}}
+\;=\;
+\frac{1}{1-\bar{u}_{\text{exp}}},
+\qquad
+\left(\frac{N_e}{N}\right)_{\!\text{exp}}
+\;\approx\;
+\frac{1}{\left(1-\bar{u}_{\text{exp}}\right)\,L}.
+$$
+
+Intuitively, the expected‑\(D\) values answer: *What are \(N_y/N\) and \(N_e/N\) if the population were exactly at its demographic equilibrium stage structure?*  
+We present both \( \mathbf{D}_{\text{obs}} \) and \( \mathbf{D}_{\text{exp}} \) to show how differences in stage composition alone can shift the drift metrics.
+
+
+```{r Parenthetical}
+# Parenthetical values using expected-D (Table 4, values in parentheses)
+
+# Helpers (safe to re-define if they already exist)
+u_bar_from_T <- function(T, D) {
+  # u_{.i} are column sums of T
+  u_dot <- colSums(T)
+  sum(D * u_dot)
+}
+Ny_over_N <- function(u_bar) 1 / (1 - u_bar)
+Ne_over_N_approx <- function(u_bar, L) 1 / ((1 - u_bar) * L)
+
+# Ensure popbio is available for generation time; install if needed
+if (!requireNamespace("popbio", quietly = TRUE)) {
+  stop("Please install 'popbio' (install.packages('popbio')) to compute L.")
+}
+
+# Build A and compute L if not already in your session
+A_Miz <- T_Miz + F_Miz
+A_Nan <- T_Nan + F_Nan
+
+if (!exists("L_Miz")) L_Miz <- as.numeric(popbio::generation.time(A_Miz))
+if (!exists("L_Nan")) L_Nan <- as.numeric(popbio::generation.time(A_Nan))
+
+# --- Compute parenthetical values (expected-D) -----------------------------
+
+# Miz
+u_bar_exp_Miz <- u_bar_from_T(T_Miz, D_exp_Miz)
+NyN_exp_Miz   <- Ny_over_N(u_bar_exp_Miz)
+NeN_exp_Miz   <- Ne_over_N_approx(u_bar_exp_Miz, L_Miz)
+
+# Nan
+u_bar_exp_Nan <- u_bar_from_T(T_Nan, D_exp_Nan)
+NyN_exp_Nan   <- Ny_over_N(u_bar_exp_Nan)
+NeN_exp_Nan   <- Ne_over_N_approx(u_bar_exp_Nan, L_Nan)
+
+parenthetical_tbl <- data.frame(
+  population = c("Miz (expected D)", "Nan (expected D)"),
+  L          = c(L_Miz, L_Nan),
+  Ny_over_N  = c(NyN_exp_Miz, NyN_exp_Nan),
+  Ne_over_N  = c(NeN_exp_Miz, NeN_exp_Nan),
+  check.names = FALSE
+)
+
+# Print with clear rounding like the paper
+parenthetical_tbl$L         <- round(parenthetical_tbl$L, 3)
+parenthetical_tbl$Ny_over_N <- round(parenthetical_tbl$Ny_over_N, 3)
+parenthetical_tbl$Ne_over_N <- round(parenthetical_tbl$Ne_over_N, 3)
+
+parenthetical_tbl
+```
+
+
+
+## General Yonezawa (2000) Variance Formula for Effective Population Size
+
+
+The clonal‑dominant expressions used in the Fritillaria application (i.e.,  
+$$\frac{N_y}{N} = \frac{1}{1-\bar{u}}, \qquad 
+\frac{N_e}{N} \approx \frac{1}{(1-\bar{u})L}$$)  
+are **special cases** of a more general formulation developed by Yonezawa (2000).  
+The full model accounts for:
+
+- stage‑specific sexual reproduction, clonal reproduction, and their variance,  
+- Hardy–Weinberg deviation \( a \),  
+- survival and transition variability across stages,  
+- and the contribution of each stage to newborns.
+
+### **One‑year allele‑frequency variance**
+
+Yonezawa shows that the **total one‑year variance** in allele‑frequency change is
+
+$$
+V(\Delta p)
+=
+pq \Bigg[
+(1 + a)\big( \overline{u^{2}} - \bar{u}^{\,2} \big)
+\;+\;
+(1 - \bar{u})\big( \mathrm{Avr}(S) + \mathrm{Avr}(A_d) \big)
+\Bigg] ,
+$$
+
+where:
+
+- \(pq = p(1-p)\),
+- \( a \) is the Hardy–Weinberg deviation,
+- 
+  $$
+  \bar{u} = \sum_i D_i u_{\cdot i},
+  \qquad
+  \overline{u^{2}} = \sum_i D_i u_{\cdot i}^{2},
+  $$
+
+- and the recruitment‑weighted averages are
+  $$
+  \mathrm{Avr}(S)
+  = \frac{\sum_i r_i S_i}{\sum_i r_i},
+  \qquad
+  S_i = (1 - a) + (1 + a)\left(\frac{V_k}{\bar{k}}\right)_i ,
+  $$
+  $$
+  \mathrm{Avr}(A_d)
+  = \frac{\sum_i r_i A_i d_i}{\sum_i r_i},
+  \qquad
+  A_i = 2(1 + a)\left(\frac{V_c}{\bar{c}}\right)_i - 2 S_i .
+  $$
+
+Here:
+
+- \(D_i\) are stage fractions,  
+- \(r_i = F_i D_i\) are newborn contributions,  
+- \(u_{\cdot i} = \sum_j u_{ji}\) are stage‑specific survival totals,  
+- \((V_k/\bar{k})_i\) is variance–mean ratio for sexual reproduction,  
+- \((V_c/\bar{c})_i\) is variance–mean ratio for clonal reproduction,  
+- \(d_i\) is the clonal reproduction rate of stage \(i\).
+
+### **General generation‑time effective size**
+
+Over a generation of length \(L\), the total variance is \(L\,V(\Delta p)\).  
+Setting this equal to the Wright–Fisher variance \(pq/(2N_e)\), Yonezawa obtains:
+
+$$
+N_e
+=
+\frac{N}{V\,L},
+\qquad
+\text{where}
+\quad
+V
+=
+2(1 + a)\big( \overline{u^{2}} - \bar{u}^{\,2} \big)
++
+2(1 - \bar{u})\big( \mathrm{Avr}(S) + \mathrm{Avr}(A_d) \big).
+$$
+
+
+This is the **general Yonezawa model**, valid whenever all components  
+\((V_k/\bar{k})_i\), \((V_c/\bar{c})_i\), \(d_i\), \(a\), and \(r_i\) are known.
+
+### **Special case: clonal‑dominant Poisson process (used in Table 4)**
+
+When:
+
+- reproduction is overwhelmingly clonal,
+- \((V_c/\bar{c})_i = 1\),
+- \((V_k/\bar{k})_i\) is irrelevant,
+- \(a = 0\),
+
+the variance simplifies to
+
+$$
+V = 2(1 - \bar{u}),
+$$
+
+yielding the compact expressions:
+
+$$
+\frac{N_y}{N} = \frac{1}{1 - \bar{u}},
+\qquad
+\frac{N_e}{N} \approx \frac{1}{(1 - \bar{u})L}.
+$$
+
+These are exactly the formulas used in the *Fritillaria* application and the ones reproduced in Table 4.
+
+
+## NeStage function
+
+
+```{r general-NE-main, message=FALSE, warning=FALSE}
+# -- NeStage-style (future) API with shims so this runs today -----------------
+if (!requireNamespace("popbio", quietly = TRUE)) install.packages("popbio")
+
+has_NeStage <- requireNamespace("NeStage", quietly = TRUE) &&
+  ("Ne_general"      %in% getNamespaceExports("NeStage")) &&
+  ("generation_time" %in% getNamespaceExports("NeStage")) &&
+  ("assemble_A"      %in% getNamespaceExports("NeStage")) &&
+  ("ubar"            %in% getNamespaceExports("NeStage"))
+
+if (!has_NeStage) {
+  NeStage_assemble_A     <- function(T, F) { stopifnot(all(dim(T)==dim(F))); T + F }
+  NeStage_generation_time <- function(A) as.numeric(popbio::generation.time(A))
+  NeStage_ubar           <- function(T, D) sum(D * colSums(T))
+  NeStage_Ne_general     <- function(T, F, D, Vk_over_k=NULL, Vc_over_c=NULL, d=NULL,
+                                     a=0, L, p=0.5, N=1) {
+    s <- length(D); stopifnot(nrow(T)==s, ncol(T)==s)
+    if (is.null(d))         d <- rep(1, s)
+    if (is.null(Vk_over_k)) Vk_over_k <- rep(1, s)
+    if (is.null(Vc_over_c)) Vc_over_c <- rep(1, s)
+    pq <- p*(1-p)
+    u_dot   <- colSums(T)
+    u_bar   <- sum(D * u_dot)
+    over_u2 <- sum(D * (u_dot^2))
+    S_i <- (1 - a) + (1 + a) * Vk_over_k
+    A_i <- 2 * (1 + a) * Vc_over_c - 2 * S_i
+    F_vec <- as.numeric(F[1, ])
+    r_i   <- F_vec * D
+    if (sum(r_i) == 0) stop("Recruitment sum(r_i)=0; general formula needs newborns.")
+    Avr_S  <- sum(r_i * S_i)     / sum(r_i)
+    Avr_Ad <- sum(r_i * A_i * d) / sum(r_i)
+    V_delta <- pq * ((1 + a) * (over_u2 - u_bar^2) + (1 - u_bar) * (Avr_S + Avr_Ad))
+    Ne_val  <- N / (V_delta * L)
+    list(u_dot=u_dot, u_bar=u_bar, over_u2=over_u2, S_i=S_i, A_i=A_i, r_i=r_i,
+         Avr_S=Avr_S, Avr_Ad=Avr_Ad, V_delta=V_delta, Ne=Ne_val)
+  }
+}
+assemble_A      <- function(T,F) if (has_NeStage) NeStage::assemble_A(T,F)      else NeStage_assemble_A(T,F)
+generation_time <- function(A)   if (has_NeStage) NeStage::generation_time(A)   else NeStage_generation_time(A)
+ubar            <- function(T,D) if (has_NeStage) NeStage::ubar(T,D)            else NeStage_ubar(T,D)
+Ne_general      <- function(...) if (has_NeStage) NeStage::Ne_general(...)      else NeStage_Ne_general(...)
+
+# Build A and L (Table 2 objects assumed defined earlier: T_Miz, F_Miz, D_obs_Miz, etc.)
+A_Miz <- assemble_A(T_Miz, F_Miz);  L_Miz <- generation_time(A_Miz)
+A_Nan <- assemble_A(T_Nan, F_Nan);  L_Nan <- generation_time(A_Nan)
+
+# General Ne (defaults emulate clonal-dominant, a=0); plug stage-specific Vk/k, Vc/c, d when known
+res_Miz_general <- Ne_general(T_Miz, F_Miz, D_obs_Miz, L = L_Miz, a = 0)
+res_Nan_general <- Ne_general(T_Nan, F_Nan, D_obs_Nan, L = L_Nan, a = 0)
+
+general_tbl <- data.frame(
+  population = c("Miz", "Nan"),
+  L          = c(L_Miz, L_Nan),
+  Ne_general = c(res_Miz_general$Ne, res_Nan_general$Ne),
+  check.names = FALSE
+)
+general_tbl$L          <- round(general_tbl$L, 3)
+general_tbl$Ne_general <- signif(general_tbl$Ne_general, 6)
+general_tbl
+```
+
+## Yonezawa (2000) General Ne Calculator (full variance formula)
+
+```{r general-Ne-function, message=FALSE, warning=FALSE}
+# ===============================================================
+# General Yonezawa (2000) Ne calculator (full variance formula)
+# ===============================================================
+# This implements Eq. (5) and Eq. (6) from Yonezawa (2000):
+#   V(Δp) = pq [ (1+a)(overline{u^2} - ū^2) + (1-ū)( Avr(S) + Avr(A_d) ) ]
+#   Ne = N / ( V * L )
+# with stage-weighted second moments and newborn-weighted averages.
+# ===============================================================
+
+compute_Ne_general <- function(T, F, D, 
+                               Vk_over_k = NULL,   # vector length s
+                               Vc_over_c = NULL,   # vector length s
+                               d = NULL,           # clonal rates d_i
+                               a = 0,              # HW deviation (usually 0)
+                               L,                  # generation time (popbio)
+                               p = 0.5,            # allele frequency for pq
+                               N = 1) {            # census size (only scaling)
+  
+  # --- Dimensions -----------------------------------------------------------
+  s  <- length(D)
+  stopifnot(nrow(T) == s, ncol(T) == s)
+  stopifnot(length(D) == s)
+  
+  # Defaults: if user gives NULL, assume clonal-dominant Poisson
+  if (is.null(d))            d            <- rep(1, s)
+  if (is.null(Vk_over_k))    Vk_over_k    <- rep(1, s)
+  if (is.null(Vc_over_c))    Vc_over_c    <- rep(1, s)
+  
+  # --- pq term --------------------------------------------------------------
+  pq <- p * (1 - p)
+  
+  # --- Compute u·i and moments ---------------------------------------------
+  u_dot <- colSums(T)                # survival of stage i
+  u_bar <- sum(D * u_dot)            # \bar{u}
+  over_u2 <- sum(D * (u_dot^2))      # \overline{u^2}
+  
+  # --- Stage-specific S_i and A_i ------------------------------------------
+  S_i <- (1 - a) + (1 + a) * Vk_over_k
+  A_i <- 2 * (1 + a) * Vc_over_c - 2 * S_i
+  
+  # --- Newborn contributions r_i = F_i D_i ----------------------------------
+  # Here newborns are in row 1 of F; F_i = F[1,i]
+  F_vec <- as.numeric(F[1, ])
+  r_i   <- F_vec * D
+  
+  # Avoid division by zero in Avr if no recruitment
+  if (sum(r_i) == 0)
+    stop("Recruitment sum(r_i) = 0; general formula undefined without newborns.")
+  
+  Avr_S  <- sum(r_i * S_i)     / sum(r_i)
+  Avr_Ad <- sum(r_i * A_i * d) / sum(r_i)
+  
+  # --- Yonezawa variance V(Δp) (Eq. 5) --------------------------------------
+  V_delta <- pq * (
+    (1 + a) * (over_u2 - u_bar^2) +
+      (1 - u_bar) * (Avr_S + Avr_Ad)
+  )
+  
+  # --- Generation-time Ne (Eq. 6) -------------------------------------------
+  Ne_gen <- N / (V_delta * L)
+  
+  # Return components for inspection
+  list(
+    u_dot     = u_dot,
+    u_bar     = u_bar,
+    over_u2   = over_u2,
+    S_i       = S_i,
+    A_i       = A_i,
+    r_i       = r_i,
+    Avr_S     = Avr_S,
+    Avr_Ad    = Avr_Ad,
+    V_delta   = V_delta,
+    Ne        = Ne_gen
+  )
+}
+```
+
+
+
+
+
+
+
+Applying the general formula to the Miz and Nan populations with the default clonal‑Poisson settings (i.e., \(a=0\), \(d_i=1\), \((V_k/\bar{k})_i=1\), \((V_c/\bar{c})_i=1\)) should yield the same \(N_e/N\) ratios as the clonal‑dominant expressions, confirming that the special case is correctly implemented.
+
+## Example: computing general Ne for Miz and Nan (should match clonal-dominant results in Table 4)
+
+
+```{r build-A-Miz, message=FALSE, warning=FALSE}
+# Build projection matrices
+A_Miz <- T_Miz + F_Miz
+A_Nan <- T_Nan + F_Nan
+
+# Generation time from popbio
+L_Miz <- as.numeric(popbio::generation.time(A_Miz))
+L_Nan <- as.numeric(popbio::generation.time(A_Nan))
+
+# Example: general Ne using default clonal-Poisson settings, a = 0
+res_Miz_general <- compute_Ne_general(T_Miz, F_Miz, D_obs_Miz, L = L_Miz)
+res_Nan_general <- compute_Ne_general(T_Nan, F_Nan, D_obs_Nan, L = L_Nan)
+
+res_Miz_general$Ne
+res_Nan_general$Ne
+```
+

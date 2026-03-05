@@ -1,0 +1,130 @@
+## scripts/01_nestage_core.R
+
+nestage_version <- function() "v0.6.0"
+
+nestage_check_matrix <- function(A) {
+  stopifnot(is.matrix(A), is.numeric(A), nrow(A) == ncol(A))
+  if (any(!is.finite(A))) stop("Matrix contains non-finite values.")
+  invisible(TRUE)
+}
+
+# Dominant eigenvalue (lambda)
+.nestage_lambda <- function(A) Re(eigen(A)$values[1])
+
+# ====== TEMPORARY ESTIMATOR ======
+# Replace this function with your TRUE v0.6.0 NyN/NeN/(L) math.
+.nestage_estimate_core <- function(A, compute_L = FALSE) {
+  eig <- eigen(A)
+  w <- Re(eig$vectors[, 1]); w <- w / sum(w)         # stable stage dist
+  v <- Re(eigen(t(A))$vectors[, 1]); v <- v / sum(v * w)  # v^T w = 1
+
+  NyN <- sum(v * w)
+  NeN <- (sum(v * w))^2 / sum((v^2) * w)
+
+  L <- if (isTRUE(compute_L)) {
+    idx <- seq_along(w)
+    sum(idx * v * w) / sum(v * w)
+  } else NA_real_
+
+  list(NyN = as.numeric(NyN), NeN = as.numeric(NeN), L = as.numeric(L))
+}
+# =================================
+
+nestage_exact <- function(A_obs, meta = list()) {
+  nestage_check_matrix(A_obs)
+  est <- .nestage_estimate_core(A_obs, compute_L = FALSE)
+  list(
+    model   = "Exact-Observed",
+    NyN     = est$NyN,
+    NeN     = est$NeN,
+    L       = est$L,                 # NA by design for exact
+    lambda  = .nestage_lambda(A_obs),
+    version = nestage_version(),
+    meta    = meta
+  )
+}
+
+nestage_expected <- function(A_exp, meta = list()) {
+  nestage_check_matrix(A_exp)
+  est <- .nestage_estimate_core(A_exp, compute_L = FALSE)
+  list(
+    model   = "Exact-Expected",
+    NyN     = est$NyN,
+    NeN     = est$NeN,
+    L       = est$L,                 # NA by design for exact
+    lambda  = .nestage_lambda(A_exp),
+    version = nestage_version(),
+    meta    = meta
+  )
+}
+
+nestage_sex_only <- function(A_obs, repro_stage, frac_repro = 0.10, meta = list()) {
+  nestage_check_matrix(A_obs)
+  stopifnot(is.numeric(repro_stage), all(repro_stage %in% seq_len(nrow(A_obs))))
+  stopifnot(is.numeric(frac_repro), frac_repro > 0, frac_repro < 1)
+
+  # ====== TEMPORARY SEX-ONLY TRANSFORM ======
+  # Keep only fecundity in the reproductive column; zero vegetative block.
+  A_sex <- matrix(0, nrow(A_obs), ncol(A_obs))
+  A_sex[1, repro_stage] <- A_obs[1, repro_stage] * frac_repro
+  # ==========================================
+
+  est <- .nestage_estimate_core(A_sex, compute_L = TRUE)
+  list(
+    model   = sprintf("Sex-only (%.0f%% stage)", 100 * frac_repro),
+    NyN     = est$NyN,
+    NeN     = est$NeN,
+    L       = est$L,
+    lambda  = .nestage_lambda(A_sex),
+    version = nestage_version(),
+    meta    = c(meta, list(repro_stage = repro_stage, frac_repro = frac_repro))
+  )
+}
+
+nestage_run_all <- function(A_obs, A_exp = NULL, repro_stage, frac_repro = 0.10, meta = list()) {
+  out <- list(
+    nestage_exact(A_obs, meta),
+    if (!is.null(A_exp)) nestage_expected(A_exp, meta) else NULL,
+    nestage_sex_only(A_obs, repro_stage, frac_repro, meta)
+  )
+  out <- out[!vapply(out, is.null, logical(1))]
+  # to tidy data.frame
+  td <- do.call(rbind, lapply(out, function(x) {
+    data.frame(
+      population = if (!is.null(x$meta$population)) x$meta$population else NA_character_,
+      model      = x$model,
+      NyN        = x$NyN,
+      NeN        = x$NeN,
+      L          = x$L,
+      lambda     = x$lambda,
+      version    = x$version,
+      stringsAsFactors = FALSE
+    )
+  }))
+  rownames(td) <- NULL
+  td
+}
+
+nestage_compare <- function(df) {
+  split(df, df$population) |> lapply(function(dd) {
+    eo <- dd[dd$model == "Exact-Observed", , drop = FALSE]
+    so <- dd[grepl("^Sex-only", dd$model), , drop = FALSE]
+    ex <- dd[dd$model == "Exact-Expected", , drop = FALSE]
+    bind <- function(a, b, tag) {
+      if (nrow(a) == 1 && nrow(b) == 1) {
+        data.frame(
+          population = a$population,
+          compare    = tag,
+          d_NyN      = b$NyN - a$NyN,
+          fc_NyN     = b$NyN / a$NyN,
+          d_NeN      = b$NeN - a$NeN,
+          fc_NeN     = b$NeN / a$NeN,
+          d_L        = b$L - a$L,
+          stringsAsFactors = FALSE
+        )
+      } else NULL
+    }
+    rbind(bind(eo, so, "Sex-only vs Exact-Observed"),
+          if (nrow(ex) == 1) bind(eo, ex, "Exact-Expected vs Exact-Observed"))
+  }) |> do.call(what = rbind)
+}

@@ -13,13 +13,15 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-
 Depends: R (>= 4.1)
 Imports:
     stats,
     utils
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0),
     ggplot2
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 

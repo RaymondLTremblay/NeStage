@@ -1,11 +1,11 @@
 Package: NeStage
 Title: Variance Effective Population Size for Stage-Structured Populations
-Version: 0.6.1
+Version: 0.7.0
 Authors@R: 
     person("Raymond L.", "Tremblay",
            email = "raymond.tremblay@upr.edu",
            role  = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-7570-0554"))
+           comment = c(ORCID = "0000-0002-8588-4372"))
 Description: Computes the variance effective population size (Ne) for
     stage-structured plant and animal populations following the framework of
     Yonezawa et al. (2000) <doi:10.1111/j.0014-3820.2000.tb01243.x>.

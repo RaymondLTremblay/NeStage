@@ -1,0 +1,394 @@
+---
+title: "NeStage: Quick Start Guide"
+author: "Raymond L. Tremblay"
+output:
+  html_document:
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    mathjax: default
+vignette: >
+  %\VignetteIndexEntry{NeStage: Quick Start Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  eval    = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+library(NeStage)
+```
+
+---
+
+# Overview
+
+This vignette shows the **minimum code needed** to run each of the three
+core NeStage functions. If you have your demographic data ready, you should
+be able to get results in under five minutes.
+
+For full mathematical background and replication of Yonezawa et al. (2000)
+Table 4, see `vignette("Ne_Yonezawa2000")`.
+
+---
+
+# What data do you need?
+
+All three functions share the same three core inputs. Before running any
+function, check that your data meets these requirements.
+
+## `T_mat` — Survival/transition matrix
+
+- A **square numeric matrix** of size *s* × *s*, where *s* is the number of
+  life-history stages (e.g., seedling, juvenile, adult = 3 stages).
+- Entry in row *j*, column *i* is the probability that an individual in
+  **stage *i*** this year is found in **stage *j*** next year.
+- **Column sums must be ≤ 1** (total annual survival per stage cannot
+  exceed 1).
+- No negative values, no `NA` or `Inf`.
+
+```{r tmat-example, eval=FALSE}
+# Example: 3-stage plant (seedling, juvenile, adult)
+T_mat <- matrix(c(
+  0.30, 0.05, 0.00,   # row 1: transitions INTO stage 1
+  0.40, 0.65, 0.10,   # row 2: transitions INTO stage 2
+  0.00, 0.20, 0.80    # row 3: transitions INTO stage 3
+), nrow = 3, byrow = TRUE)
+
+# Quick check: column sums must all be <= 1
+colSums(T_mat)   # should all be <= 1.0
+```
+
+## `F_vec` — Fecundity vector
+
+- A **numeric vector of length *s***: the mean number of offspring (or
+  clonal propagules) produced per individual per stage per year.
+- Must be **≥ 0** for all stages; at least one stage must have `F_vec > 0`.
+- For clonal populations: propagules (bulblets, stolons, etc.).
+- For sexual populations: seeds or juvenile recruits per adult per year.
+
+```{r fvec-example, eval=FALSE}
+# Example: only adults (stage 3) reproduce
+F_vec <- c(0.0, 0.5, 3.0)
+```
+
+## `D` — Stage frequency distribution
+
+- A **numeric vector of length *s***: the proportion of the population in
+  each stage. **Must sum to 1.**
+- Use observed field counts: `D <- counts / sum(counts)`
+- Or use the stable stage distribution from the transition matrix (see
+  `vignette("Ne_Yonezawa2000")` for details).
+
+```{r dvec-example, eval=FALSE}
+# Example: from field counts
+counts <- c(120, 50, 30)
+D <- counts / sum(counts)
+D        # c(0.60, 0.25, 0.15)
+sum(D)   # must equal 1
+```
+
+## `L` — Generation time (optional but recommended)
+
+- A **single positive number**: the mean generation time in years.
+- If you **supply `L`** directly from a published source, it is used as-is
+  (recommended for replicating published results).
+- If you **omit `L`**, it is computed internally from `T_mat` and `F_vec`
+  using the Yonezawa (2000) definition (iterates to age 500).
+
+## Quick data checklist
+
+| Input   | Type           | Length / Size    | Constraint          |
+|---------|----------------|------------------|---------------------|
+| `T_mat` | numeric matrix | *s* × *s*        | col sums ≤ 1, ≥ 0   |
+| `F_vec` | numeric vector | *s*              | ≥ 0, at least one > 0 |
+| `D`     | numeric vector | *s*              | sums to 1, ≥ 0      |
+| `L`     | numeric scalar | 1                | > 0 (optional)      |
+
+---
+
+# `Ne_clonal_Y2000()` — Purely clonal populations
+
+Use this function when your population reproduces **exclusively through
+clonal means** (bulblets, stolons, rhizomes, vegetative fragmentation) and
+sexual reproduction contributes nothing to recruitment.
+
+It implements Equations 10 and 11 of Yonezawa et al. (2000) and returns
+`Ne/N` (generation-time effective size ratio), `Ny/N` (annual effective
+size ratio), and the minimum census size `Min_N` needed to achieve your
+`Ne_target`.
+
+```{r clonal-example}
+library(NeStage)
+
+# --- Your data goes here ---
+T_mat <- matrix(c(
+  0.789, 0.121, 0.054,
+  0.007, 0.621, 0.335,
+  0.001, 0.258, 0.611
+), nrow = 3, byrow = TRUE)
+
+F_vec <- c(0.055, 1.328, 2.398)   # clonal propagules per stage per year
+D     <- c(0.935, 0.038, 0.027)   # observed stage fractions (must sum to 1)
+L     <- 13.399                    # generation time (years); omit to compute
+
+# --- Run the function ---
+result <- Ne_clonal_Y2000(
+  T_mat      = T_mat,
+  F_vec      = F_vec,
+  D          = D,
+  L          = L,
+  Ne_target  = 5000,        # minimum Ne for long-term viability (Lande 1995)
+  population = "My population"
+)
+
+print(result)
+```
+
+### Key outputs
+
+| Output  | Meaning |
+|---------|---------|
+| `result$NeN`   | Ne/N — how large Ne is relative to census size N |
+| `result$NyN`   | Ny/N — annual effective size ratio |
+| `result$Min_N` | Minimum census N to achieve Ne >= `Ne_target` |
+| `result$L`     | Generation time used |
+| `result$u2_bar`| Stage-weighted mean of squared survivals (key intermediate) |
+
+---
+
+# `Ne_sexual_Y2000()` — Purely sexual populations
+
+Use this function when your population reproduces **exclusively through
+sexual means** (seeds, spores, offspring) and clonal reproduction plays
+no role. This applies to most vertebrates, annual plants, and outcrossing
+trees.
+
+It implements Equation 6 of Yonezawa (2000) with *d*_i = 0 (no clonal
+fraction). Note that `Ny/N` is **not** computed for sexual populations —
+it is defined only for the clonal model.
+
+```{r sexual-example}
+# --- Your data goes here ---
+T_mat <- matrix(c(
+  0.30, 0.05, 0.00,
+  0.40, 0.65, 0.10,
+  0.00, 0.20, 0.80
+), nrow = 3, byrow = TRUE)
+
+F_vec <- c(0.0, 0.5, 3.0)      # seeds/offspring per individual per stage
+D     <- c(0.60, 0.25, 0.15)   # observed stage fractions (must sum to 1)
+
+# --- Run the function ---
+result_sex <- Ne_sexual_Y2000(
+  T_mat      = T_mat,
+  F_vec      = F_vec,
+  D          = D,
+  # L omitted: computed internally from T_mat and F_vec
+  Ne_target  = 5000,
+  population = "My sexual population"
+)
+
+print(result_sex)
+```
+
+### Optional: adjust reproductive variance `Vk_over_k`
+
+The parameter `Vk_over_k` controls how **unequal reproductive success** is
+among individuals within each stage. It is the variance-to-mean ratio of
+sexual reproductive output, written (V_k / k-bar)_i for stage i.
+
+**The default is `Vk_over_k = 1` for all stages (Poisson variance).**
+This means every individual in a stage has an equal chance of reproducing —
+no individual is consistently a better or worse reproducer. This is a
+reasonable starting assumption when you have no data on reproductive
+inequality.
+
+**When should you increase it above 1?**
+- A few dominant plants produce most of the seeds while others produce few
+- Pollinators strongly prefer certain individuals over others
+- Resource limitation means only the largest or most competitive individuals
+  reproduce successfully in a given year
+- You have field data showing high variance in seed or offspring counts
+  among individuals of the same stage
+
+**What happens to Ne when `Vk_over_k` > 1?**
+Fewer individuals effectively contribute genes to the next generation, which
+means the population behaves genetically as if it were smaller than it
+actually is — Ne decreases. A value of 3 means the variance in reproductive
+output is three times what you would expect by chance.
+
+**In practice:**
+- `Vk_over_k = 1` — Poisson default, equal reproductive success
+- `Vk_over_k = 2` — moderate inequality, common in many plant populations
+- `Vk_over_k = 5+` — high inequality, e.g. wind-pollinated trees or
+  highly clumped resources
+  
+  
+```{r sexual-vk, eval=FALSE}
+# Stage 3 adults have high reproductive variance (pollinator-limited)
+# Stages 1 and 2 kept at Poisson default (= 1)
+result_highvar <- Ne_sexual_Y2000(
+  T_mat     = T_mat,
+  F_vec     = F_vec,
+  D         = D,
+  Vk_over_k = c(1, 1, 3),   # stage 3: Vk/k_bar = 3
+  Ne_target = 5000
+)
+print(result_highvar)
+# Ne/N will be lower than the Poisson default above
+```
+
+
+### Key outputs
+
+| Output  | Meaning |
+|---------|---------|
+| `result$NeN`        | Ne/N — generation-time effective size ratio |
+| `result$Min_N`      | Minimum census N for Ne >= `Ne_target` |
+| `result$V`          | Full variance term from Eq. 6 |
+| `result$V_component1` | Between-stage survival variance |
+| `result$V_component2` | Reproductive variance component |
+
+---
+
+# `Ne_mixed_Y2000()` — Mixed sexual + clonal populations
+
+Use this function when your population reproduces through **both sexual
+and clonal means**, with each stage potentially having a different mix.
+Examples include perennial herbs with both seeds and vegetative propagules,
+grasses producing seeds and tillers, and corals that spawn and fragment.
+
+It implements the full general Equation 6 of Yonezawa (2000). One
+additional required input compared to the other two functions is `d` —
+the per-stage clonal fraction.
+
+```{r mixed-example}
+# --- Your data goes here ---
+T_mat <- matrix(c(
+  0.30, 0.05, 0.00,
+  0.40, 0.65, 0.10,
+  0.00, 0.20, 0.80
+), nrow = 3, byrow = TRUE)
+
+F_vec <- c(0.0, 0.5, 3.0)      # total fecundity per stage (sexual + clonal)
+D     <- c(0.60, 0.25, 0.15)   # observed stage fractions (must sum to 1)
+
+# d: clonal fraction per stage
+#   d_i = 0   -> stage i reproduces entirely sexually
+#   d_i = 1   -> stage i reproduces entirely clonally
+#   d_i = 0.7 -> 70% of stage i reproduction is clonal
+d <- c(0.0, 0.0, 0.7)   # only adults (stage 3) reproduce clonally
+
+# --- Run the function ---
+result_mix <- Ne_mixed_Y2000(
+  T_mat      = T_mat,
+  F_vec      = F_vec,
+  D          = D,
+  d          = d,
+  # Vk_over_k and Vc_over_c default to rep(1, s) -- Poisson variance
+  Ne_target  = 5000,
+  population = "My mixed population"
+)
+
+print(result_mix)
+```
+
+### The `d` vector — most common source of confusion
+
+```{r d-examples, eval=FALSE}
+# All stages reproduce sexually only (equivalent to Ne_sexual_Y2000)
+d <- c(0, 0, 0)
+
+# All stages reproduce clonally only
+d <- c(1, 1, 1)
+
+# Only the largest stage (stage 3) has clonal reproduction
+d <- c(0, 0, 1)
+
+# Gradual increase in clonal fraction across stages
+d <- c(0.1, 0.4, 0.8)
+```
+
+### Key outputs
+
+| Output  | Meaning |
+|---------|---------|
+| `result$NeN`    | Ne/N — generation-time effective size ratio |
+| `result$Min_N`  | Minimum census N for Ne >= `Ne_target` |
+| `result$V`      | Full variance term from Eq. 6 |
+| `result$V_term1`| Between-stage survival variance |
+| `result$V_term2`| Sexual reproductive variance |
+| `result$V_term3`| Clonal reproductive variance (0 under Poisson defaults) |
+
+---
+
+# Which function should I use?
+
+| My population reproduces via...   | Function to use        |
+|-----------------------------------|------------------------|
+| Clonal only (no sexual)           | `Ne_clonal_Y2000()`    |
+| Sexual only (no clonal)           | `Ne_sexual_Y2000()`    |
+| Both sexual and clonal            | `Ne_mixed_Y2000()`     |
+| Unsure / want to compare          | Run all three and compare `Ne/N` |
+
+---
+
+# Interpreting the results
+
+A few benchmarks to help you interpret `Ne/N`:
+
+- **Ne/N ~ 0.10** is the empirical median across 102 wildlife species
+  (Frankham 1995). Values below this suggest higher-than-average genetic
+  vulnerability.
+- **Ne >= 50** is the short-term threshold to avoid inbreeding depression
+  (Franklin 1980).
+- **Ne >= 500** maintains quantitative genetic variation (Franklin 1980).
+- **Ne >= 5000** is the long-term evolutionary viability threshold
+  (Lande 1995) — the default `Ne_target` in all NeStage functions.
+
+The `Min_N` output tells you directly: *"Your population needs at least
+this many individuals to achieve your Ne target."*
+
+---
+
+# Next steps
+
+- For full mathematical derivations and replication of Yonezawa (2000)
+  Table 4, see `vignette("Ne_Yonezawa2000")`.
+- For sensitivity analysis (sweeping Vk, Vc, d, or L), see
+  `vignette("NeStage_sensitivity")`.
+- For full function documentation: `?Ne_clonal_Y2000`, `?Ne_sexual_Y2000`,
+  `?Ne_mixed_Y2000`.
+
+---
+
+# References
+
+Frankham R. (1995). Effective population size/adult population size ratios
+in wildlife: a review. *Genetical Research* **66**: 95--107.
+
+Franklin I.R. (1980). Evolutionary change in small populations. In:
+Soule M.E. & Wilcox B.A. (eds) *Conservation Biology: An
+Evolutionary-Ecological Perspective*. Sinauer Associates, pp. 135--149.
+
+Lande R. (1995). Mutation and conservation. *Conservation Biology*
+**9**: 728--791.
+
+Yonezawa K., Kinoshita E., Watano Y., and Zentoh H. (2000).
+Formulation and estimation of the effective size of stage-structured
+populations in *Fritillaria camtschatcensis*, a perennial herb with a
+complex life history. *Evolution* **54**(6): 2007--2013.
+<https://doi.org/10.1111/j.0014-3820.2000.tb01243.x>
+
+---
+
+```{r session-info}
+sessionInfo()
+```

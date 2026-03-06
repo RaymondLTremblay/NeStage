@@ -19,8 +19,7 @@ Ne_sexual_Y2000(
 }
 \arguments{
 \item{T_mat}{Numeric matrix (s x s). The survival/transition matrix.
-Entry \link{j, i} is the probability that an individual in stage i
-at year t is found in stage j at year t+1.
+Row j, column i gives the probability that an individual in stage i
 Column sums must be <= 1 (total annual survival per stage).}
 
 \item{F_vec}{Numeric vector of length s. Fecundity of each stage: the

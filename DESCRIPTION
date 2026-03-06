@@ -1,6 +1,6 @@
 Package: NeStage
 Title: Variance Effective Population Size for Stage-Structured Populations
-Version: 0.1.0
+Version: 0.6.1
 Authors@R: 
     person("Raymond L.", "Tremblay",
            email = "raymond.tremblay@upr.edu",
@@ -8,7 +8,7 @@ Authors@R:
            comment = c(ORCID = "0000-0001-7570-0554"))
 Description: Computes the variance effective population size (Ne) for
     stage-structured plant and animal populations following the framework of
-    Yonezawa et al. (2000) <doi:10.1111/j.0014-3820.2000.tb01244.x>.
+    Yonezawa et al. (2000) <doi:10.1111/j.0014-3820.2000.tb01243.x>.
     Three model functions cover clonal, sexual, and mixed (sexual + clonal)
     reproduction, all accepting a survival-transition matrix (MatU) and a
     fecundity vector (MatF row 1) as inputs. A suite of four sensitivity
@@ -34,6 +34,7 @@ Suggests:
     gt (>= 0.9.0),
     knitr,
     popbio,
+    popdemo,
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr

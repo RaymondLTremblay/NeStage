@@ -297,8 +297,8 @@
 #' with Poisson-distributed clonal output (V_c / c_bar = 1).
 #'
 #' @param T_mat  Numeric matrix (s x s). The survival/transition matrix.
-#'               Entry [j, i] is the probability that an individual in stage i
-#'               at year t is in stage j at year t+1.
+#'               Row j, column i gives the probability that an individual
+#'               in stage i at year t is in stage j at year t+1.
 #'               Row/column order: stages 1, 2, ..., s (stage 1 = juvenile/smallest).
 #'               Column sums must be <= 1 (total annual survival per stage).
 #'
@@ -672,7 +672,6 @@ Ne_clonal_Y2000_both <- function(
       D = D_exp,
       L = L,
       Ne_target = Ne_target,
-      Ne_at_census = Ne_at_census,
       census_N = census_N,
       population = paste0(pop_label, " (expected D)")
     )

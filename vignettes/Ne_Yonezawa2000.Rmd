@@ -786,8 +786,8 @@ data.frame(
                          Ne_Miz_exp$NyN, Ne_Nan_exp$NyN), 3),
   NeN         = round(c(Ne_Miz_obs$NeN, Ne_Nan_obs$NeN,
                          Ne_Miz_exp$NeN, Ne_Nan_exp$NeN), 3),
-  Ne_at_N200  = c(Ne_Miz_obs$Ne_at_census, Ne_Nan_obs$Ne_at_census,
-                  Ne_Miz_exp$Ne_at_census, Ne_Nan_exp$Ne_at_census),
+  Ne_at_N200  = round(c(Ne_Miz_obs$NeN, Ne_Nan_obs$NeN,
+                         Ne_Miz_exp$NeN, Ne_Nan_exp$NeN) * 200, 1),
   MinN        = c(Ne_Miz_obs$Min_N, Ne_Nan_obs$Min_N,
                   Ne_Miz_exp$Min_N, Ne_Nan_exp$Min_N)
 ) |>

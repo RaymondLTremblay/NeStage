@@ -419,8 +419,7 @@
 #' populations always use Ne_clonal_Y2000() directly.
 #'
 #' @param T_mat  Numeric matrix (s x s). Survival/transition matrix.
-#'               Entry [j, i] = probability that a stage-i individual at
-#'               year t is in stage j at year t+1. Column sums <= 1.
+#'               Row j, column i gives the probability that an individual in stage i
 #'
 #' @param F_vec  Numeric vector (length s). Total fecundity per stage per
 #'               year: mean number of propagules (sexual + clonal combined)

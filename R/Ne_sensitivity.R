@@ -32,8 +32,6 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
   )
 }
 
-utils::globalVariables(c("NeN", "Vk_over_k", "Vc_over_c", "d_focal", "L"))
-
 
 # Suppress R CMD check notes for ggplot2 aesthetic variable names
 utils::globalVariables(c("NeN", "Vk_over_k", "Vc_over_c", "d_focal", "L"))

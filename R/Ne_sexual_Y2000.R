@@ -411,8 +411,7 @@
 #' to clonal populations (Eq. 11).
 #'
 #' @param T_mat  Numeric matrix (s x s). The survival/transition matrix.
-#'               Entry [j, i] is the probability that an individual in stage i
-#'               at year t is found in stage j at year t+1.
+#'               Row j, column i gives the probability that an individual in stage i
 #'               Column sums must be <= 1 (total annual survival per stage).
 #'
 #' @param F_vec  Numeric vector of length s. Fecundity of each stage: the

@@ -5,11 +5,11 @@
 # populations, following Yonezawa et al. (2000).
 #
 # Reference:
-#   Yonezawa K., Kinoshita E., Watano Y., and Zentoh H. (2000).
+#   Yonezawa K., Kinoshita E., Watano Y., and Zentools::showNonASCIIfile("R/Ne_clonal_Y2000.R")toh H. (2000).
 #   Formulation and estimation of the effective size of stage-structured
 #   populations in Fritillaria camtschatcensis, a perennial herb with a
 #   complex life history. Evolution 54(6): 2007-2013.
-#   https://doi.org/10.1111/j.0014-3820.2000.tb01244.x
+#   https://doi.org/10.1111/j.0014-3820.2000.tb01243.x
 #
 # When to use this function:
 #   Use Ne_clonal_Y2000() when your study population reproduces EXCLUSIVELY
@@ -64,7 +64,6 @@
 # Version: 1.0.0  (2026-03-05)
 # =============================================================================
 
-
 # -----------------------------------------------------------------------------
 # SECTION 1: Input validation
 # -----------------------------------------------------------------------------
@@ -75,34 +74,49 @@
   # T_mat must be a square numeric matrix with no negative or non-finite values.
   # Each column represents one stage; each entry u_{ji} is a transition rate.
   # Column sums must be <= 1 (total annual survival cannot exceed 1).
-  if (!is.matrix(T_mat) || !is.numeric(T_mat))
+  if (!is.matrix(T_mat) || !is.numeric(T_mat)) {
     stop("T_mat must be a numeric matrix.")
-  if (nrow(T_mat) != ncol(T_mat))
+  }
+  if (nrow(T_mat) != ncol(T_mat)) {
     stop("T_mat must be square (nrow == ncol).")
-  if (any(!is.finite(T_mat)))
+  }
+  if (any(!is.finite(T_mat))) {
     stop("T_mat contains non-finite values (NA, NaN, Inf).")
-  if (any(T_mat < 0))
+  }
+  if (any(T_mat < 0)) {
     stop("T_mat contains negative values. All transition rates must be >= 0.")
+  }
   col_sums <- colSums(T_mat)
-  if (any(col_sums > 1 + 1e-8))
+  if (any(col_sums > 1 + 1e-8)) {
     stop(paste0(
       "Column sums of T_mat exceed 1.0. Total annual survival cannot exceed 1.\n",
-      "  Column sums: ", paste(round(col_sums, 4), collapse = ", ")
+      "  Column sums: ",
+      paste(round(col_sums, 4), collapse = ", ")
     ))
+  }
   invisible(TRUE)
 }
 
 .validate_D <- function(D, s) {
   # D must be a non-negative numeric vector of length s that sums to 1.
   # It represents the fraction of the population in each stage.
-  if (!is.numeric(D) || length(D) != s)
-    stop(paste0("D must be a numeric vector of length ", s,
-                " (one entry per stage)."))
-  if (any(!is.finite(D)) || any(D < 0))
+  if (!is.numeric(D) || length(D) != s) {
+    stop(paste0(
+      "D must be a numeric vector of length ",
+      s,
+      " (one entry per stage)."
+    ))
+  }
+  if (any(!is.finite(D)) || any(D < 0)) {
     stop("D must contain finite non-negative values.")
-  if (abs(sum(D) - 1) > 1e-6)
-    stop(paste0("D must sum to 1. Current sum = ", round(sum(D), 6),
-                ".\n  Hint: D <- D / sum(D) to normalise."))
+  }
+  if (abs(sum(D) - 1) > 1e-6) {
+    stop(paste0(
+      "D must sum to 1. Current sum = ",
+      round(sum(D), 6),
+      ".\n  Hint: D <- D / sum(D) to normalise."
+    ))
+  }
   invisible(TRUE)
 }
 
@@ -110,22 +124,32 @@
   # F_vec is the fecundity vector: newborns produced per individual per stage
   # per year. For a purely clonal population these are clonal propagules.
   # All entries must be >= 0; at least one must be > 0 for L computation.
-  if (!is.numeric(F_vec) || length(F_vec) != s)
-    stop(paste0("F_vec must be a numeric vector of length ", s,
-                " (one fecundity per stage)."))
-  if (any(!is.finite(F_vec)) || any(F_vec < 0))
+  if (!is.numeric(F_vec) || length(F_vec) != s) {
+    stop(paste0(
+      "F_vec must be a numeric vector of length ",
+      s,
+      " (one fecundity per stage)."
+    ))
+  }
+  if (any(!is.finite(F_vec)) || any(F_vec < 0)) {
     stop("F_vec must contain finite non-negative values.")
-  if (all(F_vec == 0))
-    stop("F_vec is all zeros: no reproductive output in any stage. Cannot compute L.")
+  }
+  if (all(F_vec == 0)) {
+    stop(
+      "F_vec is all zeros: no reproductive output in any stage. Cannot compute L."
+    )
+  }
   invisible(TRUE)
 }
 
 .validate_L <- function(L) {
   # If L is supplied by the user it must be a single positive finite number.
-  if (!is.numeric(L) || length(L) != 1)
+  if (!is.numeric(L) || length(L) != 1) {
     stop("L must be a single numeric value (generation time in years).")
-  if (!is.finite(L) || L <= 0)
+  }
+  if (!is.finite(L) || L <= 0) {
     stop(paste0("L must be a positive finite number. Received: ", L))
+  }
   invisible(TRUE)
 }
 
@@ -163,44 +187,46 @@
   #
   # Returns: L as a single numeric value (years)
 
-  s    <- nrow(T_mat)
+  s <- nrow(T_mat)
   F_mat <- matrix(0, s, s)
-  F_mat[1, ] <- F_vec          # fecundity goes into row 1 of the full matrix
+  F_mat[1, ] <- F_vec # fecundity goes into row 1 of the full matrix
 
   # Stable stage distribution: dominant right eigenvector of A = T + F_mat
-  A  <- T_mat + F_mat
+  A <- T_mat + F_mat
   ev <- eigen(A)
-  w  <- Re(ev$vectors[, which.max(Re(ev$values))])
-  w  <- abs(w) / sum(abs(w))   # normalise to sum = 1
+  w <- Re(ev$vectors[, which.max(Re(ev$values))])
+  w <- abs(w) / sum(abs(w)) # normalise to sum = 1
 
   # Iterate T^x from x = 1 to x_max, accumulating numerator and denominator
-  Tx  <- diag(s)               # T^0 = identity matrix
-  num <- 0                     # accumulates sum(x * m_bar_x * l_bar_x)
-  den <- 0                     # accumulates sum(m_bar_x * l_bar_x)
+  Tx <- diag(s) # T^0 = identity matrix
+  num <- 0 # accumulates sum(x * m_bar_x * l_bar_x)
+  den <- 0 # accumulates sum(m_bar_x * l_bar_x)
 
   for (x in seq_len(x_max)) {
-    Tx <- T_mat %*% Tx         # left-multiply to advance one year: T^x = T * T^(x-1)
+    Tx <- T_mat %*% Tx # left-multiply to advance one year: T^x = T * T^(x-1)
 
     # Population-average survivorship and fecundity at age x,
     # weighted by stable stage distribution w
     l_bar_x <- 0
     m_bar_x <- 0
     for (i in seq_len(s)) {
-      u_jxi   <- Tx[, i]              # stage distribution at age x, given start in stage i
+      u_jxi <- Tx[, i] # stage distribution at age x, given start in stage i
       l_bar_x <- l_bar_x + w[i] * sum(u_jxi)
       m_bar_x <- m_bar_x + w[i] * sum(F_vec * u_jxi)
     }
 
     num <- num + x * m_bar_x * l_bar_x
-    den <- den +     m_bar_x * l_bar_x
+    den <- den + m_bar_x * l_bar_x
   }
 
-  if (den <= 0)
+  if (den <= 0) {
     stop(paste0(
       "Generation time L is undefined: no reproductive output detected over ",
-      x_max, " years.\n",
+      x_max,
+      " years.\n",
       "  Check that F_vec has positive entries and T_mat allows survival."
     ))
+  }
 
   as.numeric(num / den)
 }
@@ -220,8 +246,8 @@
   # intermediate quantity in Eqs. 10 and 11. A larger u2_bar means more
   # individuals survive and persist in stages from year to year, which
   # reduces the variance in allele-frequency change and increases Ne.
-  u_dot <- colSums(T_mat)            # u_{.i} for each stage i
-  sum(D * u_dot^2)                   # weighted mean of squared survivals
+  u_dot <- colSums(T_mat) # u_{.i} for each stage i
+  sum(D * u_dot^2) # weighted mean of squared survivals
 }
 
 .compute_Ne_clonal_core <- function(u2_bar, L) {
@@ -243,15 +269,18 @@
 
   denom <- 1 - u2_bar
 
-  if (!is.finite(denom) || denom <= 0)
+  if (!is.finite(denom) || denom <= 0) {
     stop(paste0(
-      "1 - u2_bar = ", round(denom, 6), " is not positive.\n",
+      "1 - u2_bar = ",
+      round(denom, 6),
+      " is not positive.\n",
       "  This means u2_bar >= 1, implying no mortality occurs.\n",
       "  Check that at least one column sum of T_mat is < 1."
     ))
+  }
 
-  NyN <- 1 / denom          # Eq. 11
-  NeN <- 1 / (denom * L)    # Eq. 10
+  NyN <- 1 / denom # Eq. 11
+  NeN <- 1 / (denom * L) # Eq. 10
 
   list(NyN = NyN, NeN = NeN)
 }
@@ -308,9 +337,9 @@
 #' @return A named list with the following elements:
 #'   \describe{
 #'     \item{population}{Character label (from \code{population} argument)}
-#'     \item{model}{"clonal_Y2000" — identifies the model used}
-#'     \item{NyN}{Ny/N — annual effective size ratio (Eq. 11)}
-#'     \item{NeN}{Ne/N — generation-time effective size ratio (Eq. 10)}
+#'     \item{model}{"clonal_Y2000" -- identifies the model used}
+#'     \item{NyN}{Ny/N -- annual effective size ratio (Eq. 11)}
+#'     \item{NeN}{Ne/N -- generation-time effective size ratio (Eq. 10)}
 #'     \item{L}{Generation time used in the calculation (years)}
 #'     \item{L_source}{"user" if L was supplied; "computed" if derived internally}
 #'     \item{u_dot}{Named vector of total annual survival per stage (colSums of T_mat)}
@@ -333,7 +362,7 @@
 #' # Observed stage fractions (Table 2)
 #' D_Miz <- c(0.935, 0.038, 0.027)
 #'
-#' # Fecundity vector (Table 2) — clonal propagules per plant per year
+#' # Fecundity vector (Table 2) -- clonal propagules per plant per year
 #' F_Miz <- c(0.055, 1.328, 2.398)
 #'
 #' # Using L from Table 4 directly (recommended for exact replication)
@@ -391,15 +420,16 @@
 #' \emph{Conservation Biology} \strong{9}: 728-791.
 #'
 #' @export
-Ne_clonal_Y2000 <- function(T_mat,
-                             F_vec      = NULL,
-                             D,
-                             L          = NULL,
-                             x_max      = 500L,
-                             Ne_target  = 50,
-                             census_N   = NULL,
-                             population = NULL) {
-
+Ne_clonal_Y2000 <- function(
+  T_mat,
+  F_vec = NULL,
+  D,
+  L = NULL,
+  x_max = 500L,
+  Ne_target = 50,
+  census_N = NULL,
+  population = NULL
+) {
   # ------------------------------------------------------------------
   # Step 1: Validate all inputs before any computation
   # ------------------------------------------------------------------
@@ -407,28 +437,37 @@ Ne_clonal_Y2000 <- function(T_mat,
   .validate_T_mat(T_mat)
   .validate_D(D, s)
 
-  if (!is.null(F_vec)) .validate_F_vec(F_vec, s)
-  if (!is.null(L))     .validate_L(L)
+  if (!is.null(F_vec)) {
+    .validate_F_vec(F_vec, s)
+  }
+  if (!is.null(L)) {
+    .validate_L(L)
+  }
 
-  if (is.null(L) && is.null(F_vec))
-    stop("Either L or F_vec must be supplied.\n",
-         "  Provide L directly (e.g., from a published source), or\n",
-         "  provide F_vec so L can be computed internally.")
+  if (is.null(L) && is.null(F_vec)) {
+    stop(
+      "Either L or F_vec must be supplied.\n",
+      "  Provide L directly (e.g., from a published source), or\n",
+      "  provide F_vec so L can be computed internally."
+    )
+  }
 
-  if (!is.numeric(Ne_target) || Ne_target <= 0)
+  if (!is.numeric(Ne_target) || Ne_target <= 0) {
     stop("Ne_target must be a positive number (e.g. 50, 500, or 5000).")
-  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0))
+  }
+  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0)) {
     stop("census_N must be a positive number if supplied.")
+  }
 
   # ------------------------------------------------------------------
   # Step 2: Compute or retrieve generation time L
   # ------------------------------------------------------------------
   if (!is.null(L)) {
-    L_use    <- as.numeric(L)
-    L_source <- "user"             # user supplied L directly
+    L_use <- as.numeric(L)
+    L_source <- "user" # user supplied L directly
   } else {
-    L_use    <- .compute_L_clonal(T_mat, F_vec, x_max = as.integer(x_max))
-    L_source <- "computed"         # computed internally via T^x iteration
+    L_use <- .compute_L_clonal(T_mat, F_vec, x_max = as.integer(x_max))
+    L_source <- "computed" # computed internally via T^x iteration
   }
 
   # ------------------------------------------------------------------
@@ -440,7 +479,7 @@ Ne_clonal_Y2000 <- function(T_mat,
   # This single number drives both Ny/N and Ne/N. It captures how much
   # of the population survives from year to year in a stage-weighted way.
   # ------------------------------------------------------------------
-  u_dot  <- colSums(T_mat)
+  u_dot <- colSums(T_mat)
   u2_bar <- .compute_u2_bar(T_mat, D)
 
   # ------------------------------------------------------------------
@@ -455,8 +494,12 @@ Ne_clonal_Y2000 <- function(T_mat,
   # benchmark for maintaining long-term gene diversity. Since Ne/N gives
   # us the ratio, the minimum N is simply: Ne_target / (Ne/N).
   # ------------------------------------------------------------------
-  Min_N        <- ceiling(Ne_target / rates$NeN)
-  Ne_at_census <- if (!is.null(census_N)) round(rates$NeN * census_N, 1) else NULL
+  Min_N <- ceiling(Ne_target / rates$NeN)
+  Ne_at_census <- if (!is.null(census_N)) {
+    round(rates$NeN * census_N, 1)
+  } else {
+    NULL
+  }
 
   # ------------------------------------------------------------------
   # Step 6: Attach stage names if T_mat has them
@@ -471,18 +514,21 @@ Ne_clonal_Y2000 <- function(T_mat,
   # Step 7: Assemble and return results
   # ------------------------------------------------------------------
   result <- list(
-    population = if (!is.null(population)) as.character(population) else "unnamed",
-    model      = "clonal_Y2000",
-    NyN        = rates$NyN,
-    NeN        = rates$NeN,
-    L          = L_use,
-    L_source   = L_source,
-    u_dot      = u_dot,
-    u2_bar     = u2_bar,
-    Min_N      = Min_N,
-    Ne_target  = Ne_target,
-    Ne_at_census = Ne_at_census,
-    census_N     = census_N
+    population = if (!is.null(population)) {
+      as.character(population)
+    } else {
+      "unnamed"
+    },
+    model = "clonal_Y2000",
+    NyN = rates$NyN,
+    NeN = rates$NeN,
+    L = L_use,
+    L_source = L_source,
+    u_dot = u_dot,
+    u2_bar = u2_bar,
+    Min_N = Min_N,
+    Ne_target = Ne_target,
+    census_N = census_N
   )
 
   class(result) <- c("Ne_clonal_Y2000", "NeStage")
@@ -504,10 +550,13 @@ print.Ne_clonal_Y2000 <- function(x, digits = 3, ...) {
   cat(sprintf("  Model       : %s\n", x$model))
   cat("\n")
   cat("  --- Stage survival ---\n")
-  for (nm in names(x$u_dot))
+  for (nm in names(x$u_dot)) {
     cat(sprintf("    u_{.%s} = %.4f\n", nm, x$u_dot[nm]))
-  cat(sprintf("    u2_bar (stage-weighted mean of squared survivals) = %.6f\n",
-              x$u2_bar))
+  }
+  cat(sprintf(
+    "    u2_bar (stage-weighted mean of squared survivals) = %.6f\n",
+    x$u2_bar
+  ))
   cat("\n")
   cat("  --- Generation time ---\n")
   cat(sprintf("    L = %.3f yr  [source: %s]\n", x$L, x$L_source))
@@ -517,17 +566,21 @@ print.Ne_clonal_Y2000 <- function(x, digits = 3, ...) {
   cat(sprintf("    Ne/N (generation-time, Eq. 10) = %.3f\n", x$NeN))
   cat("\n")
   cat("  --- Conservation threshold ---\n")
-  cat(sprintf("    Ne target                      = %d\n",   x$Ne_target))
-  cat(sprintf("    Minimum census size N          = %d\n",   x$Min_N))
-  cat(sprintf("    (Ne/N = %.3f => need N >= %d for Ne >= %d)\n",
-              x$NeN, x$Min_N, x$Ne_target))
+  cat(sprintf("    Ne target                      = %d\n", x$Ne_target))
+  cat(sprintf("    Minimum census size N          = %d\n", x$Min_N))
+  cat(sprintf(
+    "    (Ne/N = %.3f => need N >= %d for Ne >= %d)\n",
+    x$NeN,
+    x$Min_N,
+    x$Ne_target
+  ))
   cat("\n")
   invisible(x)
 }
 
 
 # -----------------------------------------------------------------------------
-# SECTION 6: Convenience wrapper — run both observed and expected D
+# SECTION 6: Convenience wrapper -- run both observed and expected D
 # -----------------------------------------------------------------------------
 # In practice, users often want to compare results using the observed stage
 # fractions from the field (D_obs) and the expected (equilibrium) fractions
@@ -577,47 +630,50 @@ print.Ne_clonal_Y2000 <- function(x, digits = 3, ...) {
 #' print(both$expected)   # parenthetical values in Table 4
 #'
 #' @export
-Ne_clonal_Y2000_both <- function(T_mat,
-                                  F_vec,
-                                  D_obs,
-                                  D_exp      = NULL,
-                                  L          = NULL,
-                                  Ne_target  = 50,
-                             census_N   = NULL,
-                                  population = NULL) {
-
+Ne_clonal_Y2000_both <- function(
+  T_mat,
+  F_vec,
+  D_obs,
+  D_exp = NULL,
+  L = NULL,
+  Ne_target = 50,
+  census_N = NULL,
+  population = NULL
+) {
   # Derive D_exp from the stable stage distribution if not supplied
   if (is.null(D_exp)) {
-    s     <- nrow(T_mat)
-    F_mat <- matrix(0, s, s); F_mat[1, ] <- F_vec
-    A     <- T_mat + F_mat
-    ev    <- eigen(A)
-    w     <- Re(ev$vectors[, which.max(Re(ev$values))])
+    s <- nrow(T_mat)
+    F_mat <- matrix(0, s, s)
+    F_mat[1, ] <- F_vec
+    A <- T_mat + F_mat
+    ev <- eigen(A)
+    w <- Re(ev$vectors[, which.max(Re(ev$values))])
     D_exp <- abs(w) / sum(abs(w))
-    message("D_exp not supplied — derived from stable stage distribution of A.")
+    message(
+      "D_exp not supplied -- derived from stable stage distribution of A."
+    )
   }
 
   pop_label <- if (!is.null(population)) population else "unnamed"
 
   list(
     observed = Ne_clonal_Y2000(
-      T_mat      = T_mat,
-      F_vec      = F_vec,
-      D          = D_obs,
-      L          = L,
-      Ne_target  = Ne_target,
-    Ne_at_census = Ne_at_census,
-    census_N     = census_N,
+      T_mat = T_mat,
+      F_vec = F_vec,
+      D = D_obs,
+      L = L,
+      Ne_target = Ne_target,
+      census_N = census_N,
       population = paste0(pop_label, " (observed D)")
     ),
     expected = Ne_clonal_Y2000(
-      T_mat      = T_mat,
-      F_vec      = F_vec,
-      D          = D_exp,
-      L          = L,
-      Ne_target  = Ne_target,
-    Ne_at_census = Ne_at_census,
-    census_N     = census_N,
+      T_mat = T_mat,
+      F_vec = F_vec,
+      D = D_exp,
+      L = L,
+      Ne_target = Ne_target,
+      Ne_at_census = Ne_at_census,
+      census_N = census_N,
       population = paste0(pop_label, " (expected D)")
     )
   )

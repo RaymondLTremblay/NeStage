@@ -10,7 +10,7 @@
 #   Formulation and estimation of the effective size of stage-structured
 #   populations in Fritillaria camtschatcensis, a perennial herb with a
 #   complex life history. Evolution 54(6): 2007-2013.
-#   https://doi.org/10.1111/j.0014-3820.2000.tb01244.x
+#   https://doi.org/10.1111/j.0014-3820.2000.tb01243.x
 #
 # When to use this function:
 #   Use Ne_mixed_Y2000() when your study population reproduces through BOTH
@@ -34,7 +34,7 @@
 #   Ne_clonal_Y2000() is NOT algebraically equivalent to Ne_mixed_Y2000()
 #   with d = rep(1, s). This is because Ne_clonal_Y2000() implements
 #   Equations 10-11, which are derived via a DIFFERENT simplification
-#   path from Eq. 6 — one that uses the survival variance directly as
+#   path from Eq. 6 -- one that uses the survival variance directly as
 #   V = 2(1 - u2_bar), not the general V formula. Under Poisson defaults
 #   (a=0, Vc/c_bar=1), A_i = 2*(1+0)*1 - S_i = 2 - 2 = 0, so V_term3
 #   is always zero in Ne_mixed_Y2000() regardless of d. Use
@@ -65,7 +65,7 @@
 #     have identical survival.
 #
 #   Term 2: (1 - u_bar) * Avr(S)
-#     Variance in SEXUAL reproductive output. Driven by (Vk/k_bar)_i —
+#     Variance in SEXUAL reproductive output. Driven by (Vk/k_bar)_i --
 #     how unequal sexual reproductive success is within each stage.
 #     Larger when few individuals dominate sexual reproduction.
 #
@@ -78,57 +78,79 @@
 # Version: 1.0.0  (2026-03-05)
 # =============================================================================
 
-
 # -----------------------------------------------------------------------------
 # SECTION 1: Input validation
 # -----------------------------------------------------------------------------
 
 .validate_T_mat_mx <- function(T_mat) {
-  if (!is.matrix(T_mat) || !is.numeric(T_mat))
+  if (!is.matrix(T_mat) || !is.numeric(T_mat)) {
     stop("T_mat must be a numeric matrix.")
-  if (nrow(T_mat) != ncol(T_mat))
+  }
+  if (nrow(T_mat) != ncol(T_mat)) {
     stop("T_mat must be square (nrow == ncol).")
-  if (any(!is.finite(T_mat)))
+  }
+  if (any(!is.finite(T_mat))) {
     stop("T_mat contains non-finite values (NA, NaN, Inf).")
-  if (any(T_mat < 0))
+  }
+  if (any(T_mat < 0)) {
     stop("T_mat contains negative values. All transition rates must be >= 0.")
+  }
   col_sums <- colSums(T_mat)
-  if (any(col_sums > 1 + 1e-8))
+  if (any(col_sums > 1 + 1e-8)) {
     stop(paste0(
       "Column sums of T_mat exceed 1.0. Total annual survival cannot exceed 1.\n",
-      "  Column sums: ", paste(round(col_sums, 4), collapse = ", ")
+      "  Column sums: ",
+      paste(round(col_sums, 4), collapse = ", ")
     ))
+  }
   invisible(TRUE)
 }
 
 .validate_D_mx <- function(D, s) {
-  if (!is.numeric(D) || length(D) != s)
-    stop(paste0("D must be a numeric vector of length ", s,
-                " (one entry per stage)."))
-  if (any(!is.finite(D)) || any(D < 0))
+  if (!is.numeric(D) || length(D) != s) {
+    stop(paste0(
+      "D must be a numeric vector of length ",
+      s,
+      " (one entry per stage)."
+    ))
+  }
+  if (any(!is.finite(D)) || any(D < 0)) {
     stop("D must contain finite non-negative values.")
-  if (abs(sum(D) - 1) > 1e-6)
-    stop(paste0("D must sum to 1. Current sum = ", round(sum(D), 6),
-                ".\n  Hint: D <- D / sum(D) to normalise."))
+  }
+  if (abs(sum(D) - 1) > 1e-6) {
+    stop(paste0(
+      "D must sum to 1. Current sum = ",
+      round(sum(D), 6),
+      ".\n  Hint: D <- D / sum(D) to normalise."
+    ))
+  }
   invisible(TRUE)
 }
 
 .validate_F_vec_mx <- function(F_vec, s) {
-  if (!is.numeric(F_vec) || length(F_vec) != s)
-    stop(paste0("F_vec must be a numeric vector of length ", s,
-                " (one fecundity per stage)."))
-  if (any(!is.finite(F_vec)) || any(F_vec < 0))
+  if (!is.numeric(F_vec) || length(F_vec) != s) {
+    stop(paste0(
+      "F_vec must be a numeric vector of length ",
+      s,
+      " (one fecundity per stage)."
+    ))
+  }
+  if (any(!is.finite(F_vec)) || any(F_vec < 0)) {
     stop("F_vec must contain finite non-negative values.")
-  if (all(F_vec == 0))
+  }
+  if (all(F_vec == 0)) {
     stop("F_vec is all zeros: no reproductive output in any stage.")
+  }
   invisible(TRUE)
 }
 
 .validate_L_mx <- function(L) {
-  if (!is.numeric(L) || length(L) != 1)
+  if (!is.numeric(L) || length(L) != 1) {
     stop("L must be a single numeric value (generation time in years).")
-  if (!is.finite(L) || L <= 0)
+  }
+  if (!is.finite(L) || L <= 0) {
     stop(paste0("L must be a positive finite number. Received: ", L))
+  }
   invisible(TRUE)
 }
 
@@ -138,15 +160,16 @@
   # d_i = 0 means stage i reproduces entirely sexually.
   # d_i = 0.7 means 70% of reproductive output from stage i is clonal.
   #
-  # This must be supplied by the user — there is no sensible default
+  # This must be supplied by the user -- there is no sensible default
   # because the mix of sexual and clonal reproduction is species- and
   # stage-specific and cannot be assumed without field data.
   #
   # Example for a species where only adults reproduce clonally:
-  #   d = c(0, 0, 0.8)  — stages 1 and 2 sexual only, stage 3 mostly clonal
-  if (!is.numeric(d) || length(d) != s)
+  #   d = c(0, 0, 0.8)  -- stages 1 and 2 sexual only, stage 3 mostly clonal
+  if (!is.numeric(d) || length(d) != s) {
     stop(paste0(
-      "d must be a numeric vector of length ", s,
+      "d must be a numeric vector of length ",
+      s,
       " (one clonal fraction per stage).\n",
       "  d_i = 0 : stage i reproduces entirely sexually\n",
       "  d_i = 1 : stage i reproduces entirely clonally\n",
@@ -154,13 +177,16 @@
       "  Example: d = c(0, 0, 0.8) for a 3-stage population where\n",
       "           only stage 3 has substantial clonal reproduction."
     ))
-  if (any(!is.finite(d)) || any(d < 0) || any(d > 1))
+  }
+  if (any(!is.finite(d)) || any(d < 0) || any(d > 1)) {
     stop(paste0(
       "All values of d must be between 0 and 1.\n",
       "  d_i = 0 : purely sexual\n",
       "  d_i = 1 : purely clonal\n",
-      "  Received: ", paste(round(d, 4), collapse = ", ")
+      "  Received: ",
+      paste(round(d, 4), collapse = ", ")
     ))
+  }
   invisible(TRUE)
 }
 
@@ -178,44 +204,54 @@
   #
   # Vc_over_c < 1: clonal output is more equal than random. Rare in
   #   nature but possible in some highly regulated clonal systems.
-  if (!is.numeric(Vc_over_c) || length(Vc_over_c) != s)
+  if (!is.numeric(Vc_over_c) || length(Vc_over_c) != s) {
     stop(paste0(
-      "Vc_over_c must be a numeric vector of length ", s,
+      "Vc_over_c must be a numeric vector of length ",
+      s,
       " (one value per stage).\n",
       "  Default is rep(1, s) for Poisson clonal variance.\n",
       "  Values > 1: unequal clonal output (reduces Ne).\n",
       "  Values < 1: more equal than random clonal output (increases Ne)."
     ))
-  if (any(!is.finite(Vc_over_c)) || any(Vc_over_c < 0))
+  }
+  if (any(!is.finite(Vc_over_c)) || any(Vc_over_c < 0)) {
     stop("Vc_over_c must contain finite non-negative values.")
+  }
   invisible(TRUE)
 }
 
 .validate_Vk_over_k_mx <- function(Vk_over_k, s) {
-  if (!is.numeric(Vk_over_k) || length(Vk_over_k) != s)
+  if (!is.numeric(Vk_over_k) || length(Vk_over_k) != s) {
     stop(paste0(
-      "Vk_over_k must be a numeric vector of length ", s,
+      "Vk_over_k must be a numeric vector of length ",
+      s,
       " (one value per stage).\n",
       "  Default is rep(1, s) for Poisson sexual reproductive variance."
     ))
-  if (any(!is.finite(Vk_over_k)) || any(Vk_over_k < 0))
+  }
+  if (any(!is.finite(Vk_over_k)) || any(Vk_over_k < 0)) {
     stop("Vk_over_k must contain finite non-negative values.")
+  }
   invisible(TRUE)
 }
 
 .validate_a_mx <- function(a) {
-  if (!is.numeric(a) || length(a) != 1)
+  if (!is.numeric(a) || length(a) != 1) {
     stop("a must be a single numeric value (Hardy-Weinberg deviation).")
-  if (!is.finite(a))
+  }
+  if (!is.finite(a)) {
     stop("a must be a finite number.")
-  if (a < -1 || a > 1)
+  }
+  if (a < -1 || a > 1) {
     stop(paste0(
       "a must be between -1 and 1.\n",
       "  a = 0  : random mating (default)\n",
       "  a > 0  : inbreeding present\n",
       "  a < 0  : excess heterozygosity\n",
-      "  Received: ", a
+      "  Received: ",
+      a
     ))
+  }
   invisible(TRUE)
 }
 
@@ -229,16 +265,16 @@
 # distribution w of A = T + F_mat.
 
 .compute_L_mixed <- function(T_mat, F_vec, x_max = 500L) {
-  s     <- nrow(T_mat)
+  s <- nrow(T_mat)
   F_mat <- matrix(0, s, s)
   F_mat[1, ] <- F_vec
 
-  A  <- T_mat + F_mat
+  A <- T_mat + F_mat
   ev <- eigen(A)
-  w  <- Re(ev$vectors[, which.max(Re(ev$values))])
-  w  <- abs(w) / sum(abs(w))
+  w <- Re(ev$vectors[, which.max(Re(ev$values))])
+  w <- abs(w) / sum(abs(w))
 
-  Tx  <- diag(s)
+  Tx <- diag(s)
   num <- 0
   den <- 0
 
@@ -248,28 +284,30 @@
     l_bar_x <- 0
     m_bar_x <- 0
     for (i in seq_len(s)) {
-      u_jxi   <- Tx[, i]
+      u_jxi <- Tx[, i]
       l_bar_x <- l_bar_x + w[i] * sum(u_jxi)
       m_bar_x <- m_bar_x + w[i] * sum(F_vec * u_jxi)
     }
 
     num <- num + x * m_bar_x * l_bar_x
-    den <- den +     m_bar_x * l_bar_x
+    den <- den + m_bar_x * l_bar_x
   }
 
-  if (den <= 0)
+  if (den <= 0) {
     stop(paste0(
       "Generation time L is undefined: no reproductive output detected over ",
-      x_max, " years.\n",
+      x_max,
+      " years.\n",
       "  Check that F_vec has positive entries and T_mat allows survival."
     ))
+  }
 
   as.numeric(num / den)
 }
 
 
 # -----------------------------------------------------------------------------
-# SECTION 3: Core computation — full Eq. 6
+# SECTION 3: Core computation -- full Eq. 6
 # -----------------------------------------------------------------------------
 
 .compute_V_mixed <- function(T_mat, F_vec, D, d, Vk_over_k, Vc_over_c, a) {
@@ -285,27 +323,28 @@
   #   4. r_i     = F_i * D_i
   #   5. S_i     = (1-a) + (1+a) * (Vk/k_bar)_i
   #   6. A_i     = 2*(1+a) * (Vc/c_bar)_i - S_i
-  #      NOTE: A_i subtracts S_i ONCE — this is exact per paper p. 2008
+  #      NOTE: A_i subtracts S_i ONCE -- this is exact per paper p. 2008
   #   7. Avr(S)  = sum(r_i * S_i)       / sum(r_i)
   #   8. Avr(Ad) = sum(r_i * A_i * d_i) / sum(r_i)
   #   9. V       = 2(1+a)(u2_bar - u_bar^2) + (1 - u_bar)(Avr_S + Avr_Ad)
 
-  u_dot  <- colSums(T_mat)           # step 1
-  u_bar  <- sum(D * u_dot)           # step 2
-  u2_bar <- sum(D * u_dot^2)         # step 3
-  r_i    <- F_vec * D                # step 4
+  u_dot <- colSums(T_mat) # step 1
+  u_bar <- sum(D * u_dot) # step 2
+  u2_bar <- sum(D * u_dot^2) # step 3
+  r_i <- F_vec * D # step 4
 
-  if (sum(r_i) <= 0)
+  if (sum(r_i) <= 0) {
     stop(paste0(
       "sum(r_i) = sum(F_vec * D) = 0.\n",
       "  At least one stage must have both F_vec > 0 and D > 0."
     ))
+  }
 
-  # Step 5: S_i — captures sexual reproductive variance
+  # Step 5: S_i -- captures sexual reproductive variance
   # Under defaults (a=0, Vk/k_bar=1): S_i = 2 for all stages
   S_i <- (1 - a) + (1 + a) * Vk_over_k
 
-  # Step 6: A_i — captures EXCESS clonal over sexual reproductive variance
+  # Step 6: A_i -- captures EXCESS clonal over sexual reproductive variance
   # A_i = 2*(1+a)*(Vc/c_bar)_i - S_i   (definition per paper p.2008)
   #
   # IMPORTANT: Under Poisson defaults (a=0, Vc/c_bar=1, Vk/k_bar=1):
@@ -317,41 +356,44 @@
   # Supply e.g. Vc_over_c = c(1,1,2) to see a non-zero V_term3.
   A_i <- 2 * (1 + a) * Vc_over_c - S_i
 
-  # Step 7: Avr(S) — recruitment-weighted mean of S_i
+  # Step 7: Avr(S) -- recruitment-weighted mean of S_i
   # Stages contributing more offspring have more influence on gene pool
-  Avr_S  <- sum(r_i * S_i)       / sum(r_i)
+  Avr_S <- sum(r_i * S_i) / sum(r_i)
 
-  # Step 8: Avr(Ad) — recruitment-weighted mean of A_i * d_i
+  # Step 8: Avr(Ad) -- recruitment-weighted mean of A_i * d_i
   # This term is zero when d_i = 0 for all stages (purely sexual case)
   # and grows as clonal reproduction increases
   Avr_Ad <- sum(r_i * A_i * d) / sum(r_i)
 
   # Step 9: Full V
-  V_term1 <- 2 * (1 + a) * (u2_bar - u_bar^2)   # between-stage survival variance
-  V_term2 <- (1 - u_bar) * Avr_S                 # sexual reproductive variance
-  V_term3 <- (1 - u_bar) * Avr_Ad                # clonal reproductive variance
-  V       <- V_term1 + V_term2 + V_term3
+  V_term1 <- 2 * (1 + a) * (u2_bar - u_bar^2) # between-stage survival variance
+  V_term2 <- (1 - u_bar) * Avr_S # sexual reproductive variance
+  V_term3 <- (1 - u_bar) * Avr_Ad # clonal reproductive variance
+  V <- V_term1 + V_term2 + V_term3
 
-  if (!is.finite(V) || V <= 0)
+  if (!is.finite(V) || V <= 0) {
     stop(paste0(
-      "V = ", round(V, 8), " is not positive.\n",
+      "V = ",
+      round(V, 8),
+      " is not positive.\n",
       "  V must be > 0 for Ne to be defined.\n",
       "  Check T_mat survival rates, F_vec, d, and reproductive variance inputs."
     ))
+  }
 
   list(
-    u_dot   = u_dot,
-    u_bar   = u_bar,
-    u2_bar  = u2_bar,
-    r_i     = r_i,
-    S_i     = S_i,
-    A_i     = A_i,
-    Avr_S   = Avr_S,
-    Avr_Ad  = Avr_Ad,
-    V       = V,
-    V_term1 = V_term1,   # between-stage survival variance
-    V_term2 = V_term2,   # sexual reproductive variance
-    V_term3 = V_term3    # clonal reproductive variance
+    u_dot = u_dot,
+    u_bar = u_bar,
+    u2_bar = u2_bar,
+    r_i = r_i,
+    S_i = S_i,
+    A_i = A_i,
+    Avr_S = Avr_S,
+    Avr_Ad = Avr_Ad,
+    V = V,
+    V_term1 = V_term1, # between-stage survival variance
+    V_term2 = V_term2, # sexual reproductive variance
+    V_term3 = V_term3 # clonal reproductive variance
   )
 }
 
@@ -388,7 +430,7 @@
 #'               Must sum to 1.
 #'
 #' @param d      Numeric vector (length s). Per-stage clonal reproduction
-#'               fraction. MUST be supplied — there is no default.
+#'               fraction. MUST be supplied -- there is no default.
 #'               d_i = 0 : stage i reproduces entirely sexually.
 #'               d_i = 1 : stage i reproduces entirely clonally.
 #'               d_i = 0.7 : 70% of stage i reproduction is clonal.
@@ -437,8 +479,8 @@
 #'   \describe{
 #'     \item{population}{Character label}
 #'     \item{model}{"mixed_Y2000"}
-#'     \item{NeN}{Ne/N — generation-time effective size ratio (Eq. 6)}
-#'     \item{NyN}{Ny/N — annual effective size ratio (Eq. 11), or NA if show_Ny = FALSE}
+#'     \item{NeN}{Ne/N -- generation-time effective size ratio (Eq. 6)}
+#'     \item{NyN}{Ny/N -- annual effective size ratio (Eq. 11), or NA if show_Ny = FALSE}
 #'     \item{L}{Generation time used (years)}
 #'     \item{L_source}{"user" or "computed"}
 #'     \item{d}{Per-stage clonal fractions supplied}
@@ -502,26 +544,27 @@
 #' Formulation and estimation of the effective size of stage-structured
 #' populations in Fritillaria camtschatcensis, a perennial herb with a
 #' complex life history. \emph{Evolution} \strong{54}(6): 2007-2013.
-#' \doi{10.1111/j.0014-3820.2000.tb01244.x}
+#' \doi{10.1111/j.0014-3820.2000.tb01243.x}
 #'
 #' Lande R. (1995). Mutation and conservation.
 #' \emph{Conservation Biology} \strong{9}: 728-791.
 #'
 #' @export
-Ne_mixed_Y2000 <- function(T_mat,
-                            F_vec,
-                            D,
-                            d,
-                            Vk_over_k  = NULL,
-                            Vc_over_c  = NULL,
-                            a          = 0,
-                            L          = NULL,
-                            x_max      = 500L,
-                            Ne_target  = 50,
-                             census_N   = NULL,
-                            show_Ny    = FALSE,
-                            population = NULL) {
-
+Ne_mixed_Y2000 <- function(
+  T_mat,
+  F_vec,
+  D,
+  d,
+  Vk_over_k = NULL,
+  Vc_over_c = NULL,
+  a = 0,
+  L = NULL,
+  x_max = 500L,
+  Ne_target = 50,
+  census_N = NULL,
+  show_Ny = FALSE,
+  population = NULL
+) {
   # ------------------------------------------------------------------
   # Step 1: Validate all inputs
   # ------------------------------------------------------------------
@@ -531,7 +574,9 @@ Ne_mixed_Y2000 <- function(T_mat,
   .validate_F_vec_mx(F_vec, s)
   .validate_d(d, s)
   .validate_a_mx(a)
-  if (!is.null(L)) .validate_L_mx(L)
+  if (!is.null(L)) {
+    .validate_L_mx(L)
+  }
 
   # Defaults: Poisson variance for both sexual and clonal output
   if (is.null(Vk_over_k)) {
@@ -546,19 +591,21 @@ Ne_mixed_Y2000 <- function(T_mat,
     .validate_Vc_over_c(Vc_over_c, s)
   }
 
-  if (!is.numeric(Ne_target) || Ne_target <= 0)
+  if (!is.numeric(Ne_target) || Ne_target <= 0) {
     stop("Ne_target must be a positive number (e.g. 50, 500, or 5000).")
-  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0))
+  }
+  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0)) {
     stop("census_N must be a positive number if supplied.")
+  }
 
   # ------------------------------------------------------------------
   # Step 2: Compute or retrieve generation time L
   # ------------------------------------------------------------------
   if (!is.null(L)) {
-    L_use    <- as.numeric(L)
+    L_use <- as.numeric(L)
     L_source <- "user"
   } else {
-    L_use    <- .compute_L_mixed(T_mat, F_vec, x_max = as.integer(x_max))
+    L_use <- .compute_L_mixed(T_mat, F_vec, x_max = as.integer(x_max))
     L_source <- "computed"
   }
 
@@ -572,8 +619,9 @@ Ne_mixed_Y2000 <- function(T_mat,
   # ------------------------------------------------------------------
   NeN <- 2 / (V_list$V * L_use)
 
-  if (!is.finite(NeN) || NeN <= 0)
+  if (!is.finite(NeN) || NeN <= 0) {
     stop(paste0("Ne/N = ", NeN, " is not positive. Check V and L."))
+  }
 
   # ------------------------------------------------------------------
   # Step 5: Optionally compute Ny/N (Eq. 11)
@@ -601,48 +649,55 @@ Ne_mixed_Y2000 <- function(T_mat,
   # ------------------------------------------------------------------
   # Step 7: Attach stage names
   # ------------------------------------------------------------------
-  stage_names <- if (!is.null(colnames(T_mat))) colnames(T_mat) else
+  stage_names <- if (!is.null(colnames(T_mat))) {
+    colnames(T_mat)
+  } else {
     paste0("stage_", seq_len(s))
+  }
 
   names(V_list$u_dot) <- stage_names
-  names(V_list$r_i)   <- stage_names
-  names(V_list$S_i)   <- stage_names
-  names(V_list$A_i)   <- stage_names
-  names(Vk_over_k)    <- stage_names
-  names(Vc_over_c)    <- stage_names
-  names(d)            <- stage_names
+  names(V_list$r_i) <- stage_names
+  names(V_list$S_i) <- stage_names
+  names(V_list$A_i) <- stage_names
+  names(Vk_over_k) <- stage_names
+  names(Vc_over_c) <- stage_names
+  names(d) <- stage_names
 
   # ------------------------------------------------------------------
   # Step 8: Assemble and return
   # ------------------------------------------------------------------
   result <- list(
-    population   = if (!is.null(population)) as.character(population) else "unnamed",
-    model        = "mixed_Y2000",
-    NeN          = NeN,
-    NyN          = NyN,
-    L            = L_use,
-    L_source     = L_source,
-    d            = d,
-    u_dot        = V_list$u_dot,
-    u_bar        = V_list$u_bar,
-    u2_bar       = V_list$u2_bar,
-    r_i          = V_list$r_i,
-    S_i          = V_list$S_i,
-    A_i          = V_list$A_i,
-    Avr_S        = V_list$Avr_S,
-    Avr_Ad       = V_list$Avr_Ad,
-    V            = V_list$V,
-    V_term1      = V_list$V_term1,
-    V_term2      = V_list$V_term2,
-    V_term3      = V_list$V_term3,
-    Vk_over_k    = Vk_over_k,
-    Vc_over_c    = Vc_over_c,
-    a            = a,
-    Min_N        = Min_N,
-    Ne_target    = Ne_target,
+    population = if (!is.null(population)) {
+      as.character(population)
+    } else {
+      "unnamed"
+    },
+    model = "mixed_Y2000",
+    NeN = NeN,
+    NyN = NyN,
+    L = L_use,
+    L_source = L_source,
+    d = d,
+    u_dot = V_list$u_dot,
+    u_bar = V_list$u_bar,
+    u2_bar = V_list$u2_bar,
+    r_i = V_list$r_i,
+    S_i = V_list$S_i,
+    A_i = V_list$A_i,
+    Avr_S = V_list$Avr_S,
+    Avr_Ad = V_list$Avr_Ad,
+    V = V_list$V,
+    V_term1 = V_list$V_term1,
+    V_term2 = V_list$V_term2,
+    V_term3 = V_list$V_term3,
+    Vk_over_k = Vk_over_k,
+    Vc_over_c = Vc_over_c,
+    a = a,
+    Min_N = Min_N,
+    Ne_target = Ne_target,
     Ne_at_census = Ne_at_census,
-    census_N     = census_N,
-    show_Ny      = show_Ny
+    census_N = census_N,
+    show_Ny = show_Ny
   )
 
   class(result) <- c("Ne_mixed_Y2000", "NeStage")
@@ -662,42 +717,72 @@ print.Ne_mixed_Y2000 <- function(x, digits = 3, ...) {
   cat(sprintf("  Model       : %s\n", x$model))
   cat("\n")
   cat("  --- Clonal fractions per stage (d_i) ---\n")
-  for (nm in names(x$d))
-    cat(sprintf("    d_%s = %.4f  (%.0f%% clonal, %.0f%% sexual)\n",
-                nm, x$d[nm], 100 * x$d[nm], 100 * (1 - x$d[nm])))
+  for (nm in names(x$d)) {
+    cat(sprintf(
+      "    d_%s = %.4f  (%.0f%% clonal, %.0f%% sexual)\n",
+      nm,
+      x$d[nm],
+      100 * x$d[nm],
+      100 * (1 - x$d[nm])
+    ))
+  }
   cat("\n")
   cat("  --- Stage survival ---\n")
-  for (nm in names(x$u_dot))
+  for (nm in names(x$u_dot)) {
     cat(sprintf("    u_{.%s} = %.4f\n", nm, x$u_dot[nm]))
-  cat(sprintf("    u_bar  (population mean annual survival)          = %.6f\n",
-              x$u_bar))
-  cat(sprintf("    u2_bar (stage-weighted mean of squared survivals) = %.6f\n",
-              x$u2_bar))
+  }
+  cat(sprintf(
+    "    u_bar  (population mean annual survival)          = %.6f\n",
+    x$u_bar
+  ))
+  cat(sprintf(
+    "    u2_bar (stage-weighted mean of squared survivals) = %.6f\n",
+    x$u2_bar
+  ))
   cat("\n")
   cat("  --- Reproductive parameters ---\n")
-  cat(sprintf("    a (Hardy-Weinberg deviation)                      = %.4f\n",
-              x$a))
-  for (nm in names(x$Vk_over_k))
+  cat(sprintf(
+    "    a (Hardy-Weinberg deviation)                      = %.4f\n",
+    x$a
+  ))
+  for (nm in names(x$Vk_over_k)) {
     cat(sprintf("    Vk/k_bar (%s) = %.4f\n", nm, x$Vk_over_k[nm]))
-  for (nm in names(x$Vc_over_c))
+  }
+  for (nm in names(x$Vc_over_c)) {
     cat(sprintf("    Vc/c_bar (%s) = %.4f\n", nm, x$Vc_over_c[nm]))
-  cat(sprintf("    Avr(S)  (sexual reproductive variance term)       = %.6f\n",
-              x$Avr_S))
-  cat(sprintf("    Avr(Ad) (clonal reproductive variance term)       = %.6f\n",
-              x$Avr_Ad))
+  }
+  cat(sprintf(
+    "    Avr(S)  (sexual reproductive variance term)       = %.6f\n",
+    x$Avr_S
+  ))
+  cat(sprintf(
+    "    Avr(Ad) (clonal reproductive variance term)       = %.6f\n",
+    x$Avr_Ad
+  ))
   cat("\n")
   cat("  --- Variance decomposition ---\n")
-  cat(sprintf("    V term 1 (between-stage survival variance)        = %.6f\n",
-              x$V_term1))
-  cat(sprintf("    V term 2 (sexual reproductive variance)           = %.6f\n",
-              x$V_term2))
-  cat(sprintf("    V term 3 (clonal reproductive variance)           = %.6f\n",
-              x$V_term3))
-  if (x$V_term3 == 0 && any(x$d > 0))
-    cat("    Note: V term 3 = 0 because Vc/c_bar == Vk/k_bar and a == 0.\n",
-        "          Supply Vc_over_c != 1 to model unequal clonal variance.\n")
-  cat(sprintf("    V total                                           = %.6f\n",
-              x$V))
+  cat(sprintf(
+    "    V term 1 (between-stage survival variance)        = %.6f\n",
+    x$V_term1
+  ))
+  cat(sprintf(
+    "    V term 2 (sexual reproductive variance)           = %.6f\n",
+    x$V_term2
+  ))
+  cat(sprintf(
+    "    V term 3 (clonal reproductive variance)           = %.6f\n",
+    x$V_term3
+  ))
+  if (x$V_term3 == 0 && any(x$d > 0)) {
+    cat(
+      "    Note: V term 3 = 0 because Vc/c_bar == Vk/k_bar and a == 0.\n",
+      "          Supply Vc_over_c != 1 to model unequal clonal variance.\n"
+    )
+  }
+  cat(sprintf(
+    "    V total                                           = %.6f\n",
+    x$V
+  ))
   cat("\n")
   cat("  --- Generation time ---\n")
   cat(sprintf("    L = %.3f yr  [source: %s]\n", x$L, x$L_source))
@@ -709,21 +794,27 @@ print.Ne_mixed_Y2000 <- function(x, digits = 3, ...) {
   } else if (isTRUE(x$show_Ny) && !is.finite(x$NyN)) {
     cat("    Ny/N (annual, Eq. 11)          = undefined\n")
   } else {
-    cat("    Ny/N                           = not requested (set show_Ny = TRUE)\n")
+    cat(
+      "    Ny/N                           = not requested (set show_Ny = TRUE)\n"
+    )
   }
   cat("\n")
   cat("  --- Conservation threshold ---\n")
-  cat(sprintf("    Ne target              = %d\n",   x$Ne_target))
-  cat(sprintf("    Minimum census size N  = %d\n",   x$Min_N))
-  cat(sprintf("    (Ne/N = %.3f => need N >= %d for Ne >= %d)\n",
-              x$NeN, x$Min_N, x$Ne_target))
+  cat(sprintf("    Ne target              = %d\n", x$Ne_target))
+  cat(sprintf("    Minimum census size N  = %d\n", x$Min_N))
+  cat(sprintf(
+    "    (Ne/N = %.3f => need N >= %d for Ne >= %d)\n",
+    x$NeN,
+    x$Min_N,
+    x$Ne_target
+  ))
   cat("\n")
   invisible(x)
 }
 
 
 # -----------------------------------------------------------------------------
-# SECTION 6: Convenience wrapper — observed and expected D in one call
+# SECTION 6: Convenience wrapper -- observed and expected D in one call
 # -----------------------------------------------------------------------------
 
 #' Run Ne_mixed_Y2000 with both observed and expected stage fractions
@@ -756,47 +847,63 @@ print.Ne_mixed_Y2000 <- function(x, digits = 3, ...) {
 #'   }
 #'
 #' @export
-Ne_mixed_Y2000_both <- function(T_mat,
-                                 F_vec,
-                                 D_obs,
-                                 d,
-                                 D_exp      = NULL,
-                                 Vk_over_k  = NULL,
-                                 Vc_over_c  = NULL,
-                                 a          = 0,
-                                 L          = NULL,
-                                 Ne_target  = 50,
-                             census_N   = NULL,
-                                 show_Ny    = FALSE,
-                                 population = NULL) {
-
+Ne_mixed_Y2000_both <- function(
+  T_mat,
+  F_vec,
+  D_obs,
+  d,
+  D_exp = NULL,
+  Vk_over_k = NULL,
+  Vc_over_c = NULL,
+  a = 0,
+  L = NULL,
+  Ne_target = 50,
+  census_N = NULL,
+  show_Ny = FALSE,
+  population = NULL
+) {
   if (is.null(D_exp)) {
-    s     <- nrow(T_mat)
-    F_mat <- matrix(0, s, s); F_mat[1, ] <- F_vec
-    A     <- T_mat + F_mat
-    ev    <- eigen(A)
-    w     <- Re(ev$vectors[, which.max(Re(ev$values))])
+    s <- nrow(T_mat)
+    F_mat <- matrix(0, s, s)
+    F_mat[1, ] <- F_vec
+    A <- T_mat + F_mat
+    ev <- eigen(A)
+    w <- Re(ev$vectors[, which.max(Re(ev$values))])
     D_exp <- abs(w) / sum(abs(w))
-    message("D_exp not supplied — derived from stable stage distribution of A.")
+    message(
+      "D_exp not supplied -- derived from stable stage distribution of A."
+    )
   }
 
   pop_label <- if (!is.null(population)) population else "unnamed"
 
   list(
     observed = Ne_mixed_Y2000(
-      T_mat      = T_mat, F_vec = F_vec, D = D_obs, d = d,
-      Vk_over_k  = Vk_over_k, Vc_over_c = Vc_over_c,
-      a = a, L = L, Ne_target = Ne_target,
-    Ne_at_census = Ne_at_census,
-    census_N     = census_N, show_Ny = show_Ny,
+      T_mat = T_mat,
+      F_vec = F_vec,
+      D = D_obs,
+      d = d,
+      Vk_over_k = Vk_over_k,
+      Vc_over_c = Vc_over_c,
+      a = a,
+      L = L,
+      Ne_target = Ne_target,
+      census_N = census_N,
+      show_Ny = show_Ny,
       population = paste0(pop_label, " (observed D)")
     ),
     expected = Ne_mixed_Y2000(
-      T_mat      = T_mat, F_vec = F_vec, D = D_exp, d = d,
-      Vk_over_k  = Vk_over_k, Vc_over_c = Vc_over_c,
-      a = a, L = L, Ne_target = Ne_target,
-    Ne_at_census = Ne_at_census,
-    census_N     = census_N, show_Ny = show_Ny,
+      T_mat = T_mat,
+      F_vec = F_vec,
+      D = D_exp,
+      d = d,
+      Vk_over_k = Vk_over_k,
+      Vc_over_c = Vc_over_c,
+      a = a,
+      L = L,
+      Ne_target = Ne_target,
+      census_N = census_N,
+      show_Ny = show_Ny,
       population = paste0(pop_label, " (expected D)")
     )
   )

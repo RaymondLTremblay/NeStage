@@ -9,7 +9,7 @@
 #   Formulation and estimation of the effective size of stage-structured
 #   populations in Fritillaria camtschatcensis, a perennial herb with a
 #   complex life history. Evolution 54(6): 2007-2013.
-#   https://doi.org/10.1111/j.0014-3820.2000.tb01244.x
+#   https://doi.org/10.1111/j.0014-3820.2000.tb01243.x
 #
 # When to use this function:
 #   Use Ne_sexual_Y2000() when your study population reproduces EXCLUSIVELY
@@ -28,7 +28,7 @@
 #     1. The Avr(Ad) term in Eq. 6 vanishes entirely because d_i = 0.
 #     2. The formula is driven by Avr(S), which depends on the variance of
 #        SEXUAL reproductive output (Vk/k_bar)_i per stage.
-#     3. The annual effective size Ny is NOT computed — Eq. 11 was derived
+#     3. The annual effective size Ny is NOT computed -- Eq. 11 was derived
 #        specifically for the clonal case and does not apply here.
 #
 # Model assumptions:
@@ -40,7 +40,7 @@
 #   4. Sexual reproductive output follows a Poisson distribution by default:
 #      (Vk / k_bar)_i = 1 for all stages i.
 #      This means reproductive success is equally distributed among
-#      individuals within a stage — no individual is a consistently
+#      individuals within a stage -- no individual is a consistently
 #      better or worse reproducer. See details on Vk_over_k below.
 #   5. Census size N is approximately constant over the generation time L.
 #
@@ -62,7 +62,7 @@
 #   Avr(S) = 2
 #   V = 2(u2_bar - u_bar^2) + 2(1 - u_bar)
 #
-# IMPORTANT — Two sources of genetic drift in this model:
+# IMPORTANT -- Two sources of genetic drift in this model:
 #   The V term has two additive components, each capturing a different
 #   biological source of allele-frequency change:
 #
@@ -74,7 +74,7 @@
 #
 #   Component 2: (1 - u_bar) * Avr(S)
 #     This captures REPRODUCTIVE VARIANCE among individuals. The factor
-#     (1 - u_bar) is the annual recruitment rate — the fraction of the
+#     (1 - u_bar) is the annual recruitment rate -- the fraction of the
 #     population replaced by new individuals each year. Avr(S) scales
 #     this by how unequal reproductive success is. High variance in who
 #     reproduces (large Vk/k_bar) means fewer individuals effectively
@@ -84,7 +84,6 @@
 # Version: 1.0.0  (2026-03-05)
 # =============================================================================
 
-
 # -----------------------------------------------------------------------------
 # SECTION 1: Input validation
 # -----------------------------------------------------------------------------
@@ -93,56 +92,79 @@
 # not depend on Ne_clonal_Y2000.R being sourced first.
 
 .validate_T_mat_sx <- function(T_mat) {
-  if (!is.matrix(T_mat) || !is.numeric(T_mat))
+  if (!is.matrix(T_mat) || !is.numeric(T_mat)) {
     stop("T_mat must be a numeric matrix.")
-  if (nrow(T_mat) != ncol(T_mat))
+  }
+  if (nrow(T_mat) != ncol(T_mat)) {
     stop("T_mat must be square (nrow == ncol).")
-  if (any(!is.finite(T_mat)))
+  }
+  if (any(!is.finite(T_mat))) {
     stop("T_mat contains non-finite values (NA, NaN, Inf).")
-  if (any(T_mat < 0))
+  }
+  if (any(T_mat < 0)) {
     stop("T_mat contains negative values. All transition rates must be >= 0.")
+  }
   col_sums <- colSums(T_mat)
-  if (any(col_sums > 1 + 1e-8))
+  if (any(col_sums > 1 + 1e-8)) {
     stop(paste0(
       "Column sums of T_mat exceed 1.0. Total annual survival cannot exceed 1.\n",
-      "  Column sums: ", paste(round(col_sums, 4), collapse = ", ")
+      "  Column sums: ",
+      paste(round(col_sums, 4), collapse = ", ")
     ))
+  }
   invisible(TRUE)
 }
 
 .validate_D_sx <- function(D, s) {
-  if (!is.numeric(D) || length(D) != s)
-    stop(paste0("D must be a numeric vector of length ", s,
-                " (one entry per stage)."))
-  if (any(!is.finite(D)) || any(D < 0))
+  if (!is.numeric(D) || length(D) != s) {
+    stop(paste0(
+      "D must be a numeric vector of length ",
+      s,
+      " (one entry per stage)."
+    ))
+  }
+  if (any(!is.finite(D)) || any(D < 0)) {
     stop("D must contain finite non-negative values.")
-  if (abs(sum(D) - 1) > 1e-6)
-    stop(paste0("D must sum to 1. Current sum = ", round(sum(D), 6),
-                ".\n  Hint: D <- D / sum(D) to normalise."))
+  }
+  if (abs(sum(D) - 1) > 1e-6) {
+    stop(paste0(
+      "D must sum to 1. Current sum = ",
+      round(sum(D), 6),
+      ".\n  Hint: D <- D / sum(D) to normalise."
+    ))
+  }
   invisible(TRUE)
 }
 
 .validate_F_vec_sx <- function(F_vec, s) {
-  if (!is.numeric(F_vec) || length(F_vec) != s)
-    stop(paste0("F_vec must be a numeric vector of length ", s,
-                " (one fecundity per stage)."))
-  if (any(!is.finite(F_vec)) || any(F_vec < 0))
+  if (!is.numeric(F_vec) || length(F_vec) != s) {
+    stop(paste0(
+      "F_vec must be a numeric vector of length ",
+      s,
+      " (one fecundity per stage)."
+    ))
+  }
+  if (any(!is.finite(F_vec)) || any(F_vec < 0)) {
     stop("F_vec must contain finite non-negative values.")
-  if (all(F_vec == 0))
+  }
+  if (all(F_vec == 0)) {
     stop(paste0(
       "F_vec is all zeros: no reproductive output in any stage.\n",
       "  For a sexual population F_vec represents seeds/offspring per ",
       "individual per stage per year.\n",
       "  At least one stage must have F_vec > 0."
     ))
+  }
   invisible(TRUE)
 }
 
 .validate_L_sx <- function(L) {
-  if (!is.numeric(L) || length(L) != 1)
+  if (!is.numeric(L) || length(L) != 1) {
     stop("L must be a single numeric value (generation time in years).")
-  if (!is.finite(L) || L <= 0)
+  }
+  if (!is.finite(L) || L <= 0) {
     stop(paste0("L must be a positive finite number. Received: ", L))
+  }
   invisible(TRUE)
 }
 
@@ -152,7 +174,7 @@
   # individuals within each stage.
   #
   # Poisson default: Vk_over_k = 1 for all stages.
-  #   Means reproductive success is randomly and equally distributed —
+  #   Means reproductive success is randomly and equally distributed --
   #   no individual is a consistently better or worse reproducer.
   #
   # Vk_over_k > 1: some individuals reproduce much more than others
@@ -162,16 +184,19 @@
   #
   # Vk_over_k < 1: reproductive success is more equal than random
   #   (rare in nature; possible in managed populations). This INCREASES Ne.
-  if (!is.numeric(Vk_over_k) || length(Vk_over_k) != s)
+  if (!is.numeric(Vk_over_k) || length(Vk_over_k) != s) {
     stop(paste0(
-      "Vk_over_k must be a numeric vector of length ", s,
+      "Vk_over_k must be a numeric vector of length ",
+      s,
       " (one value per stage).\n",
       "  Default is rep(1, s) for Poisson reproductive variance.\n",
       "  Values > 1 mean unequal reproductive success (reduces Ne).\n",
       "  Values < 1 mean more equal than random (increases Ne)."
     ))
-  if (any(!is.finite(Vk_over_k)) || any(Vk_over_k < 0))
+  }
+  if (any(!is.finite(Vk_over_k)) || any(Vk_over_k < 0)) {
     stop("Vk_over_k must contain finite non-negative values.")
+  }
   invisible(TRUE)
 }
 
@@ -181,18 +206,22 @@
   # a > 0  : inbreeding (consanguineous mating), reduces Ne
   # a = -1 : maximum heterozygosity excess (theoretical lower bound)
   # a < -1 : not biologically meaningful
-  if (!is.numeric(a) || length(a) != 1)
+  if (!is.numeric(a) || length(a) != 1) {
     stop("a must be a single numeric value (Hardy-Weinberg deviation).")
-  if (!is.finite(a))
+  }
+  if (!is.finite(a)) {
     stop("a must be a finite number.")
-  if (a < -1 || a > 1)
+  }
+  if (a < -1 || a > 1) {
     stop(paste0(
       "a must be between -1 and 1.\n",
       "  a = 0  : random mating (default)\n",
       "  a > 0  : inbreeding present\n",
       "  a < 0  : excess heterozygosity\n",
-      "  Received: ", a
+      "  Received: ",
+      a
     ))
+  }
   invisible(TRUE)
 }
 
@@ -219,49 +248,51 @@
   #
   # Returns: L as a single numeric value (years)
 
-  s     <- nrow(T_mat)
+  s <- nrow(T_mat)
   F_mat <- matrix(0, s, s)
-  F_mat[1, ] <- F_vec        # offspring enter stage 1 (juvenile stage)
+  F_mat[1, ] <- F_vec # offspring enter stage 1 (juvenile stage)
 
   # Stable stage distribution: dominant right eigenvector of A = T + F_mat
-  A  <- T_mat + F_mat
+  A <- T_mat + F_mat
   ev <- eigen(A)
-  w  <- Re(ev$vectors[, which.max(Re(ev$values))])
-  w  <- abs(w) / sum(abs(w)) # normalise to sum = 1
+  w <- Re(ev$vectors[, which.max(Re(ev$values))])
+  w <- abs(w) / sum(abs(w)) # normalise to sum = 1
 
   # Iterate T^x, accumulating the generation time numerator and denominator
-  Tx  <- diag(s)             # T^0 = identity
-  num <- 0                   # sum(x * m_bar_x * l_bar_x)
-  den <- 0                   # sum(m_bar_x * l_bar_x)
+  Tx <- diag(s) # T^0 = identity
+  num <- 0 # sum(x * m_bar_x * l_bar_x)
+  den <- 0 # sum(m_bar_x * l_bar_x)
 
   for (x in seq_len(x_max)) {
-    Tx <- T_mat %*% Tx       # T^x = T * T^(x-1)
+    Tx <- T_mat %*% Tx # T^x = T * T^(x-1)
 
     l_bar_x <- 0
     m_bar_x <- 0
     for (i in seq_len(s)) {
-      u_jxi   <- Tx[, i]
+      u_jxi <- Tx[, i]
       l_bar_x <- l_bar_x + w[i] * sum(u_jxi)
       m_bar_x <- m_bar_x + w[i] * sum(F_vec * u_jxi)
     }
 
     num <- num + x * m_bar_x * l_bar_x
-    den <- den +     m_bar_x * l_bar_x
+    den <- den + m_bar_x * l_bar_x
   }
 
-  if (den <= 0)
+  if (den <= 0) {
     stop(paste0(
       "Generation time L is undefined: no reproductive output detected over ",
-      x_max, " years.\n",
+      x_max,
+      " years.\n",
       "  Check that F_vec has positive entries and T_mat allows survival."
     ))
+  }
 
   as.numeric(num / den)
 }
 
 
 # -----------------------------------------------------------------------------
-# SECTION 3: Core computation — Eq. 6 with d_i = 0
+# SECTION 3: Core computation -- Eq. 6 with d_i = 0
 # -----------------------------------------------------------------------------
 
 .compute_V_sexual <- function(T_mat, F_vec, D, Vk_over_k, a) {
@@ -279,19 +310,20 @@
   #   6. Avr(S)  = sum(r_i * S_i) / sum(r_i)
   #   7. V       = 2(1+a)(u2_bar - u_bar^2) + (1 - u_bar) * Avr(S)
 
-  s     <- length(D)
-  u_dot <- colSums(T_mat)              # step 1: u_{.i} for each stage
-  u_bar  <- sum(D * u_dot)            # step 2: population mean survival
-  u2_bar <- sum(D * u_dot^2)          # step 3: mean of squared survivals
+  s <- length(D)
+  u_dot <- colSums(T_mat) # step 1: u_{.i} for each stage
+  u_bar <- sum(D * u_dot) # step 2: population mean survival
+  u2_bar <- sum(D * u_dot^2) # step 3: mean of squared survivals
 
-  r_i <- F_vec * D                    # step 4: newborn contributions
+  r_i <- F_vec * D # step 4: newborn contributions
 
-  if (sum(r_i) <= 0)
+  if (sum(r_i) <= 0) {
     stop(paste0(
       "sum(r_i) = sum(F_vec * D) = 0.\n",
       "  The sexual model requires at least one stage with both F_vec > 0\n",
       "  and D > 0 so that Avr(S) can be computed."
     ))
+  }
 
   # Step 5: S_i per stage
   # S_i = (1 - a) + (1 + a) * (Vk/k_bar)_i
@@ -301,35 +333,37 @@
   #   meaning fewer individuals effectively contribute genes -> lower Ne.
   S_i <- (1 - a) + (1 + a) * Vk_over_k
 
-  # Step 6: Avr(S) — recruitment-weighted average of S_i
+  # Step 6: Avr(S) -- recruitment-weighted average of S_i
   # Weighted by r_i because stages that contribute more offspring to the
   # population have more influence on the genetic composition of the next
   # generation.
   Avr_S <- sum(r_i * S_i) / sum(r_i)
 
-  # Step 7: V — the full variance term
+  # Step 7: V -- the full variance term
   # Component 1: between-stage survival variance
   # Component 2: reproductive variance weighted by annual turnover
-  V <- 2 * (1 + a) * (u2_bar - u_bar^2) +
-       (1 - u_bar) * Avr_S
+  V <- 2 * (1 + a) * (u2_bar - u_bar^2) + (1 - u_bar) * Avr_S
 
-  if (!is.finite(V) || V <= 0)
+  if (!is.finite(V) || V <= 0) {
     stop(paste0(
-      "V = ", round(V, 8), " is not positive.\n",
+      "V = ",
+      round(V, 8),
+      " is not positive.\n",
       "  V must be > 0 for Ne to be defined.\n",
       "  Check that T_mat has realistic survival rates and F_vec > 0\n",
       "  in at least one stage with D > 0."
     ))
+  }
 
   # Return all intermediates so the user can inspect the computation
   list(
-    u_dot  = u_dot,
-    u_bar  = u_bar,
+    u_dot = u_dot,
+    u_bar = u_bar,
     u2_bar = u2_bar,
-    r_i    = r_i,
-    S_i    = S_i,
-    Avr_S  = Avr_S,
-    V      = V,
+    r_i = r_i,
+    S_i = S_i,
+    Avr_S = Avr_S,
+    V = V,
     # Decomposed components for transparency
     V_component1 = 2 * (1 + a) * (u2_bar - u_bar^2),
     V_component2 = (1 - u_bar) * Avr_S
@@ -347,12 +381,19 @@
 
   NeN <- 2 / (V_list$V * L)
 
-  if (!is.finite(NeN) || NeN <= 0)
+  if (!is.finite(NeN) || NeN <= 0) {
     stop(paste0(
-      "Ne/N = ", NeN, " is not a positive finite number.\n",
-      "  V = ", round(V_list$V, 8), ", L = ", round(L, 4), "\n",
+      "Ne/N = ",
+      NeN,
+      " is not a positive finite number.\n",
+      "  V = ",
+      round(V_list$V, 8),
+      ", L = ",
+      round(L, 4),
+      "\n",
       "  Check inputs: V and L must both be positive."
     ))
+  }
 
   NeN
 }
@@ -386,7 +427,7 @@
 #'
 #' @param Vk_over_k  Numeric vector of length s. The variance-to-mean ratio
 #'               of sexual reproductive output per stage: (Vk / k_bar)_i.
-#'               Default is rep(1, s) — Poisson reproductive variance, meaning
+#'               Default is rep(1, s) -- Poisson reproductive variance, meaning
 #'               reproductive success is equally distributed among individuals
 #'               within each stage. Values > 1 indicate that some individuals
 #'               reproduce much more than others (common when pollinators show
@@ -426,7 +467,7 @@
 #'   \describe{
 #'     \item{population}{Character label}
 #'     \item{model}{"sexual_Y2000"}
-#'     \item{NeN}{Ne/N — generation-time effective size ratio (Eq. 6)}
+#'     \item{NeN}{Ne/N -- generation-time effective size ratio (Eq. 6)}
 #'     \item{L}{Generation time used (years)}
 #'     \item{L_source}{"user" or "computed"}
 #'     \item{u_dot}{Total annual survival per stage (colSums of T_mat)}
@@ -473,7 +514,7 @@
 #'
 #' # ---------------------------------------------------------
 #' # Example 2: Same population, high reproductive variance in stage 3
-#' # Vk/k_bar = 3 for reproductive adults — pollinator-limited, so only
+#' # Vk/k_bar = 3 for reproductive adults -- pollinator-limited, so only
 #' # a few adults contribute most of the seeds in any given year.
 #' # This should reduce Ne relative to Example 1.
 #' # ---------------------------------------------------------
@@ -504,23 +545,24 @@
 #' Formulation and estimation of the effective size of stage-structured
 #' populations in Fritillaria camtschatcensis, a perennial herb with a
 #' complex life history. \emph{Evolution} \strong{54}(6): 2007-2013.
-#' \doi{10.1111/j.0014-3820.2000.tb01244.x}
+#' \doi{10.1111/j.0014-3820.2000.tb01243.x}
 #'
 #' Lande R. (1995). Mutation and conservation.
 #' \emph{Conservation Biology} \strong{9}: 728-791.
 #'
 #' @export
-Ne_sexual_Y2000 <- function(T_mat,
-                             F_vec,
-                             D,
-                             Vk_over_k  = NULL,
-                             a          = 0,
-                             L          = NULL,
-                             x_max      = 500L,
-                             Ne_target  = 50,
-                             census_N   = NULL,
-                             population = NULL) {
-
+Ne_sexual_Y2000 <- function(
+  T_mat,
+  F_vec,
+  D,
+  Vk_over_k = NULL,
+  a = 0,
+  L = NULL,
+  x_max = 500L,
+  Ne_target = 50,
+  census_N = NULL,
+  population = NULL
+) {
   # ------------------------------------------------------------------
   # Step 1: Validate all inputs
   # ------------------------------------------------------------------
@@ -529,7 +571,9 @@ Ne_sexual_Y2000 <- function(T_mat,
   .validate_D_sx(D, s)
   .validate_F_vec_sx(F_vec, s)
   .validate_a_sx(a)
-  if (!is.null(L)) .validate_L_sx(L)
+  if (!is.null(L)) {
+    .validate_L_sx(L)
+  }
 
   # Default Vk_over_k = 1 for all stages (Poisson reproductive variance)
   if (is.null(Vk_over_k)) {
@@ -538,19 +582,21 @@ Ne_sexual_Y2000 <- function(T_mat,
     .validate_Vk_over_k(Vk_over_k, s)
   }
 
-  if (!is.numeric(Ne_target) || Ne_target <= 0)
+  if (!is.numeric(Ne_target) || Ne_target <= 0) {
     stop("Ne_target must be a positive number (e.g. 50, 500, or 5000).")
-  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0))
+  }
+  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0)) {
     stop("census_N must be a positive number if supplied.")
+  }
 
   # ------------------------------------------------------------------
   # Step 2: Compute or retrieve generation time L
   # ------------------------------------------------------------------
   if (!is.null(L)) {
-    L_use    <- as.numeric(L)
+    L_use <- as.numeric(L)
     L_source <- "user"
   } else {
-    L_use    <- .compute_L_sexual(T_mat, F_vec, x_max = as.integer(x_max))
+    L_use <- .compute_L_sexual(T_mat, F_vec, x_max = as.integer(x_max))
     L_source <- "computed"
   }
 
@@ -567,44 +613,51 @@ Ne_sexual_Y2000 <- function(T_mat,
   # ------------------------------------------------------------------
   # Step 5: Minimum viable census size and Ne at observed census size
   # ------------------------------------------------------------------
-  Min_N        <- ceiling(Ne_target / NeN)
+  Min_N <- ceiling(Ne_target / NeN)
   Ne_at_census <- if (!is.null(census_N)) round(NeN * census_N, 1) else NULL
 
   # ------------------------------------------------------------------
   # Step 6: Attach stage names if available
   # ------------------------------------------------------------------
-  stage_names <- if (!is.null(colnames(T_mat))) colnames(T_mat) else
+  stage_names <- if (!is.null(colnames(T_mat))) {
+    colnames(T_mat)
+  } else {
     paste0("stage_", seq_len(s))
+  }
 
   names(V_list$u_dot) <- stage_names
-  names(V_list$r_i)   <- stage_names
-  names(V_list$S_i)   <- stage_names
-  names(Vk_over_k)    <- stage_names
+  names(V_list$r_i) <- stage_names
+  names(V_list$S_i) <- stage_names
+  names(Vk_over_k) <- stage_names
 
   # ------------------------------------------------------------------
   # Step 7: Assemble and return results
   # ------------------------------------------------------------------
   result <- list(
-    population   = if (!is.null(population)) as.character(population) else "unnamed",
-    model        = "sexual_Y2000",
-    NeN          = NeN,
-    L            = L_use,
-    L_source     = L_source,
-    u_dot        = V_list$u_dot,
-    u_bar        = V_list$u_bar,
-    u2_bar       = V_list$u2_bar,
-    r_i          = V_list$r_i,
-    S_i          = V_list$S_i,
-    Avr_S        = V_list$Avr_S,
-    V            = V_list$V,
+    population = if (!is.null(population)) {
+      as.character(population)
+    } else {
+      "unnamed"
+    },
+    model = "sexual_Y2000",
+    NeN = NeN,
+    L = L_use,
+    L_source = L_source,
+    u_dot = V_list$u_dot,
+    u_bar = V_list$u_bar,
+    u2_bar = V_list$u2_bar,
+    r_i = V_list$r_i,
+    S_i = V_list$S_i,
+    Avr_S = V_list$Avr_S,
+    V = V_list$V,
     V_component1 = V_list$V_component1,
     V_component2 = V_list$V_component2,
-    Vk_over_k    = Vk_over_k,
-    a            = a,
-    Min_N        = Min_N,
-    Ne_target    = Ne_target,
+    Vk_over_k = Vk_over_k,
+    a = a,
+    Min_N = Min_N,
+    Ne_target = Ne_target,
     Ne_at_census = Ne_at_census,
-    census_N     = census_N
+    census_N = census_N
   )
 
   class(result) <- c("Ne_sexual_Y2000", "NeStage")
@@ -624,28 +677,44 @@ print.Ne_sexual_Y2000 <- function(x, digits = 3, ...) {
   cat(sprintf("  Model       : %s\n", x$model))
   cat("\n")
   cat("  --- Stage survival ---\n")
-  for (nm in names(x$u_dot))
+  for (nm in names(x$u_dot)) {
     cat(sprintf("    u_{.%s} = %.4f\n", nm, x$u_dot[nm]))
-  cat(sprintf("    u_bar  (population mean annual survival)          = %.6f\n",
-              x$u_bar))
-  cat(sprintf("    u2_bar (stage-weighted mean of squared survivals) = %.6f\n",
-              x$u2_bar))
+  }
+  cat(sprintf(
+    "    u_bar  (population mean annual survival)          = %.6f\n",
+    x$u_bar
+  ))
+  cat(sprintf(
+    "    u2_bar (stage-weighted mean of squared survivals) = %.6f\n",
+    x$u2_bar
+  ))
   cat("\n")
   cat("  --- Reproductive parameters ---\n")
-  cat(sprintf("    a (Hardy-Weinberg deviation)                      = %.4f\n",
-              x$a))
-  for (nm in names(x$Vk_over_k))
+  cat(sprintf(
+    "    a (Hardy-Weinberg deviation)                      = %.4f\n",
+    x$a
+  ))
+  for (nm in names(x$Vk_over_k)) {
     cat(sprintf("    Vk/k_bar (%s) = %.4f\n", nm, x$Vk_over_k[nm]))
-  cat(sprintf("    Avr(S) (recruitment-weighted mean S_i)            = %.6f\n",
-              x$Avr_S))
+  }
+  cat(sprintf(
+    "    Avr(S) (recruitment-weighted mean S_i)            = %.6f\n",
+    x$Avr_S
+  ))
   cat("\n")
   cat("  --- Variance decomposition ---\n")
-  cat(sprintf("    V component 1 (between-stage survival variance)   = %.6f\n",
-              x$V_component1))
-  cat(sprintf("    V component 2 (reproductive variance)             = %.6f\n",
-              x$V_component2))
-  cat(sprintf("    V total                                           = %.6f\n",
-              x$V))
+  cat(sprintf(
+    "    V component 1 (between-stage survival variance)   = %.6f\n",
+    x$V_component1
+  ))
+  cat(sprintf(
+    "    V component 2 (reproductive variance)             = %.6f\n",
+    x$V_component2
+  ))
+  cat(sprintf(
+    "    V total                                           = %.6f\n",
+    x$V
+  ))
   cat("\n")
   cat("  --- Generation time ---\n")
   cat(sprintf("    L = %.3f yr  [source: %s]\n", x$L, x$L_source))
@@ -655,20 +724,38 @@ print.Ne_sexual_Y2000 <- function(x, digits = 3, ...) {
   cat("    Note: Ny/N is not defined for purely sexual populations.\n")
   cat("\n")
   cat("  --- Conservation threshold ---\n")
-  cat(sprintf("    Ne target              = %g (minimum Ne for viability)\n",
-              x$Ne_target))
+  cat(sprintf(
+    "    Ne target              = %g (minimum Ne for viability)\n",
+    x$Ne_target
+  ))
   cat(sprintf("    Minimum census size N  = %d\n", x$Min_N))
-  cat(sprintf("    (Ne/N = %.3f => need N >= %d for Ne >= %g)\n",
-              x$NeN, x$Min_N, x$Ne_target))
+  cat(sprintf(
+    "    (Ne/N = %.3f => need N >= %d for Ne >= %g)\n",
+    x$NeN,
+    x$Min_N,
+    x$Ne_target
+  ))
   if (!is.null(x$census_N)) {
-    cat(sprintf("    Ne at your census size (N = %g) = %.1f\n",
-                x$census_N, x$Ne_at_census))
-    if (x$Ne_at_census < x$Ne_target)
-      cat(sprintf("    WARNING: Ne (%.1f) < Ne target (%g) at N = %g\n",
-                  x$Ne_at_census, x$Ne_target, x$census_N))
-    else
-      cat(sprintf("    OK: Ne (%.1f) >= Ne target (%g) at N = %g\n",
-                  x$Ne_at_census, x$Ne_target, x$census_N))
+    cat(sprintf(
+      "    Ne at your census size (N = %g) = %.1f\n",
+      x$census_N,
+      x$Ne_at_census
+    ))
+    if (x$Ne_at_census < x$Ne_target) {
+      cat(sprintf(
+        "    WARNING: Ne (%.1f) < Ne target (%g) at N = %g\n",
+        x$Ne_at_census,
+        x$Ne_target,
+        x$census_N
+      ))
+    } else {
+      cat(sprintf(
+        "    OK: Ne (%.1f) >= Ne target (%g) at N = %g\n",
+        x$Ne_at_census,
+        x$Ne_target,
+        x$census_N
+      ))
+    }
   }
   cat("\n")
   invisible(x)

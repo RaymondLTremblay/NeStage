@@ -15,60 +15,34 @@ population geneticists who need to translate demographic transition matrices
 into genetic drift metrics.
 
 In stage-structured populations, individuals move through distinct life-history
-stages — for example, seedling → juvenile → reproductive adult — each with
-different survival and fecundity rates. Standard *N*e formulas that assume
-simple age structure are not appropriate for these systems. NeStage provides the
-correct formulation derived directly from the variance of allele-frequency change
-across stages.
+stages — seedling → juvenile → reproductive adult — each with different
+survival and fecundity rates. Standard *N*e formulas that assume simple age
+structure are not appropriate for these systems. NeStage derives *N*e directly
+from the variance of allele-frequency change across stages.
 
-> **Key biological insight**: *N*e is often only 20–30% of the census size *N*
-> in stage-structured populations. To maintain *N*e ≥ 5,000 — the threshold
-> recommended for long-term gene diversity conservation (Lande 1995) — census
-> populations must typically exceed 17,000–23,000 individuals, far larger than
-> naive counts suggest.
+> **Key biological insight**: *N*e is often only 10–30% of the census size *N*
+> in stage-structured populations (Frankham 1995). A population of 40
+> *Lepanthes* orchids — already large for this endangered genus — typically
+> achieves Ne of only 7–37, well below the short-term inbreeding threshold
+> of Ne ≥ 50 (Franklin 1980).
 
 ---
 
 ## The Yonezawa (2000) model
 
-For a population with *s* stages, let *u*ⱼᵢ be the annual transition rate
-from stage *i* to stage *j*, and *D*ᵢ the fraction of the population in stage *i*.
-The model operates in two tiers:
-
-**General model (Eq. 6)** — for populations with mixed sexual and clonal
-reproduction, non-Poisson variance in reproductive output, and arbitrary
-deviations from Hardy–Weinberg proportions:
+For a population with *s* stages, the **generation-time effective size** is:
 
 $$N_e = \frac{2N}{V \cdot L}$$
 
 where *V* captures the full variance structure of survival and reproduction
-across stages, and *L* is the mean generation time.
+across stages and *L* is the mean generation time. Three special cases are
+implemented:
 
-**Poisson clonal-dominant case (Eqs. 10–11)** — the simplification that applies
-when reproduction is primarily clonal and reproductive contributions follow a
-Poisson distribution (as in *Fritillaria camtschatcensis*). Here the key
-intermediate quantity is the **stage-weighted mean of squared survival rates**:
-
-$$\overline{u^2} = \sum_{i=1}^{s} D_i \, u_{\cdot i}^2, \qquad
-u_{\cdot i} = \sum_j u_{ji}$$
-
-which yields the effective size ratios:
-
-$$\frac{N_y}{N} = \frac{1}{1 - \overline{u^2}}, \qquad
-\frac{N_e}{N} = \frac{1}{(1 - \overline{u^2})\,L}$$
-
-> Equations render on GitHub (LaTeX support added 2022). See the vignette for
-> a fully typeset and annotated derivation.
-
-### Key quantities computed
-
-| Symbol | Name | Meaning |
-|--------|------|---------|
-| *ū²* | Stage-weighted mean squared survival | Central intermediate; drives all *N*e calculations |
-| *N*y/*N* | Annual effective size ratio | Genetic drift per year relative to census size |
-| *N*e/*N* | Generation-time effective size ratio | Drift per generation relative to census size |
-| *L* | Generation time | Mean age of reproduction under stage structure (years) |
-| Min *N* | Minimum viable census size | Census size for *N*e ≥ 5,000 (Lande 1995) |
+| Model | When to use |
+|-------|------------|
+| `Ne_clonal_Y2000()` | All reproduction is clonal (e.g. *Fritillaria*) |
+| `Ne_sexual_Y2000()` | All reproduction is sexual (e.g. *Lepanthes* orchids) |
+| `Ne_mixed_Y2000()` | Mixed sexual + clonal reproduction; full general model (Eq. 6) |
 
 ---
 
@@ -85,169 +59,190 @@ remotes::install_github("RaymondLTremblay/NeStage")
 
 ## Quick start
 
-### Replicate Yonezawa et al. (2000) Table 4
-
-The package ships with the *Fritillaria camtschatcensis* data from the
-foundational paper. One function call reproduces all values in Table 4:
+### Sexual reproduction — *Lepanthes rupestris* population 1
 
 ```r
 library(NeStage)
 
-nestage_example_table4()
-#> === Table 4 replication ===
-#> Miz: L=13.399  Ny/N=2.932 (2.977)  Ne/N=0.219 (0.222)
-#> Nan: L=8.353   Ny/N=2.428 (2.444)  Ne/N=0.291 (0.293)
-#> # values in () use the stable-stage (expected) distribution instead of observed counts
-```
+# Survival-transition matrix (MatU) — monthly time step
+T_mat <- matrix(c(
+  0,     0,     0,     0,     0,     0,
+  0.738, 0.738, 0,     0,     0,     0,
+  0,     0,     0.515, 0,     0.076, 0.013,
+  0,     0.038, 0,     0.777, 0,     0,
+  0,     0.002, 0.368, 0.011, 0.730, 0.171,
+  0,     0,     0.037, 0,     0.169, 0.790
+), nrow = 6, byrow = TRUE)
 
-### Single population — observed stage fractions
+# Fecundity vector (row 1 of MatF) — monthly newborns per individual
+F_vec <- c(0, 0, 0, 0, 0.120, 0.414)
 
-```r
-miz <- get_table2_inputs("Miz")
+# Stage frequency vector D (from observed counts)
+D <- c(22, 22, 36, 36, 48.5, 48.5)
+D <- D / sum(D)
 
-out <- nestage_exact(
-  A_obs = NULL,
-  meta  = list(
-    estimator  = "paper_v1",
-    table2_pop = "Miz",
-    Ds         = miz$D_obs,
-    population = "Miz"
-  )
+out <- Ne_sexual_Y2000(
+  T_mat      = T_mat,
+  F_vec      = F_vec,
+  D          = D,
+  Ne_target  = 50,     # Franklin (1980) short-term inbreeding threshold
+  census_N   = 40,     # actual or expected census population size
+  population = "L. rupestris pop 1"
 )
 
-out$L    # 13.399  — generation time (years)
-out$NyN  #  2.932  — annual effective size ratio
-out$NeN  #  0.219  — generation-time effective size ratio
-5000 / out$NeN  # 22,831 — minimum census size for Ne >= 5,000 (Lande 1995)
+print(out)
+#>
+#>  ─────────────────────────────────────────────────────
+#>   Ne_sexual_Y2000 results  ·  L. rupestris pop 1
+#>  ─────────────────────────────────────────────────────
+#>   Stages s                           = 6
+#>   Stage-weighted survival (u_bar)    = 0.741
+#>   Generation time L                  = 14.6 months
+#>   V (total variance)                 = 0.420
+#>   Ne/N                               = 0.572
+#>   --- Conservation threshold ---
+#>   Ne target                          = 50
+#>   Minimum census size N              = 88
+#>   Ne at your census size (N = 40)    = 22.9
+#>   WARNING: Ne (22.9) < Ne target (50) at N = 40
+#>  ─────────────────────────────────────────────────────
 ```
 
-### Using your own transition matrix
+### Clonal reproduction — *Fritillaria camtschatcensis* (replicates Yonezawa 2000)
 
 ```r
-# U = survival/transition matrix (rows = destination stage, cols = source stage)
-# F = fecundity vector (newborns produced per individual per stage)
-
-U <- matrix(c(
-  0.50, 0.10, 0.00,
-  0.20, 0.60, 0.05,
-  0.00, 0.15, 0.70
+T_Miz <- matrix(c(
+  0.789, 0.121, 0.054,
+  0.007, 0.621, 0.335,
+  0.001, 0.258, 0.611
 ), nrow = 3, byrow = TRUE)
 
-F_vec <- c(0.0, 0.5, 2.0)
+out_Miz <- Ne_clonal_Y2000(
+  T_mat      = T_Miz,
+  F_vec      = c(0.055, 1.328, 2.398),
+  D          = c(0.935, 0.038, 0.027),
+  L          = 13.399,   # from Yonezawa et al. (2000) Table 4
+  Ne_target  = 5000,     # Lande (1995) long-term evolutionary threshold
+  census_N   = 200,
+  population = "Fritillaria Miz"
+)
+# Ne/N = 0.219  — matches Table 4 exactly
+```
 
-# Derive stable stage distribution as D
-A <- U; A[1, ] <- A[1, ] + F_vec
-D <- Re(eigen(A)$vectors[, 1])
-D <- abs(D) / sum(abs(D))
+---
 
-# Note: L must be supplied externally. It is computed by iterating the
-# matrix to age 500 following the formula in Yonezawa (2000, p. 2008):
-#   L = sum(x * sum_j(Fj * uj1x)) / sum(sum_j(Fj * uj1x))
-# This iteration is computationally intensive; use a published L from
-# your study or derive it from the transition matrix before calling nestage_exact().
+## Sensitivity analysis
 
-out <- nestage_exact(
-  A_obs = NULL,
-  meta  = list(
-    estimator  = "paper_v1",
-    U          = U,
-    F          = F_vec,
-    Ds         = D,
-    L          = 10.0,       # generation time in years — supply from your study
-    population = "my_species"
-  )
+Four functions sweep one parameter at a time and return a data frame,
+a ggplot2 figure, and elasticity statistics — telling you which parameter
+drives Ne/N most and where management effort has the greatest genetic return.
+
+```r
+sens <- Ne_sensitivity_Vk(
+  model_fn    = Ne_sexual_Y2000,
+  T_mat       = T_mat,
+  F_vec       = F_vec,
+  D           = D,
+  stage_index = 5,                       # reproductive adults
+  Vk_range    = seq(0.5, 8, by = 0.5),
+  Ne_target   = 50,
+  population  = "L. rupestris pop 1"
 )
 
-cat("Ne/N =", round(out$NeN, 3), "\n")
-cat("Min N for Ne >= 5,000:", ceiling(5000 / out$NeN), "\n")
+print(sens)    # elasticity table
+sens$plot      # ggplot2 figure
 ```
+
+| Function | Parameter swept | Management question |
+|---|---|---|
+| `Ne_sensitivity_Vk()` | Sexual reproductive variance Vk/k̄ | How unequal is seed parentage? |
+| `Ne_sensitivity_Vc()` | Clonal reproductive variance Vc/c̄ | Do dominant clonal genets reduce Ne? |
+| `Ne_sensitivity_d()` | Clonal fraction *d* | Does shifting from sexual to clonal matter? |
+| `Ne_sensitivity_L()` | Generation time *L* | How much does L uncertainty affect Ne/N? |
+
+---
+
+## Choosing your Ne target
+
+The `Ne_target` parameter controls what minimum Ne is considered viable.
+
+| Ne target | Criterion | Source |
+|-----------|-----------|--------|
+| **50** | Avoid short-term inbreeding depression | Franklin (1980) |
+| **500** | Maintain long-term quantitative genetic variation | Franklin (1980) |
+| **5000** | Preserve long-term evolutionary potential | Lande (1995) |
+
+For small, range-restricted species such as *Lepanthes* (census N typically
+< 100), the Ne ≥ 50 threshold is the relevant near-term goal. The Ne ≥ 5,000
+criterion is more appropriate for large-population conservation planning.
 
 ---
 
 ## Functions
 
-| Function | Description |
-|----------|-------------|
-| `nestage_exact()` | Core *N*e calculation from transition matrix and stage fractions |
-| `nestage_example_table4()` | Replicates Table 4 of Yonezawa et al. (2000) |
-| `get_table2_inputs()` | Returns *Fritillaria* demographic data for `"Miz"` or `"Nan"` |
-
----
-
-## Biological system: *Fritillaria camtschatcensis*
-
-The package validation is based on *Fritillaria camtschatcensis* (Liliaceae),
-a perennial alpine herb studied at two populations on Mount Hakusan, central
-Honshu, Japan (Yonezawa et al. 2000). Plants persist through three
-life-history stages:
-
-| Stage | Description |
-|-------|-------------|
-| Stage 1 | One-leaf, non-flowering |
-| Stage 2 | Multi-leaf, non-flowering |
-| Stage 3 | Multi-leaf, flowering |
-
-All three stages reproduce clonally via bulblets; no seedling recruitment was
-observed in the field, so the populations are maintained almost entirely by
-clonal reproduction. Two populations were studied:
-
-| Population | Elevation | *L* (years) | *N*e/*N* | Min *N* for *N*e ≥ 5,000 |
-|------------|-----------|-------------|----------|--------------------------|
-| **Miz** (Mizuyajiri) | 2,450 m | 13.40 | 0.219 | 22,831 |
-| **Nan** (Nanryu)     | 2,050 m |  8.35 | 0.291 | 17,183 |
-
-Miz, at higher elevation with a drier and colder habitat, has a longer
-generation time and lower *N*e/*N*, but is subject to less annual drift
-(*N*y/*N* = 2.932 vs. 2.428). Both populations require census sizes
-well above 17,000 individuals to conserve normal levels of gene diversity
-under the Ne ≥ 5,000 criterion of Lande (1995).
+| Function | Model | Description |
+|----------|-------|-------------|
+| `Ne_clonal_Y2000()` | Clonal | Eqs. 10–11 of Yonezawa et al. (2000) |
+| `Ne_clonal_Y2000_both()` | Clonal | Observed + expected D in one call |
+| `Ne_sexual_Y2000()` | Sexual | Full sexual model |
+| `Ne_mixed_Y2000()` | Mixed | General model (Eq. 6); any d, Vk, Vc, a |
+| `Ne_mixed_Y2000_both()` | Mixed | Observed + expected D in one call |
+| `Ne_sensitivity_Vk()` | Sexual, mixed | Sensitivity to sexual repro variance |
+| `Ne_sensitivity_Vc()` | Mixed | Sensitivity to clonal repro variance |
+| `Ne_sensitivity_d()` | Mixed | Sensitivity to clonal fraction |
+| `Ne_sensitivity_L()` | All | Sensitivity to generation time |
 
 ---
 
 ## Vignettes
 
-```r
-vignette("Ne_Yonezawa2000", package = "NeStage")
-```
-
 | Vignette | Description |
 |----------|-------------|
-| `Ne_Yonezawa2000` | Step-by-step replication of Table 4, with full formula derivations, notation reference, and validation tables |
+| `Ne_Yonezawa2000` | Step-by-step replication of Table 4 of Yonezawa et al. (2000); formula derivations and notation reference |
+| `NeStage_functions` | Applied user guide: Ne/N for 17 populations of three Puerto Rican *Lepanthes* orchid species (Tremblay & Ackerman 2001) |
+| `NeStage_sensitivity` | Conservation decision-making: elasticity analysis and a management prioritisation framework |
+
+```r
+vignette("Ne_Yonezawa2000",     package = "NeStage")
+vignette("NeStage_functions",   package = "NeStage")
+vignette("NeStage_sensitivity", package = "NeStage")
+```
 
 ---
 
 ## Citation
 
-If you use NeStage in published research, please cite both the package and the
-foundational paper:
-
 **Package:**
 
 > Tremblay, R.L. (2026). *NeStage: Effective population size for
-> stage-structured populations*. R package version 0.6.1.
+> stage-structured populations*. R package version 0.1.0.
 > https://github.com/RaymondLTremblay/NeStage
 
 **Foundational paper:**
 
 > Yonezawa, K., Kinoshita, E., Watano, Y., and Zentoh, H. (2000).
 > Formulation and estimation of the effective size of stage-structured
-> populations in *Fritillaria camtschatcensis*, a perennial herb with a
-> complex life history. *Evolution* **54**(6): 2007–2013.
-> https://doi.org/10.1111/j.0014-3820.2000.tb01243.x
+> populations in *Fritillaria camtschatcensis*. *Evolution* **54**(6):
+> 2007–2013. https://doi.org/10.1111/j.0014-3820.2000.tb01244.x
 
-**Conservation threshold:**
+**Field data:**
 
-> Lande, R. (1995). Mutation and conservation. *Conservation Biology*
-> **9**: 728–791.
+> Tremblay, R.L. and Ackerman, J.D. (2001). Gene flow and effective
+> population size in *Lepanthes* (Orchidaceae): a case for genetic drift.
+> *Biological Journal of the Linnean Society* **72**: 47–62.
 
 ---
 
-## Contributing
+## References
 
-Bug reports and feature requests are welcome via
-[GitHub Issues](https://github.com/RaymondLTremblay/NeStage/issues).
-Pull requests are also welcome — please open an issue first to discuss
-proposed changes.
+- Franklin I.R. (1980). Evolutionary change in small populations. In: Soulé
+  & Wilcox, eds. *Conservation Biology*. Sinauer. pp. 135–149.
+- Frankham R. (1995). Effective population size/adult population size ratios
+  in wildlife. *Genetical Research* **66**: 95–107.
+- Lande R. (1995). Mutation and conservation. *Conservation Biology* **9**:
+  782–791.
+- Orive M.E. (1993). Effective population size in organisms with complex
+  life histories. *Theoretical Population Biology* **44**: 316–340.
 
 ---
 

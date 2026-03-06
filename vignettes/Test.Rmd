@@ -1,0 +1,64 @@
+---
+title: "Test"
+author: "RLTremblay"
+date: "2026-03-06"
+output: html_document
+---
+
+
+```{r}
+T_Nan <- matrix(c(
+   0.748, 0.137, 0.138,
+   0.006, 0.669, 0.374,
+   0.001, 0.194, 0.488 ), 
+   nrow = 3, byrow = TRUE)
+```
+
+
+
+
+```{r}
+Ne_clonal_Y2000(
+  T_mat      = matrix(c(0.789, 0.121, 0.054,
+                        0.007, 0.621, 0.335,
+                        0.001, 0.258, 0.611), nrow = 3, byrow = TRUE),
+  F_vec      = c(0.055, 1.328, 2.398),
+  D          = c(0.935, 0.038, 0.027),
+  L          = 13.399,
+  population = "Miz"
+)
+```
+
+
+```{r}
+Ne_clonal_Y2000(
+  T_mat      = matrix(c(0.748, 0.137, 0.138,
+                        0.006, 0.669, 0.374,
+                        0.001, 0.194, 0.488), nrow = 3, byrow = TRUE),
+  F_vec      = c(0.138, 2.773, 5.016),
+  D          = c(0.958, 0.027, 0.015),
+  L          = 8.353,
+  population = "Nan"
+)
+```
+
+
+
+```{r}
+
+
+T_plant <- matrix(c(
+  0.30, 0.05, 0.00,
+  0.40, 0.65, 0.10,
+  0.00, 0.20, 0.80
+), nrow = 3, byrow = TRUE)
+
+result1 <- Ne_sexual_Y2000(
+  T_mat      = T_plant,
+  F_vec      = c(0.0, 0.5, 3.0),
+  D          = c(0.60, 0.25, 0.15),
+  population = "hypothetical herb"
+)
+print(result1)
+```
+

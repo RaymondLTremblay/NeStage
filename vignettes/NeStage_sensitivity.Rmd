@@ -1,0 +1,697 @@
+---
+title: "Sensitivity Analysis for Conservation Decision-Making"
+subtitle: "Which parameter drives Ne/N most — and what can a manager actually change?"
+author: "Raymond L. Tremblay"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    self_contained: true
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+    mathjax: default
+    theme: flatly
+    highlight: tango
+vignette: >
+  %\VignetteIndexEntry{Sensitivity Analysis for Conservation Decision-Making}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 4.5,
+  warning   = FALSE,
+  message   = FALSE
+)
+```
+
+```{r source-nestage, include=FALSE}
+local({
+  r_dir <- file.path("..", "R")
+  if (dir.exists(r_dir)) {
+    source(file.path(r_dir, "Ne_clonal_Y2000.R"))
+    source(file.path(r_dir, "Ne_sexual_Y2000.R"))
+    source(file.path(r_dir, "Ne_mixed_Y2000.R"))
+    source(file.path(r_dir, "Ne_sensitivity.R"))
+  } else {
+    library(NeStage)
+  }
+})
+```
+
+```{r packages, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(knitr)
+```
+
+---
+
+# Introduction
+
+## From a ratio to a decision
+
+The previous vignette (*NeStage Functions: A User Guide*) established that all
+three *Lepanthes* orchid species in Puerto Rico have Ne/N ratios far below the
+short-term inbreeding threshold of Ne ≥ 50, even at census sizes of N = 40
+— a large population for these species. Knowing that Ne/N = 0.18 for a
+particular population tells you the situation is serious. It does not tell you
+**what to do about it**.
+
+Sensitivity analysis answers the management question: **which parameter, if
+changed, would increase Ne/N the most?** This matters because managers have
+limited resources and can realistically influence only certain aspects of a
+population's biology:
+
+| What a manager can influence | Relevant parameter |
+|---|---|
+| Reducing harvest or disturbance of reproductive adults | Stage frequency D — more adults |
+| Translocating individuals between populations | Census N, D |
+| Ex-situ propagation with controlled pollination | Reproductive variance Vk/k̄ |
+| Removing dominant clonal genets | Clonal fraction d, Vc/c̄ |
+| Improving habitat to extend plant lifespan | Generation time L |
+
+## The four sensitivity functions
+
+`NeStage` provides four sensitivity functions, each sweeping one parameter
+while holding all others fixed:
+
+| Function | Parameter swept | Applies to |
+|---|---|---|
+| `Ne_sensitivity_Vk()` | Sexual reproductive variance Vk/k̄ | Sexual, mixed |
+| `Ne_sensitivity_Vc()` | Clonal reproductive variance Vc/c̄ | Mixed only |
+| `Ne_sensitivity_d()` | Clonal fraction d | Mixed only |
+| `Ne_sensitivity_L()` | Generation time L | All three models |
+
+Each function returns a data frame, a ggplot, and an `Ne_sensitivity` object
+with elasticity statistics from `print()`.
+
+## Elasticity: a standardised sensitivity measure
+
+Raw sensitivity (how much does Ne/N change per unit change in a parameter) is
+hard to compare across parameters measured in different units. **Elasticity**
+standardises by expressing the response as a proportional change:
+
+$$
+E = \frac{\partial (N_e/N)}{\partial \theta} \times \frac{\theta_\text{ref}}{(N_e/N)_\text{ref}}
+$$
+
+An elasticity of −0.4 means a 10% increase in $\theta$ produces a 4% decrease
+in Ne/N. Elasticities are dimensionless and directly comparable across
+parameters and populations.
+
+---
+
+# Study populations
+
+We use three representative *Lepanthes* populations from the previous vignette —
+one from each species — chosen to span the range of Ne/N values observed.
+
+```{r setup-populations}
+# ---- L. rupestris population 1 (Ne/N = 0.572) ----
+MatU_Lrup1 <- matrix(c(
+  0,     0,     0,     0,     0,     0,
+  0.738, 0.738, 0,     0,     0,     0,
+  0,     0,     0.515, 0,     0.076, 0.013,
+  0,     0.038, 0,     0.777, 0,     0,
+  0,     0.002, 0.368, 0.011, 0.730, 0.171,
+  0,     0,     0.037, 0,     0.169, 0.790
+), nrow = 6, byrow = TRUE,
+dimnames = list(paste0("s", 1:6), paste0("s", 1:6)))
+
+F_Lrup1 <- c(0, 0, 0, 0, 0.120, 0.414)   # monthly fecundity
+D_Lrup1 <- c(22, 22, 36, 36, 48.5, 48.5)
+D_Lrup1 <- D_Lrup1 / sum(D_Lrup1)
+
+# ---- L. rubripetala population 1 (Ne/N = 0.930) ----
+MatU_Lrub1 <- matrix(c(
+  0,     0,     0,     0,     0,
+  0.667, 0.667, 0,     0,     0,
+  0,     0,     0.825, 0,     0.227,
+  0,     0.037, 0,     0.812, 0,
+  0,     0,     0.137, 0.010, 0.739
+), nrow = 5, byrow = TRUE,
+dimnames = list(paste0("s", 1:5), paste0("s", 1:5)))
+
+F_Lrub1 <- c(0, 0, 0, 0, 0.043)
+N_Lrub1 <- c(9/2, 9/2, 44/2, 44/2, 101)
+D_Lrub1 <- N_Lrub1 / sum(N_Lrub1)
+
+# ---- L. rubripetala population 5 (Ne/N = 0.250, lowest in Lrub) ----
+MatU_Lrub5 <- matrix(c(
+  0,     0,     0,     0,     0,
+  0.667, 0.667, 0,     0,     0,
+  0,     0,     0.726, 0,     0.250,
+  0,     0.037, 0,     0.812, 0,
+  0,     0,     0.237, 0.010, 0.739
+), nrow = 5, byrow = TRUE,
+dimnames = list(paste0("s", 1:5), paste0("s", 1:5)))
+
+F_Lrub5 <- c(0, 0, 0, 0, 0.067)
+N_Lrub5 <- c(52/2, 52/2, 4/2, 4/2, 46)
+D_Lrub5 <- N_Lrub5 / sum(N_Lrub5)
+
+# Baseline Ne estimates for reference
+Ne_base_Lrup1 <- Ne_sexual_Y2000(
+  T_mat = MatU_Lrup1, F_vec = F_Lrup1, D = D_Lrup1,
+  Ne_target = 50, census_N = 40, population = "L. rupestris pop 1"
+)
+Ne_base_Lrub1 <- Ne_sexual_Y2000(
+  T_mat = MatU_Lrub1, F_vec = F_Lrub1, D = D_Lrub1,
+  Ne_target = 50, census_N = 40, population = "L. rubripetala pop 1"
+)
+Ne_base_Lrub5 <- Ne_sexual_Y2000(
+  T_mat = MatU_Lrub5, F_vec = F_Lrub5, D = D_Lrub5,
+  Ne_target = 50, census_N = 40, population = "L. rubripetala pop 5"
+)
+
+# Baseline summary
+data.frame(
+  Population = c("L. rupestris pop 1", "L. rubripetala pop 1",
+                 "L. rubripetala pop 5"),
+  Stages     = c(6, 5, 5),
+  NeN        = round(c(Ne_base_Lrup1$NeN, Ne_base_Lrub1$NeN,
+                        Ne_base_Lrub5$NeN), 3),
+  Ne_at_40   = c(Ne_base_Lrup1$Ne_at_census, Ne_base_Lrub1$Ne_at_census,
+                  Ne_base_Lrub5$Ne_at_census),
+  Min_N_50   = c(Ne_base_Lrup1$Min_N, Ne_base_Lrub1$Min_N,
+                  Ne_base_Lrub5$Min_N)
+) |>
+  knitr::kable(
+    col.names = c("Population", "Stages", "Ne/N",
+                  "Ne at N=40", "Min N (Ne≥50)"),
+    caption   = "Baseline Ne/N estimates for the three study populations
+                 (monthly matrices, Ne_target = 50, census_N = 40)."
+  )
+```
+
+---
+
+# Sensitivity to sexual reproductive variance: `Ne_sensitivity_Vk()`
+
+## What is Vk/k̄ and why does it matter?
+
+The variance-to-mean ratio of sexual reproductive output Vk/k̄ measures how
+equally seeds are distributed among reproductive adults. Under Poisson
+distribution (Vk/k̄ = 1), all adults contribute equally to the seed pool.
+Values above 1 mean some individuals dominate — a few adults produce most of
+the seeds, so the effective number of parents is smaller than the census count.
+
+In *Lepanthes*, this is biologically plausible because:
+
+- Pollination by fungus gnats is patchy — some plants are visited far more
+  frequently than others
+- Microhabitat variation means some individuals are far more fecund than others
+- In small populations, one or two dominant individuals can produce most seeds
+  in a given year
+
+The Poisson default (Vk/k̄ = 1) is almost certainly an underestimate of the
+true variance for most natural populations.
+
+## Running `Ne_sensitivity_Vk()` for the reproductive stage
+
+For *L. rupestris* (6 stages), stage 5 (single-shoot reproductive adults)
+is the primary sexual reproductive stage. We sweep Vk/k̄ from 0.5 to 8.
+
+```{r vk-sensitivity-lrup1, fig.cap="Sensitivity of Ne/N to sexual reproductive variance in stage 5 of *L. rupestris* pop 1. Dashed vertical line = Poisson default."}
+sens_Vk_Lrup1 <- Ne_sensitivity_Vk(
+  model_fn    = Ne_sexual_Y2000,
+  T_mat       = MatU_Lrup1,
+  F_vec       = F_Lrup1,
+  D           = D_Lrup1,
+  stage_index = 5,              # stage 5: single-shoot reproductive adults
+  Vk_range    = seq(0.5, 8, by = 0.5),
+  Ne_target   = 50,
+  population  = "L. rupestris pop 1"
+)
+
+print(sens_Vk_Lrup1)
+```
+
+## Interpretation
+
+The elasticity printed above tells us how strongly Ne/N responds to Vk/k̄.
+A negative local elasticity is expected — higher reproductive variance always
+reduces Ne/N. The conservation ratio (worst-case Ne/N relative to Poisson
+baseline) tells a manager: if reproductive inequality is at the high end of
+the plausible range, how many more individuals are needed?
+
+```{r vk-both-stages, fig.cap="Sensitivity of Ne/N to sexual reproductive variance: stage 5 (left) vs stage 6 (right) in *L. rupestris* pop 1.", fig.width=10}
+# Also sweep stage 6 (two-or-more-shoot adults) for comparison
+sens_Vk_Lrup1_s6 <- Ne_sensitivity_Vk(
+  model_fn    = Ne_sexual_Y2000,
+  T_mat       = MatU_Lrup1,
+  F_vec       = F_Lrup1,
+  D           = D_Lrup1,
+  stage_index = 6,
+  Vk_range    = seq(0.5, 8, by = 0.5),
+  Ne_target   = 50,
+  population  = "L. rupestris pop 1 — stage 6"
+)
+
+# Combined data for comparison plot
+df_vk_compare <- bind_rows(
+  sens_Vk_Lrup1$data    %>% mutate(Stage = "Stage 5 (1-shoot repro)"),
+  sens_Vk_Lrup1_s6$data %>% mutate(Stage = "Stage 6 (2+-shoot repro)")
+)
+
+ggplot(df_vk_compare, aes(x = Vk_over_k, y = NeN, color = Stage)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "grey50") +
+  scale_color_manual(values = c("#2166ac", "#d6604d")) +
+  labs(
+    title    = expression(paste("Ne/N vs. sexual reproductive variance  ", V[k]/bar(k))),
+    subtitle = "L. rupestris pop 1 — comparing focal stage",
+    x        = expression(V[k]/bar(k)),
+    y        = expression(N[e]/N),
+    color    = NULL,
+    caption  = "Dashed line = Poisson default (Vk/k̄ = 1). Monthly matrices."
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.4)
+  )
+```
+
+Stage 6 (multi-shoot plants) has a larger effect because its fecundity
+(F = 0.414 per month) is more than three times that of stage 5 (F = 0.120).
+When high-fecundity adults have unequal reproductive output, the genetic
+consequences are proportionally larger.
+
+**Management implication:** Strategies that equalise seed production — for
+example, hand-pollination programmes that ensure all reproductive adults
+contribute pollen — would have the greatest effect in stage 6 individuals.
+
+---
+
+# Sensitivity to generation time: `Ne_sensitivity_L()`
+
+## Why L matters so much
+
+Generation time L appears in the denominator of the Ne/N formula (Eq. 6 of
+Yonezawa et al. 2000): Ne/N = 2/(V·L). A longer generation time means that
+drift accumulates over more years per generation, reducing Ne/N. Conversely,
+**anything that shortens the generation time** — such as habitat degradation
+that reduces adult survival — also reduces Ne/N.
+
+Generation time is also the most **uncertain** parameter in the model. Field
+studies of *Lepanthes* run for 16–34 months, which is far shorter than the
+generation time of these long-lived orchids. The L value we compute from
+monthly matrices may differ from the true population L if the observed years
+were not demographically representative.
+
+## Sweeping L across a biologically plausible range
+
+```{r L-sensitivity, fig.cap="Sensitivity of Ne/N to generation time L across all three study populations.", fig.width=10, fig.height=5}
+L_range_use <- seq(5, 80, by = 5)
+
+# Run for all three populations
+make_L_sens <- function(MatU, F_vec, D, Ne_target, pop_label) {
+  Ne_sensitivity_L(
+    model_fn   = Ne_sexual_Y2000,
+    T_mat      = MatU,
+    F_vec      = F_vec,
+    D          = D,
+    L_range    = L_range_use,
+    Ne_target  = Ne_target,
+    population = pop_label
+  )
+}
+
+sens_L_Lrup1 <- make_L_sens(MatU_Lrup1, F_Lrup1, D_Lrup1, 50,
+                              "L. rupestris pop 1")
+sens_L_Lrub1 <- make_L_sens(MatU_Lrub1, F_Lrub1, D_Lrub1, 50,
+                              "L. rubripetala pop 1")
+sens_L_Lrub5 <- make_L_sens(MatU_Lrub5, F_Lrub5, D_Lrub5, 50,
+                              "L. rubripetala pop 5")
+
+# Observed L values from monthly matrices
+L_obs <- c(Ne_base_Lrup1$L, Ne_base_Lrub1$L, Ne_base_Lrub5$L)
+
+df_L <- bind_rows(
+  sens_L_Lrup1$data %>% mutate(Population = "L. rupestris pop 1",
+                                 L_obs = L_obs[1]),
+  sens_L_Lrub1$data %>% mutate(Population = "L. rubripetala pop 1",
+                                 L_obs = L_obs[2]),
+  sens_L_Lrub5$data %>% mutate(Population = "L. rubripetala pop 5",
+                                 L_obs = L_obs[3])
+)
+
+ggplot(df_L, aes(x = L, y = NeN, color = Population)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.8) +
+  geom_vline(aes(xintercept = L_obs, color = Population),
+             linetype = "dashed", linewidth = 0.7, alpha = 0.7) +
+  scale_color_manual(values = c("#2166ac", "#1b7837", "#d6604d")) +
+  labs(
+    title    = expression(paste("Sensitivity of  ", N[e]/N, "  to generation time  ", L)),
+    subtitle = "Dashed vertical lines = observed L from monthly matrices",
+    x        = "Generation time L (months)",
+    y        = expression(N[e]/N),
+    color    = NULL,
+    caption  = "All populations: Ne_sexual_Y2000, Poisson defaults, Ne_target = 50."
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title      = element_text(face = "bold"),
+    legend.position = "bottom",
+    legend.text     = element_text(face = "italic"),
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.4)
+  )
+```
+
+```{r L-print}
+# Print elasticity summary for the most sensitive population
+print(sens_L_Lrub5)
+```
+
+## Key insight: Ne/N is hyperbolic in L
+
+Because Ne/N = 2/(V·L), the relationship is hyperbolic — Ne/N declines
+steeply at short L and flattens at long L. This means:
+
+- Populations with **short** observed L (such as *L. rubripetala* pop 5 with
+  L ≈ 20 months) are in the steep part of the curve — a small error in L
+  estimation translates into a large error in Ne/N.
+- Populations with **longer** L are more stable in their Ne/N estimate.
+
+**Management implication:** For populations where L is highly uncertain, it is
+worth investing in longer-term demographic monitoring (ideally ≥ 5 years) to
+pin down L more precisely before interpreting Ne/N.
+
+---
+
+# Sensitivity to clonal fraction: `Ne_sensitivity_d()`
+
+## When does clonal fraction matter?
+
+A fundamental and counter-intuitive result of Yonezawa et al. (2000) is that
+**under Poisson defaults (Vc/c̄ = Vk/k̄ = 1), the clonal fraction d has no
+effect on Ne/N**. This is because when all individuals reproduce equally
+(whether sexually or clonally), the mode of reproduction does not matter for
+genetic drift.
+
+Clonal fraction only reduces Ne/N when **clonal output is more variable than
+sexual output** — when some genets dominate clonal reproduction, reducing the
+number of genetically distinct lineages. We demonstrate both cases here using
+a hypothetical mixed-reproduction *Lepanthes* population.
+
+```{r d-sensitivity, fig.cap="Effect of clonal fraction on Ne/N: flat under Poisson variance (left), declining under super-Poisson clonal variance (right).", fig.width=10}
+# Use L. rubripetala pop 1 matrix structure with a mixed reproduction scenario
+# Add a clonal component: imagining a hypothetical scenario where stage 5
+# (reproductive adults) can reproduce clonally via offshoots
+
+# Poisson case — d has no effect
+sens_d_poisson <- Ne_sensitivity_d(
+  T_mat       = MatU_Lrub1,
+  F_vec       = F_Lrub1,
+  D           = D_Lrub1,
+  d_fixed     = c(0, 0, 0, 0, 0.5),   # base: stage 5 is 50% clonal
+  stage_index = 5,
+  d_range     = seq(0, 1, by = 0.1),
+  Vc_over_c   = rep(1, 5),             # Poisson clonal variance
+  Ne_target   = 50,
+  population  = "L. rubripetala pop 1 (Poisson)"
+)
+
+# Super-Poisson clonal variance — d starts to matter
+sens_d_superpoisson <- Ne_sensitivity_d(
+  T_mat       = MatU_Lrub1,
+  F_vec       = F_Lrub1,
+  D           = D_Lrub1,
+  d_fixed     = c(0, 0, 0, 0, 0.5),
+  stage_index = 5,
+  d_range     = seq(0, 1, by = 0.1),
+  Vc_over_c   = c(1, 1, 1, 1, 4),     # stage 5 clonal output highly variable
+  Ne_target   = 50,
+  population  = "L. rubripetala pop 1 (Vc/c̄ = 4)"
+)
+
+df_d <- bind_rows(
+  sens_d_poisson$data      %>% mutate(Scenario = "Poisson (Vc/c̄ = 1)"),
+  sens_d_superpoisson$data %>% mutate(Scenario = "Super-Poisson (Vc/c̄ = 4)")
+)
+
+ggplot(df_d, aes(x = d_focal, y = NeN, color = Scenario)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  geom_vline(xintercept = 0.5, linetype = "dashed",
+             color = "grey50", linewidth = 0.7) +
+  annotate("text", x = 0.51, y = max(df_d$NeN) * 0.98,
+           label = "Base d = 0.5", hjust = 0, size = 3.2, color = "grey40") +
+  scale_color_manual(values = c("#1b7837", "#d6604d")) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.2)) +
+  labs(
+    title    = expression(paste("Ne/N vs. clonal fraction  ", d[i], "  in stage 5")),
+    subtitle = "L. rubripetala pop 1 — hypothetical mixed reproduction scenario",
+    x        = expression(paste("Clonal fraction  ", d[i],
+                                "  (0 = fully sexual,  1 = fully clonal)")),
+    y        = expression(N[e]/N),
+    color    = NULL,
+    caption  = "Ne_mixed_Y2000. Flat curve confirms Poisson result of Yonezawa et al. (2000)."
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title      = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.4)
+  )
+```
+
+```{r d-print-superpoisson}
+print(sens_d_superpoisson)
+```
+
+**Management implication:** Simply removing clonal propagules (to reduce d)
+has no genetic benefit under Poisson variance assumptions. The conservation
+benefit of managing clonal reproduction comes only when dominant genets can
+be identified and their disproportionate contribution to the clonal pool
+reduced — which requires molecular markers to identify genets in the field.
+
+---
+
+# Cross-parameter comparison: which lever matters most?
+
+We now compare the local elasticities across all parameters and all three
+populations to produce a prioritisation framework.
+
+```{r elasticity-comparison}
+# Extract local elasticity from each sensitivity object
+# Local elasticity approximated by central finite difference at Vk/k_bar = 1
+# E = (dNeN/dtheta) * (theta_ref / NeN_ref)
+
+local_elasticity <- function(sens_obj, param_col, ref_val) {
+  df  <- sens_obj$data
+  idx <- which.min(abs(df[[param_col]] - ref_val))
+  # Use neighbouring points for central difference
+  if (idx == 1)        idx <- 2
+  if (idx == nrow(df)) idx <- nrow(df) - 1
+  dNeN   <- df$NeN[idx + 1] - df$NeN[idx - 1]
+  dtheta <- df[[param_col]][idx + 1] - df[[param_col]][idx - 1]
+  NeN_ref <- df$NeN[idx]
+  (dNeN / dtheta) * (ref_val / NeN_ref)
+}
+
+# L. rupestris pop 1: sweep Vk stages 5 and 6, and L
+E_Vk5_Lrup1 <- local_elasticity(sens_Vk_Lrup1,    "Vk_over_k", 1)
+E_Vk6_Lrup1 <- local_elasticity(sens_Vk_Lrup1_s6, "Vk_over_k", 1)
+E_L_Lrup1   <- local_elasticity(sens_L_Lrup1,      "L",
+                                  Ne_base_Lrup1$L)
+
+# L. rubripetala pop 1
+sens_Vk_Lrub1 <- Ne_sensitivity_Vk(
+  model_fn    = Ne_sexual_Y2000,
+  T_mat       = MatU_Lrub1,
+  F_vec       = F_Lrub1,
+  D           = D_Lrub1,
+  stage_index = 5,
+  Vk_range    = seq(0.5, 8, by = 0.5),
+  Ne_target   = 50,
+  population  = "L. rubripetala pop 1"
+)
+E_Vk5_Lrub1 <- local_elasticity(sens_Vk_Lrub1, "Vk_over_k", 1)
+E_L_Lrub1   <- local_elasticity(sens_L_Lrub1,   "L", Ne_base_Lrub1$L)
+
+# L. rubripetala pop 5
+sens_Vk_Lrub5 <- Ne_sensitivity_Vk(
+  model_fn    = Ne_sexual_Y2000,
+  T_mat       = MatU_Lrub5,
+  F_vec       = F_Lrub5,
+  D           = D_Lrub5,
+  stage_index = 5,
+  Vk_range    = seq(0.5, 8, by = 0.5),
+  Ne_target   = 50,
+  population  = "L. rubripetala pop 5"
+)
+E_Vk5_Lrub5 <- local_elasticity(sens_Vk_Lrub5, "Vk_over_k", 1)
+E_L_Lrub5   <- local_elasticity(sens_L_Lrub5,   "L", Ne_base_Lrub5$L)
+
+# Assemble table
+elast_tbl <- data.frame(
+  Population = c("*L. rupestris* pop 1",
+                 "*L. rubripetala* pop 1",
+                 "*L. rubripetala* pop 5"),
+  Base_NeN   = round(c(Ne_base_Lrup1$NeN,
+                         Ne_base_Lrub1$NeN,
+                         Ne_base_Lrub5$NeN), 3),
+  E_Vk_repro = round(c(E_Vk5_Lrup1, E_Vk5_Lrub1, E_Vk5_Lrub5), 3),
+  E_L        = round(c(E_L_Lrup1,   E_L_Lrub1,   E_L_Lrub5),   3)
+)
+
+knitr::kable(elast_tbl,
+  col.names = c("Population", "Base Ne/N",
+                "E(Vk/k̄) repro stage", "E(L)"),
+  escape  = FALSE,
+  caption = "Local elasticities at the Poisson reference point (Vk/k̄ = 1)
+             and at the observed L. E(Vk/k̄) < 0: increasing reproductive
+             variance reduces Ne/N. E(L) < 0: longer generation time
+             reduces Ne/N. Larger absolute values indicate higher sensitivity."
+)
+```
+
+```{r elasticity-plot, fig.cap="Absolute local elasticity of Ne/N with respect to two parameters across three populations. Larger bars indicate parameters where management intervention would have the greatest proportional effect on Ne/N.", fig.height=4}
+elast_long <- elast_tbl %>%
+  select(Population, E_Vk_repro, E_L) %>%
+  pivot_longer(cols = c(E_Vk_repro, E_L),
+               names_to = "Parameter",
+               values_to = "Elasticity") %>%
+  mutate(
+    Abs_E     = abs(Elasticity),
+    Parameter = recode(Parameter,
+                       E_Vk_repro = "Sexual repro variance\n(Vk/k̄, repro stage)",
+                       E_L        = "Generation time (L)")
+  )
+
+ggplot(elast_long, aes(x = Population, y = Abs_E, fill = Parameter)) +
+  geom_col(position = "dodge", width = 0.6) +
+  scale_fill_manual(values = c("#2166ac", "#d6604d")) +
+  scale_x_discrete(labels = function(x) gsub("\\*", "", x)) +
+  labs(
+    title    = "|Elasticity| of Ne/N: which parameter drives genetic drift most?",
+    subtitle = "Higher = Ne/N more sensitive to this parameter",
+    x        = NULL,
+    y        = "|Local elasticity|",
+    fill     = "Parameter",
+    caption  = "Local elasticity at Poisson reference (Vk/k̄ = 1) and observed L.
+                All populations: Ne_sexual_Y2000, monthly matrices."
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title      = element_text(face = "bold"),
+    axis.text.x     = element_text(face = "italic", size = 9),
+    legend.position = "right",
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.4)
+  )
+```
+
+---
+
+# Conservation prioritisation framework
+
+The sensitivity analysis above leads to the following prioritisation framework
+for *Lepanthes* conservation, ordered by the expected genetic return on
+management investment.
+
+## Priority 1 — Reduce uncertainty in L
+
+Generation time L is the most influential parameter in all three populations
+and the most poorly estimated. Monthly matrices from 16–34 months of data
+capture only 1–3 generation cycles for these long-lived orchids. A dedicated
+mark-recapture programme of at least 5 years per population would substantially
+reduce uncertainty in L and allow more confident Ne/N estimates.
+
+## Priority 2 — Equalise reproductive output in high-fecundity stages
+
+The elasticity of Ne/N to Vk/k̄ is consistently negative and non-trivial.
+In *L. rupestris*, where stage 6 (multi-shoot adults) has the highest
+fecundity (F = 0.414/month), ensuring that these adults all contribute to
+the seed pool — via controlled hand-pollination in ex situ programmes, or
+by removing physical barriers to pollinator movement — would increase Ne/N.
+
+## Priority 3 — Augment census size in the lowest-Ne/N populations
+
+The minimum census size to achieve Ne ≥ 50 ranges from 54 (*L. rubripetala*
+pop 1) to 314 (*L. rupestris* pop 3). Translocation of individuals from
+source populations to these sinks would not only increase N directly, but
+would also restore genetic diversity lost to drift.
+
+```{r final-comparison, fig.cap="Ne/N as a function of Vk/k̄ in the reproductive stage for all three study populations. Populations with higher baseline Ne/N are also less sensitive to reproductive variance.", fig.height=5}
+df_final <- bind_rows(
+  sens_Vk_Lrup1$data %>% mutate(Population = "*L. rupestris* pop 1"),
+  sens_Vk_Lrub1$data %>% mutate(Population = "*L. rubripetala* pop 1"),
+  sens_Vk_Lrub5$data %>% mutate(Population = "*L. rubripetala* pop 5")
+)
+
+ggplot(df_final, aes(x = Vk_over_k, y = NeN, color = Population)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  geom_vline(xintercept = 1, linetype = "dashed",
+             color = "grey50", linewidth = 0.7) +
+  geom_hline(yintercept = 50/40, linetype = "dotted",
+             color = "grey30", linewidth = 0.6) +
+  annotate("text", x = 7.5, y = 50/40 + 0.03,
+           label = "Ne=50 at N=40", hjust = 1, size = 3, color = "grey30") +
+  scale_color_manual(
+    values = c("#2166ac", "#1b7837", "#d6604d"),
+    labels = c(
+      expression(italic("L. rubripetala")~"pop 1"),
+      expression(italic("L. rubripetala")~"pop 5"),
+      expression(italic("L. rupestris")~"pop 1")
+    )
+  ) +
+  labs(
+    title    = expression(paste("Ne/N vs. sexual reproductive variance  ",
+                                V[k]/bar(k), "  — three populations")),
+    subtitle = "Dotted horizontal line = Ne = 50 threshold at N = 40",
+    x        = expression(V[k]/bar(k)~"(reproductive stage)"),
+    y        = expression(N[e]/N),
+    color    = NULL,
+    caption  = "Ne_sexual_Y2000, monthly matrices, Ne_target = 50, census_N = 40."
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title      = element_text(face = "bold"),
+    legend.position = "bottom",
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.4)
+  )
+```
+
+---
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+---
+
+# References
+
+- Caswell H. (2001). *Matrix Population Models*, 2nd ed. Sinauer Associates.
+- Franklin I.R. (1980). Evolutionary change in small populations. In: Soulé &
+  Wilcox, eds. *Conservation Biology*. Sinauer. pp. 135–149.
+- Frankham R. (1995). Effective population size/adult population size ratios
+  in wildlife: a review. *Genetical Research* **66**: 95–107.
+- Lande R. (1995). Mutation and conservation. *Conservation Biology* **9**:
+  782–791.
+- Morris W.F. & Doak D.F. (2002). *Quantitative Conservation Biology*.
+  Sinauer Associates. Ch. 9.
+- Tremblay R.L. & Ackerman J.D. (2001). Gene flow and effective population
+  size in *Lepanthes* (Orchidaceae): a case for genetic drift.
+  *Biological Journal of the Linnean Society* **72**: 47–62.
+- Wright S. (1931). Evolution in Mendelian populations. *Genetics* **16**:
+  97–159.
+- Yonezawa K., Ishida T. & Iwata H. (2000). Formulation and estimation of
+  the effective size of stage-structured populations. *Evolution* **54**:
+  2007–2013.

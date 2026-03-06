@@ -418,9 +418,14 @@
 #' @param x_max  Integer. Maximum age for L iteration (default 500).
 #'               Ignored if L is supplied directly.
 #'
-#' @param Ne_target  Numeric. Ne conservation threshold (default 5000,
-#'               Lande 1995). Used to compute minimum viable census size.
-#'
+#' @param Ne_target  Numeric. Ne conservation threshold. Common choices:
+#'               50 (Franklin 1980, avoid inbreeding depression),
+#'               500 (long-term quantitative variation), or
+#'               5000 (Lande 1995, long-term evolutionary potential).
+#'               Default 50.
+#' @param census_N  Numeric or NULL. Actual or expected census population
+#'               size. If supplied, Ne_at_census = NeN * census_N is
+#'               added to the output. Default NULL.
 #' @param show_Ny  Logical. Whether to compute and return Ny/N (annual
 #'               effective size, Eq. 11). Default FALSE. Note that Ny/N
 #'               is defined here using the clonal component of the model
@@ -512,7 +517,8 @@ Ne_mixed_Y2000 <- function(T_mat,
                             a          = 0,
                             L          = NULL,
                             x_max      = 500L,
-                            Ne_target  = 5000,
+                            Ne_target  = 50,
+                             census_N   = NULL,
                             show_Ny    = FALSE,
                             population = NULL) {
 
@@ -541,7 +547,9 @@ Ne_mixed_Y2000 <- function(T_mat,
   }
 
   if (!is.numeric(Ne_target) || Ne_target <= 0)
-    stop("Ne_target must be a positive number (default 5000).")
+    stop("Ne_target must be a positive number (e.g. 50, 500, or 5000).")
+  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0))
+    stop("census_N must be a positive number if supplied.")
 
   # ------------------------------------------------------------------
   # Step 2: Compute or retrieve generation time L
@@ -588,6 +596,7 @@ Ne_mixed_Y2000 <- function(T_mat,
   # Step 6: Minimum viable census size
   # ------------------------------------------------------------------
   Min_N <- ceiling(Ne_target / NeN)
+  Ne_at_census <- if (!is.null(census_N)) round(NeN * census_N, 1) else NULL
 
   # ------------------------------------------------------------------
   # Step 7: Attach stage names
@@ -631,6 +640,8 @@ Ne_mixed_Y2000 <- function(T_mat,
     a            = a,
     Min_N        = Min_N,
     Ne_target    = Ne_target,
+    Ne_at_census = Ne_at_census,
+    census_N     = census_N,
     show_Ny      = show_Ny
   )
 
@@ -727,7 +738,14 @@ print.Ne_mixed_Y2000 <- function(x, digits = 3, ...) {
 #' @param Vc_over_c  Clonal variance ratio (default Poisson).
 #' @param a          Hardy-Weinberg deviation (default 0).
 #' @param L          Generation time. If NULL, computed internally.
-#' @param Ne_target  Conservation Ne threshold (default 5000).
+#' @param Ne_target  Numeric. Ne conservation threshold. Common choices:
+#'               50 (Franklin 1980, avoid inbreeding depression),
+#'               500 (long-term quantitative variation), or
+#'               5000 (Lande 1995, long-term evolutionary potential).
+#'               Default 50.
+#' @param census_N  Numeric or NULL. Actual or expected census population
+#'               size. If supplied, Ne_at_census = NeN * census_N is
+#'               added to the output. Default NULL.
 #' @param show_Ny    Logical. Compute Ny/N? (default FALSE).
 #' @param population Character label for the population.
 #'
@@ -747,7 +765,8 @@ Ne_mixed_Y2000_both <- function(T_mat,
                                  Vc_over_c  = NULL,
                                  a          = 0,
                                  L          = NULL,
-                                 Ne_target  = 5000,
+                                 Ne_target  = 50,
+                             census_N   = NULL,
                                  show_Ny    = FALSE,
                                  population = NULL) {
 
@@ -767,13 +786,17 @@ Ne_mixed_Y2000_both <- function(T_mat,
     observed = Ne_mixed_Y2000(
       T_mat      = T_mat, F_vec = F_vec, D = D_obs, d = d,
       Vk_over_k  = Vk_over_k, Vc_over_c = Vc_over_c,
-      a = a, L = L, Ne_target = Ne_target, show_Ny = show_Ny,
+      a = a, L = L, Ne_target = Ne_target,
+    Ne_at_census = Ne_at_census,
+    census_N     = census_N, show_Ny = show_Ny,
       population = paste0(pop_label, " (observed D)")
     ),
     expected = Ne_mixed_Y2000(
       T_mat      = T_mat, F_vec = F_vec, D = D_exp, d = d,
       Vk_over_k  = Vk_over_k, Vc_over_c = Vc_over_c,
-      a = a, L = L, Ne_target = Ne_target, show_Ny = show_Ny,
+      a = a, L = L, Ne_target = Ne_target,
+    Ne_at_census = Ne_at_census,
+    census_N     = census_N, show_Ny = show_Ny,
       population = paste0(pop_label, " (expected D)")
     )
   )

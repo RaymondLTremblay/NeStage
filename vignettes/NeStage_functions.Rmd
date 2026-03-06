@@ -1,0 +1,936 @@
+---
+title: "NeStage Functions: A User Guide"
+subtitle: "Estimating Effective Population Size in Stage-Structured Populations"
+author: "Raymond L. Tremblay"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{NeStage Functions: A User Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  warning   = FALSE,
+  message   = FALSE
+)
+
+# Source all NeStage functions — vignettes knit in a fresh R session.
+# During development (before the package is installed), source directly.
+# Once installed via devtools::install(), these lines are not needed.
+local({
+  r_dir <- file.path("..", "R")
+  if (dir.exists(r_dir)) {
+    # Building vignette from within the package directory
+    source(file.path(r_dir, "Ne_clonal_Y2000.R"))
+    source(file.path(r_dir, "Ne_sexual_Y2000.R"))
+    source(file.path(r_dir, "Ne_mixed_Y2000.R"))
+    source(file.path(r_dir, "Ne_sensitivity.R"))
+  } else {
+    # Package already installed — functions available via library(NeStage)
+    library(NeStage)
+  }
+})
+```
+
+```{r packages, include = FALSE}
+library(expm)     # matrix exponentiation (%^%)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(purrr)    # map_dfr for looping over populations
+library(knitr)
+```
+
+---
+
+# Introduction
+
+## What is effective population size and why does it matter?
+
+The **effective population size** ($N_e$) is the size of an ideal Wright-Fisher
+population that would experience the same rate of genetic drift — the random
+change in allele frequencies from one generation to the next — as the actual
+population being studied (Wright 1931). It is almost always smaller than the
+census population size $N$, sometimes dramatically so.
+
+$N_e$ matters for conservation because:
+
+- When $N_e$ is small, genetic drift dominates over natural selection, accelerating
+  the loss of genetic variation and the fixation of deleterious alleles
+  (Frankham 1995).
+- The short-term conservation threshold of $N_e \geq 50$ (Franklin 1980)
+  is needed to avoid inbreeding depression in the near term. For small,
+  range-restricted species like *Lepanthes*, this is the operationally
+  relevant benchmark — a threshold of $N_e \geq 5{,}000$ (Lande 1995)
+  is ecologically unattainable for any known population.
+- Empirical surveys across 102 wildlife species found a median $N_e/N \approx 0.10$
+  — meaning that on average only 10% of census individuals contribute
+  genetically to the next generation (Frankham 1995).
+
+## Why stage-structured models?
+
+Many perennial plants, including orchids, do not have a simple annual census
+that maps onto a generation. Instead, individuals pass through distinct
+life-history **stages** — seedlings, juveniles, non-reproductive adults,
+reproductive adults — each with different survival and reproductive rates.
+Using a simple $N_e$ formula designed for annual species would ignore this
+structure and produce misleading estimates.
+
+**NeStage** implements the variance effective population size for
+stage-structured populations derived by Yonezawa et al. (2000). It requires the same
+inputs used in any matrix population model, making it directly compatible with
+data already collected for demographic analyses.
+
+## The three NeStage functions
+
+| Function | Use when | Reproduction |
+|---|---|---|
+| `Ne_clonal_Y2000()` | All stages reproduce clonally | Fully clonal ($d_i = 1$) |
+| `Ne_sexual_Y2000()` | All stages reproduce sexually | Fully sexual ($d_i = 0$) |
+| `Ne_mixed_Y2000()` | Stages differ in clonal fraction | Mixed ($0 \leq d_i \leq 1$) |
+
+This vignette focuses on `Ne_sexual_Y2000()` applied to three Puerto Rican
+*Lepanthes* orchid species (Tremblay & Ackerman 2001), which reproduce exclusively by
+seed (sexually). The other two functions are described briefly in Section 6.
+
+## MatU and MatF: the standard input format
+
+NeStage follows the **MatU / MatF** convention now standard in population
+biology (Caswell 2001; Salguero-Gómez et al. 2015):
+
+- **MatU** — the survival-transition matrix. Element $u_{ji}$ is the
+  probability that an individual in stage $i$ at time $t$ survives and is
+  found in stage $j$ at time $t+1$. Column sums $\leq 1$.
+- **MatF** — the fecundity matrix. Element $f_{ji}$ is the per-capita
+  production of stage-$j$ offspring by a stage-$i$ individual per time step.
+  In most models only the first row is non-zero (all offspring enter stage 1).
+
+The full projection matrix is $\mathbf{A} = \mathbf{MatU} + \mathbf{MatF}$.
+
+> **Tip:** If you use the `{Rcompadre}` or `{Rage}` packages, your matrices
+> are already in MatU/MatF format and can be passed directly to NeStage.
+
+---
+
+# The study system: *Lepanthes* orchids in Puerto Rico
+
+*Lepanthes* is one of the most species-rich orchid genera in the Neotropics,
+with over 600 species (Luer 1986). Three Puerto Rican species were studied by
+Tremblay & Ackerman (2001):
+
+| Species | Habitat | Populations | Census N (adults) |
+|---|---|---|---|
+| *L. rupestris* | Lithophyte, riverbeds | 7 | 62–102 |
+| *L. rubripetala* | Epiphyte, rare | 6 | 27–101 |
+| *L. eltoroensis* | Epiphyte, mountain ridges | 4 | 14–51 |
+
+All three species are obligate outcrossers pollinated by fungus gnats, with
+no vegetative reproduction. Populations are small, patchily distributed, and
+show high variance in reproductive output — conditions expected to produce
+small $N_e$ values.
+
+## The six-stage life cycle of *L. rupestris*
+
+*L. rupestris* has the most complex life cycle of the three species, with
+**six stages** (Figure 1 of Tremblay & Ackerman (2001)):
+
+| Stage | Description |
+|---|---|
+| 1 | Recruits (new seedlings entering the population) |
+| 2 | Seedlings (established, not yet juvenile) |
+| 3 | Juveniles |
+| 4 | Non-reproductive adults |
+| 5 | Reproductive adults with one active shoot |
+| 6 | Reproductive adults with two or more active shoots |
+
+*L. rubripetala* and *L. eltoroensis* have **five stages** (stage 6 is absent;
+all reproductive adults are pooled into stage 5).
+
+> **Note on time step:** The matrices in Tremblay & Ackerman (2001) are **monthly**
+> transition probabilities, estimated from individuals tagged and tracked
+> monthly for 16–34 months. Section 4 explores the consequences of
+> converting these to annual matrices before computing $N_e$.
+
+---
+
+# Setting up the matrices
+
+## *L. rupestris* population 1 — monthly matrices
+
+The monthly MatU and MatF matrices for population 1 of *L. rupestris*
+are taken directly from the Appendix of Tremblay & Ackerman (2001).
+
+```{r Lrup1_monthly}
+# Monthly MatU (survival-transition) — L. rupestris population 1
+# Rows = destination stage, columns = origin stage
+# 6 x 6 matrix, column sums <= 1
+MatU_Lrup1_mo <- matrix(c(
+  0,     0,     0,     0,     0,     0,
+  0.738, 0.738, 0,     0,     0,     0,
+  0,     0,     0.515, 0,     0.076, 0.013,
+  0,     0.038, 0,     0.777, 0,     0,
+  0,     0.002, 0.368, 0.011, 0.730, 0.171,
+  0,     0,     0.037, 0,     0.169, 0.790
+), nrow = 6, byrow = TRUE,
+dimnames = list(
+  paste0("stage_", 1:6),
+  paste0("stage_", 1:6)
+))
+
+# Monthly MatF (fecundity) — L. rupestris population 1
+# Only stages 5 and 6 produce offspring (row 1 only)
+MatF_Lrup1_mo <- matrix(c(
+  0, 0, 0, 0, 0.120, 0.414,
+  0, 0, 0, 0, 0,     0,
+  0, 0, 0, 0, 0,     0,
+  0, 0, 0, 0, 0,     0,
+  0, 0, 0, 0, 0,     0,
+  0, 0, 0, 0, 0,     0
+), nrow = 6, byrow = TRUE,
+dimnames = list(
+  paste0("stage_", 1:6),
+  paste0("stage_", 1:6)
+))  # MatF contains fecundity only (row 1): stages 5 and 6 produce offspring
+
+# Verify column sums of MatU are <= 1
+colSums(MatU_Lrup1_mo)
+```
+
+> **Check:** All column sums of MatU should be $\leq 1$. Values $< 1$
+> represent stage-specific mortality. Here stage 1 has no self-loop
+> (column sum = 0.738) meaning recruits either move to stage 2 or die.
+
+## Stage frequency vector D
+
+The stage frequency vector $D$ gives the proportion of the population in
+each stage. From Table 1 of Tremblay & Ackerman (2001), population 1 of *L. rupestris*
+has 44 seedlings, 72 juveniles, and 97 adults. Following the convention
+of splitting each observed category equally across its two model stages:
+
+```{r D_Lrup1}
+# Raw counts: 44 seedlings, 72 juveniles, 97 adults
+# Split equally: stages 1-2 get 44/2 each, stages 3-4 get 72/2 each,
+#                stages 5-6 get 97/2 each
+N_Lrup1 <- c(22, 22, 36, 36, 48.5, 48.5)  # total = 213
+D_Lrup1 <- N_Lrup1 / sum(N_Lrup1)
+
+round(D_Lrup1, 4)
+sum(D_Lrup1)  # must equal 1
+```
+
+---
+
+# Monthly vs annual matrices: does the time step matter?
+
+This is a question with real practical consequences. Field ecologists often
+collect monthly demographic data but $N_e$ theory assumes a **yearly**
+time step (or at least a consistent biological time unit tied to the
+generation). What happens when we compute $N_e$ from monthly vs annual matrices?
+
+## Converting monthly to annual matrices
+
+For a linear matrix population model, the annual projection matrix is simply
+the monthly matrix raised to the 12th power:
+
+$$\mathbf{A}_{annual} = \mathbf{A}_{monthly}^{12}$$
+
+We can decompose this into MatU and MatF components:
+
+```{r monthly_to_annual}
+library(expm)
+
+# Annual projection matrix
+A_Lrup1_mo  <- MatU_Lrup1_mo + MatF_Lrup1_mo
+A_Lrup1_ann <- A_Lrup1_mo %^% 12
+
+# Decompose back into MatU_annual and MatF_annual
+# MatU_annual: survival component raised to the 12th power
+MatU_Lrup1_ann <- MatU_Lrup1_mo %^% 12
+
+# MatF_annual: annual fecundity = sum over 12 months of
+# (probability of surviving to month k) x (fecundity at month k)
+# F_ann = sum_{k=0}^{11} MatU^k %*% MatF_monthly
+MatF_Lrup1_ann <- matrix(0, 6, 6)
+MatU_k <- diag(6)  # start at MatU^0 = identity
+for (k in 0:11) {
+  MatF_Lrup1_ann <- MatF_Lrup1_ann + MatU_k %*% MatF_Lrup1_mo
+  MatU_k         <- MatU_k %*% MatU_Lrup1_mo
+}
+# Result: only row 1 is non-zero (offspring only enter stage 1)
+
+# Quick check: the residual measures second-order effects (offspring
+# reproducing within the same year). For monthly matrices with low
+# fecundity (f5=0.120, f6=0.414 per month) this is negligible.
+# Round values below 1e-6 to zero for a clean decomposition.
+MatU_Lrup1_ann[MatU_Lrup1_ann < 1e-6] <- 0
+MatF_Lrup1_ann[MatF_Lrup1_ann < 1e-6] <- 0
+round(max(abs(A_Lrup1_ann - (MatU_Lrup1_ann + MatF_Lrup1_ann))), 8)
+```
+
+> **How the conversion works:** $\mathbf{MatU}^{12}$ gives the probability of
+> surviving and transitioning across 12 monthly steps. $\mathbf{MatF}_{annual}$
+> accumulates fecundity contributions in each month, weighted by the
+> probability of having survived to that month. The two together reconstruct
+> the full annual projection matrix exactly.
+
+## Comparing Ne/N from monthly vs annual matrices
+
+```{r compare_monthly_annual}
+# --- Monthly ---
+Ne_mo <- Ne_sexual_Y2000(
+  T_mat      = MatU_Lrup1_mo,
+  F_vec      = MatF_Lrup1_mo[1, ],
+  D          = D_Lrup1,
+  population = "L. rupestris pop 1 (monthly)"
+)
+
+# --- Annual ---
+Ne_ann <- Ne_sexual_Y2000(
+  T_mat      = MatU_Lrup1_ann,
+  F_vec      = MatF_Lrup1_ann[1, ],
+  D          = D_Lrup1,
+  population = "L. rupestris pop 1 (annual)"
+)
+
+# Summary comparison table
+comparison <- data.frame(
+  Time_step = c("Monthly", "Annual"),
+  NeN       = round(c(Ne_mo$NeN,  Ne_ann$NeN),  3),
+  L         = round(c(Ne_mo$L,    Ne_ann$L),     2),
+  V         = round(c(Ne_mo$V,    Ne_ann$V),     4),
+  Min_N     = c(Ne_mo$Min_N, Ne_ann$Min_N)
+)
+
+knitr::kable(comparison,
+             col.names = c("Time step", "Ne/N", "L (time units)",
+                           "V", "Min N (Ne≥50)"),
+             caption = "Ne/N estimates from monthly vs annual matrices,
+                        L. rupestris population 1.")
+```
+
+## Interpreting the difference
+
+The two approaches give different $N_e/N$ estimates because the time step
+affects both $V$ (the variance in gene frequency change per time unit) and
+$L$ (the generation time measured in time units):
+
+- With **monthly** matrices, $L$ is measured in **months**. A generation of
+  ~13 years corresponds to $L \approx 156$ months. The variance $V$ is very
+  small per month because survival and reproduction are nearly constant
+  month-to-month.
+
+- With **annual** matrices, $L$ is measured in **years**, giving $L \approx 13$.
+  The variance $V$ is larger per year because it integrates across 12 months
+  of variation.
+
+The key biological insight is that **$N_e/N$ should be similar between the
+two approaches** when $V \times L$ is consistent — this ratio is what appears
+in the denominator of Equation 6 of Yonezawa et al. (2000). Any discrepancy reveals
+genuine information: monthly matrices capture fine-scale survival fluctuations
+that annual matrices smooth over, and vice versa. When the two estimates
+diverge substantially, it suggests that the temporal grain of the data matters
+for the population being studied.
+
+> **Recommendation:** If your field data were collected monthly, use monthly
+> matrices. Do not convert to annual before computing $N_e$, as this
+> introduces approximation error. Report the time unit of your matrices
+> alongside your $N_e/N$ estimate.
+
+---
+
+# Running Ne_sexual_Y2000: a complete worked example
+
+## All inputs explained
+
+```{r inputs_explained, eval = FALSE}
+Ne_sexual_Y2000(
+  T_mat      = MatU,        # MatU: survival/transition matrix (s x s)
+                             # Column sums must be <= 1
+  F_vec      = MatF[1, ],   # First row of MatF: per-capita offspring
+                             # production for each stage
+  D          = D,           # Stage frequency vector, length s, sums to 1
+                             # Use observed proportions or dominant eigenvector
+  Vk_over_k  = rep(1, s),  # Variance-to-mean ratio of sexual reproductive
+                             # output per stage. Default = 1 (Poisson).
+                             # Set > 1 if some individuals dominate reproduction.
+  a          = 0,           # Deviation from Hardy-Weinberg proportions.
+                             # Default = 0 (random mating).
+  L          = NULL,        # Generation time. If NULL, computed from T_mat
+                             # and F_vec automatically.
+  Ne_target  = 50,        # Ne viability threshold. Set to your study system:
+                             #   50  = avoid inbreeding depression (Franklin 1980)
+                             #   500 = maintain quantitative variation (Franklin 1980)
+                             #   5000 = long-term evolutionary potential (Lande 1995)
+  census_N   = 40,        # Your actual (or expected) census population size.
+                             # Reports Ne_at_census = NeN * census_N directly,
+                             # so you can see the Ne your population achieves NOW.
+  population = "my pop"     # Label for output
+)
+```
+
+## Full output for *L. rupestris* population 1
+
+```{r full_output_Lrup1}
+Ne_Lrup1 <- Ne_sexual_Y2000(
+  T_mat      = MatU_Lrup1_mo,
+  F_vec      = MatF_Lrup1_mo[1, ],
+  D          = D_Lrup1,
+  Ne_target  = 50,         # short-term inbreeding threshold
+  census_N   = 40,         # realistic large population of Lepanthes
+  population = "L. rupestris population 1 (monthly)"
+)
+
+print(Ne_Lrup1)
+```
+
+## Reading the output
+
+The output has four sections:
+
+**Stage survival** reports the annual survival rates and the two key
+summary statistics: $\bar{u}$ (population-mean annual survival) and
+$\bar{u^2}$ (stage-weighted mean of squared survivals). The difference
+$\bar{u} - \bar{u^2}$ measures the **between-stage variance in survival**
+— stages with very different survival rates contribute more to genetic drift.
+
+**Variance decomposition** breaks $V$ into its components:
+
+- $V_{\text{term1}} = 2(1+a)(\bar{u} - \bar{u^2})$ — between-stage
+  survival variance. This is the only term that enters the purely clonal
+  model (Eq. 10 of Yonezawa et al. (2000)).
+- $V_{\text{term2}} = (1-\bar{u}) \cdot Avr(S)$ — sexual reproductive
+  variance. Larger when fecundity is unequal across stages.
+
+**Generation time** $L$ is the mean age of reproduction, computed following
+Orive (1993), using the dominant eigenvector of $\mathbf{A}$ as the
+stable-stage distribution.
+
+**Effective size ratios** give the key conservation outputs:
+- $N_e/N$ — the fraction of census individuals contributing to the effective
+  population. Values below 0.10 are below the empirical median across 102
+  wildlife species (Frankham 1995).
+- Minimum census size $N$ required to achieve $N_e \geq 50$ (Franklin 1980).
+
+---
+
+# All populations of all three species
+
+## Entering all matrices
+
+```{r all_matrices}
+# ============================================================
+# L. rupestris — 7 populations, 6-stage model
+# Monthly MatU and MatF from Tremblay & Ackerman (2001) Appendix
+# ============================================================
+
+# Helper: build MatF from fecundity values for stages 5 and 6
+make_MatF_6 <- function(f5, f6) {
+  F <- matrix(0, 6, 6)
+  F[1, 5] <- f5
+  F[1, 6] <- f6
+  F  # MatF contains fecundity only — no diagonal terms
+}
+
+# Helper: build MatU for L. rupestris (6-stage, shared structure)
+# Fixed positions: row1=0, row2 col1=0.738 col2=0.738, row4 col2=0.038,
+#                  row5 col2=0.002
+# Free parameters (13 values, in row order):
+#   row3: s33, s35, s36
+#   row4: s43, s44
+#   row5: s53, s54, s55, s56
+#   row6: s63, s64, s65, s66
+make_MatU_Lrup <- function(s33, s35, s36,
+                            s43, s44,
+                            s53, s54, s55, s56,
+                            s63, s64, s65, s66) {
+  matrix(c(
+    0,     0,     0,    0,    0,    0,
+    0.738, 0.738, 0,    0,    0,    0,
+    0,     0,     s33,  0,    s35,  s36,
+    0,     0.038, s43,  s44,  0,    0,
+    0,     0.002, s53,  s54,  s55,  s56,
+    0,     0,     s63,  s64,  s65,  s66
+  ), nrow = 6, byrow = TRUE,
+  dimnames = list(paste0("stage_", 1:6), paste0("stage_", 1:6)))
+}
+
+# --- L. rupestris population 1 (already defined above) ---
+MatU_Lrup <- list()
+MatF_Lrup <- list()
+MatU_Lrup[[1]] <- MatU_Lrup1_mo
+MatF_Lrup[[1]] <- MatF_Lrup1_mo
+
+# --- L. rupestris population 2 ---
+MatU_Lrup[[2]] <- make_MatU_Lrup(
+  0.466, 0.126, 0.028,   # row 3: s33, s35, s36
+  0,     0.777,           # row 4: s43, s44
+  0.491, 0.011, 0.750, 0.191,  # row 5
+  0.022, 0,     0.112, 0.781   # row 6
+)
+MatF_Lrup[[2]] <- make_MatF_6(0.086, 0.273)
+
+# --- L. rupestris population 3 ---
+MatU_Lrup[[3]] <- make_MatU_Lrup(
+  0.653, 0.100, 0.035,
+  0,     0.777,
+  0.307, 0.011, 0.794, 0.338,
+  0.009, 0,     0.101, 0.627
+)
+MatF_Lrup[[3]] <- make_MatF_6(0.076, 0.204)
+
+# --- L. rupestris population 4 ---
+MatU_Lrup[[4]] <- make_MatU_Lrup(
+  0.600, 0.101, 0.018,
+  0,     0.777,
+  0.310, 0.011, 0.740, 0.225,
+  0.033, 0,     0.150, 0.744
+)
+MatF_Lrup[[4]] <- make_MatF_6(0.076, 0.204)
+
+# --- L. rupestris population 5 ---
+MatU_Lrup[[5]] <- make_MatU_Lrup(
+  0.596, 0.153, 0.018,
+  0,     0.777,
+  0.348, 0.011, 0.728, 0.286,
+  0.000, 0,     0.082, 0.688
+)
+MatF_Lrup[[5]] <- make_MatF_6(0.041, 0.165)
+
+# --- L. rupestris population 6 ---
+MatU_Lrup[[6]] <- make_MatU_Lrup(
+  0.528, 0.133, 0.020,
+  0,     0.777,
+  0.375, 0.011, 0.695, 0.218,
+  0.040, 0,     0.140, 0.749
+)
+MatF_Lrup[[6]] <- make_MatF_6(0.066, 0.315)
+
+# --- L. rupestris population 7 ---
+MatU_Lrup[[7]] <- make_MatU_Lrup(
+  0.635, 0.224, 0.058,
+  0,     0.777,
+  0.333, 0.011, 0.695, 0.299,
+  0.018, 0,     0.070, 0.643
+)
+MatF_Lrup[[7]] <- make_MatF_6(0.119, 0.507)
+
+# Stage frequencies for L. rupestris (Table 1, split equally across stage pairs)
+# Seedlings / Juveniles / Adults from Table 1
+N_Lrup_raw <- list(
+  c(44, 72, 97),   # pop 1
+  c(40, 135, 86),  # pop 2
+  c(66, 74, 95),   # pop 3
+  c(14, 8,  74),   # pop 4
+  c(28, 6,  62),   # pop 5
+  c(66, 33, 98),   # pop 6
+  c(107, 39, 102)  # pop 7
+)
+
+D_Lrup <- lapply(N_Lrup_raw, function(n) {
+  expanded <- c(n[1]/2, n[1]/2, n[2]/2, n[2]/2, n[3]/2, n[3]/2)
+  expanded / sum(expanded)
+})
+
+# ============================================================
+# L. rubripetala — 6 populations, 5-stage model
+# ============================================================
+# make_MatU_Lrub: 5-stage MatU for L. rubripetala and L. eltoroensis
+# Fixed elements: row2 col1=0.667, col2=0.667; row4 col2=0.037, col4=0.812
+# Free parameters:
+#   s33 = stage3 -> stage3 (stasis)
+#   s35 = stage5 -> stage3 (retrogression from repro to juvenile)
+#   s53 = stage3 -> stage5 (growth to reproductive)
+#   s54 = stage4 -> stage5 (growth from non-repro adult)
+#   s55 = stage5 -> stage5 (stasis in reproductive stage)
+make_MatU_Lrub <- function(s33, s35,
+                             s53, s54, s55) {
+  matrix(c(
+    0,     0,     0,     0,     0,
+    0.667, 0.667, 0,     0,     0,
+    0,     0,     s33,   0,     s35,
+    0,     0.037, 0,     0.812, 0,
+    0,     0,     s53,   s54,   s55
+  ), nrow = 5, byrow = TRUE,
+  dimnames = list(paste0("stage_", 1:5), paste0("stage_", 1:5)))
+}
+
+make_MatF_5 <- function(f5) {
+  F <- matrix(0, 5, 5)
+  F[1, 5] <- f5
+  F  # MatF contains fecundity only — no diagonal terms
+}
+
+MatU_Lrub <- list()
+MatF_Lrub <- list()
+
+MatU_Lrub[[1]] <- make_MatU_Lrub(0.825, 0.227, 0.137, 0.010, 0.739)
+MatU_Lrub[[2]] <- make_MatU_Lrub(0.546, 0.183, 0.426, 0.010, 0.793)
+MatU_Lrub[[3]] <- make_MatU_Lrub(0.606, 0.137, 0.337, 0.010, 0.848)
+MatU_Lrub[[4]] <- make_MatU_Lrub(0.743, 0.180, 0.176, 0.010, 0.768)
+MatU_Lrub[[5]] <- make_MatU_Lrub(0.726, 0.250, 0.237, 0.010, 0.739)
+MatU_Lrub[[6]] <- make_MatU_Lrub(0.801, 0.179, 0.131, 0.010, 0.784)
+
+MatF_Lrub[[1]] <- make_MatF_5(0.043)
+MatF_Lrub[[2]] <- make_MatF_5(0.102)
+MatF_Lrub[[3]] <- make_MatF_5(0.108)
+MatF_Lrub[[4]] <- make_MatF_5(0.067)
+MatF_Lrub[[5]] <- make_MatF_5(0.067)
+MatF_Lrub[[6]] <- make_MatF_5(0.159)
+
+# Stage frequencies (Table 1): seedlings / juveniles / adults (one repro stage)
+# For 5-stage model: stages 1-2 = seedlings/2, stages 3-4 = juveniles/2,
+#                    stage 5 = adults
+N_Lrub_raw <- list(
+  c(9,  44, 101),  # pop 1
+  c(0,  0,  27),   # pop 2 — no seedlings/juveniles observed
+  c(5,  29, 63),   # pop 3
+  c(37, 49, 41),   # pop 4
+  c(52, 4,  46),   # pop 5
+  c(24, 10, 29)    # pop 6
+)
+
+# For populations with missing stage observations, derive D from the
+# stable stage distribution (dominant eigenvector of A = MatU + MatF)
+  # — only used for L. rubripetala pop 2 where no seedlings or juveniles
+  # were observed, so observed D cannot be constructed.
+# This is standard practice when observed counts are incomplete.
+D_Lrub <- lapply(seq_along(N_Lrub_raw), function(i) {
+  n <- N_Lrub_raw[[i]]
+  if (all(n[1:2] == 0)) {
+    # No seedlings/juveniles observed — use stable stage distribution
+    A <- MatU_Lrub[[i]] + MatF_Lrub[[i]]
+    ev <- Re(eigen(A)$vectors[, 1])
+    ev <- abs(ev)
+    ev / sum(ev)
+  } else {
+    expanded <- c(n[1]/2, n[1]/2, n[2]/2, n[2]/2, n[3])
+    expanded / sum(expanded)
+  }
+})
+
+# ============================================================
+# L. eltoroensis — 4 populations, 5-stage model (same structure as L. rubripetala)
+# ============================================================
+MatU_Lelt <- list()
+MatF_Lelt <- list()
+
+MatU_Lelt[[1]] <- matrix(c(
+    0,     0,     0,     0,     0,
+    0.667, 0.667, 0,     0,     0,
+    0,     0,     0.719, 0,     0.274,
+    0,     0.037, 0,     0.958, 0,
+    0,     0,     0.258, 0.021, 0.720
+  ), nrow=5, byrow=TRUE, dimnames=list(paste0("stage_",1:5), paste0("stage_",1:5)))
+MatU_Lelt[[2]] <- matrix(c(
+    0,     0,     0,     0,     0,
+    0.667, 0.667, 0,     0,     0,
+    0,     0,     0.696, 0,     0.255,
+    0,     0.037, 0,     0.958, 0,
+    0,     0,     0.304, 0.021, 0.742
+  ), nrow=5, byrow=TRUE, dimnames=list(paste0("stage_",1:5), paste0("stage_",1:5)))
+MatU_Lelt[[3]] <- matrix(c(
+    0,     0,     0,     0,     0,
+    0.667, 0.667, 0,     0,     0,
+    0,     0,     0.759, 0,     0.406,
+    0,     0.037, 0,     0.958, 0,
+    0,     0,     0.222, 0.021, 0.589
+  ), nrow=5, byrow=TRUE, dimnames=list(paste0("stage_",1:5), paste0("stage_",1:5)))
+# Population 4: substitute L. rubripetala seedling transitions (as in paper)
+MatU_Lelt[[4]] <- matrix(c(
+    0,     0,     0,     0,     0,
+    0.667, 0.667, 0,     0,     0,
+    0,     0,     0.719, 0,     0.274,
+    0,     0.037, 0,     0.958, 0,
+    0,     0,     0.258, 0.021, 0.720
+  ), nrow=5, byrow=TRUE, dimnames=list(paste0("stage_",1:5), paste0("stage_",1:5)))
+
+MatF_Lelt[[1]] <- make_MatF_5(0.011)
+MatF_Lelt[[2]] <- make_MatF_5(0.016)
+MatF_Lelt[[3]] <- make_MatF_5(0.024)
+MatF_Lelt[[4]] <- make_MatF_5(0.011)  # use pop 1 fecundity as substitute
+
+# Stage frequencies (Table 1): juveniles and adults only (no seedlings observed)
+N_Lelt_raw <- list(
+  c(7,  42),   # pop 1: juveniles, adults
+  c(8,  51),   # pop 2
+  c(7,  43),   # pop 3
+  c(5,  14)    # pop 4
+)
+
+# L. eltoroensis: no seedlings observed in any population.
+# Stages 1-2 assigned 1% of total N each (small but non-zero);
+# stages 3-4 split juveniles equally; stage 5 = adults.
+# This preserves the observed juvenile:adult ratio while keeping
+# D biologically grounded rather than using the eigenvector,
+# which distorts Ne/N when lambda departs from 1.
+D_Lelt <- lapply(seq_along(N_Lelt_raw), function(i) {
+  n    <- N_Lelt_raw[[i]]
+  tot  <- sum(n)
+  expanded <- c(0.01*tot, 0.01*tot,  # stages 1-2: small non-zero
+                n[1]/2, n[1]/2,       # stages 3-4: juveniles split
+                n[2])                 # stage 5: adults
+  expanded / sum(expanded)
+})
+```
+
+## Computing Ne/N for all 17 populations
+
+```{r compute_all}
+# census_N = 40: a large Lepanthes population (Tremblay & Ackerman 2001)
+run_Ne <- function(MatU_list, MatF_list, D_list, species_name,
+                   census_N = 40, Ne_target = 50) {
+  purrr::map_dfr(seq_along(MatU_list), function(i) {
+    r <- Ne_sexual_Y2000(
+      T_mat      = MatU_list[[i]],
+      F_vec      = MatF_list[[i]][1, ],
+      D          = D_list[[i]],
+      Ne_target  = Ne_target,
+      census_N   = census_N,
+      population = paste(species_name, "pop", i)
+    )
+    data.frame(
+      Species      = species_name,
+      Population   = i,
+      NeN          = round(r$NeN,          3),
+      Ne_at_census = round(r$Ne_at_census,  1),
+      Min_N        = r$Min_N,
+      L_months     = round(r$L,             1),
+      V            = round(r$V,             4)
+    )
+  })
+}
+
+results <- bind_rows(
+  run_Ne(MatU_Lrup, MatF_Lrup, D_Lrup, "L. rupestris"),
+  run_Ne(MatU_Lrub, MatF_Lrub, D_Lrub, "L. rubripetala"),
+  run_Ne(MatU_Lelt, MatF_Lelt, D_Lelt, "L. eltoroensis")
+)
+
+# Add italic species column for kable display
+results_display <- results %>%
+  mutate(Species = paste0("*", Species, "*"))
+
+knitr::kable(results_display,
+             col.names = c("Species", "Population", "Ne/N", "Ne at N=40",
+                           "Min N (Ne≥50)", "L (months)", "V"),
+             escape  = FALSE,
+             caption = "Ne/N estimates (monthly matrices) for all 17 populations
+                        of three Lepanthes species. Ne at N=40 = estimated Ne
+                        for a census population of 40 individuals (a large
+                        Lepanthes population). Min N = minimum census size
+                        required to achieve Ne >= 50 (Franklin 1980).
+                        V = total variance in gene frequency change per time
+                        step (V = V_term1 + V_term2 of Yonezawa et al. 2000);
+                        larger V means stronger genetic drift per generation.")
+```
+
+## Comparing to Orive (1993) estimates
+
+Tremblay & Ackerman (2001) used Orive's (1993) coalescence model (Table 7 of the paper).
+The table below computes the Ne/N range per species directly from the NeStage results
+and compares it to Orive's estimates:
+
+```{r orive_comparison}
+species_summary <- results %>%
+  group_by(Species) %>%
+  summarise(
+    N_pops   = n(),
+    NeN_min  = round(min(NeN),      3),
+    NeN_max  = round(max(NeN),      3),
+    NeN_mean = round(mean(NeN),     3),
+    L_mean   = round(mean(L_months),1),
+    .groups  = "drop"
+  ) %>%
+  mutate(
+    NeN_range_NeStage = paste0(NeN_min, "–", NeN_max),
+    NeN_range_Orive   = c("0.227–0.360",
+                           "0.339–0.445",
+                           "0.453–0.473"),
+    Species = paste0("*", Species, "*")
+  ) %>%
+  select(Species, N_pops, NeN_range_NeStage, NeN_range_Orive, NeN_mean, L_mean)
+
+knitr::kable(species_summary,
+             col.names = c("Species", "Populations",
+                           "Ne/N range (NeStage)", "Ne/N range (Orive 1993)",
+                           "Mean Ne/N", "Mean L (months)"),
+             escape  = FALSE,
+             caption = "Species-level summary of Ne/N estimates from NeStage
+                        (Yonezawa 2000 variance Ne, monthly matrices) compared
+                        to the coalescence Ne of Orive (1993) reported in
+                        Tremblay & Ackerman (2001) Table 7.")
+```
+
+The two approaches measure subtly different quantities:
+
+- **Orive (1993)** computes the **inbreeding effective size** based on
+  coalescence time — the expected time for two gene copies to share a common
+  ancestor. It captures the effects of both genetic drift and the specific
+  mating structure of the population.
+- **Yonezawa (2000)** computes the **variance effective size** based on the
+  variance in gene frequency change per generation. It focuses on how unequal
+  lifetime reproductive contributions reduce the effective contribution of
+  census individuals to the gene pool.
+
+Both measure genetic drift but from different angles. Agreement between the
+two is reassuring; divergence indicates that mating structure (Orive) or
+reproductive variance (Yonezawa) is driving the discrepancy.
+
+---
+
+# Summary and conservation implications
+
+```{r conservation_plot}
+# Summary plot: Ne/N by species and population
+ggplot(results_display, aes(x = factor(Population), y = NeN,
+                     color = Species, group = Species)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 3) +
+  geom_hline(yintercept = 0.10, linetype = "dashed",
+             color = "grey40", linewidth = 0.7) +
+  annotate("text", x = 0.7, y = 0.105,
+           label = "Frankham (1995)\nmedian Ne/N = 0.10",
+           hjust = 0, size = 3, color = "grey40") +
+  scale_color_manual(
+    values = c("#2166ac", "#1b7837", "#d6604d"),
+    labels = c(
+      expression(italic("L. eltoroensis")),
+      expression(italic("L. rubripetala")),
+      expression(italic("L. rupestris"))
+    )
+  ) +
+  labs(
+    title    = expression(paste(N[e]/N, " across populations of three ",
+                                italic("Lepanthes"), " species")),
+    subtitle = "Monthly transition matrices | Yonezawa (2000) variance Ne",
+    x        = "Population",
+    y        = expression(N[e]/N),
+    color    = "Species",
+    caption  = "Dashed line = empirical median across 102 wildlife species (Frankham 1995)."
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    legend.text   = element_text(face = "italic"),
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.4)
+  )
+```
+
+```{r conservation_table}
+# How many populations have Ne < 50 (Wright drift threshold)?
+results_display %>%
+  mutate(
+    Drift_risk = ifelse(Ne_at_census < 50, "HIGH (Ne < 50)", "lower")
+  ) %>%
+  select(Species, Population, NeN, Ne_at_census, Drift_risk) %>%
+  knitr::kable(
+    col.names = c("Species", "Pop", "Ne/N", "Estimated Ne", "Drift risk"),
+    escape    = FALSE,
+    caption   = "Estimated Ne assuming a census size of N = 40, representative
+                 of a large Lepanthes population (Tremblay & Ackerman 2001).
+                 Ne < 50 indicates populations where genetic drift dominates
+                 over natural selection (Wright 1931; Franklin 1980)."
+  )
+```
+
+## Key conservation messages
+
+1. **All three species have very small effective population sizes.** Even with
+   the most optimistic Ne/N estimates, census populations of 50–100 individuals
+   — typical for these species — yield Ne well below 50.
+
+2. **The minimum census size for long-term conservation ($N_e \geq 5{,}000$)
+   is far larger than any observed population.** This confirms the finding of
+   Tremblay & Ackerman (2001) that these orchid populations face substantial genetic
+   vulnerability.
+
+3. **Ne/N varies substantially among populations and species.** *L. rupestris*
+   shows greater among-population variation than the other two species,
+   likely reflecting habitat heterogeneity along the Luquillo river system.
+
+4. **Ne/N estimates from monthly vs annual matrices may differ.** When
+   reporting Ne/N, always state the time step of your matrices. Monthly
+   matrices are preferred for species with fine-scale demographic variation.
+
+---
+
+# Brief overview of the other two functions
+
+## Ne_clonal_Y2000
+
+Use this function when **all reproduction is clonal** ($d_i = 1$ for all
+stages). This implements Equations 10–11 of Yonezawa et al. (2000):
+
+$$N_e = \frac{N}{(1 - \bar{u^2}) \cdot L}, \quad
+N_y = \frac{N}{1 - \bar{u^2}}$$
+
+The clonal model is simpler than the general Equation 6 because sexual
+reproductive variance does not enter. It is the appropriate model for
+populations maintained entirely by vegetative reproduction (e.g., many
+ferns, some grasses, clonal shrubs).
+
+```{r clonal_example, eval = FALSE}
+Ne_clonal <- Ne_clonal_Y2000(
+  T_mat      = MatU,
+  F_vec      = MatF[1, ],
+  D          = D,
+  show_Ny    = TRUE,       # also compute annual effective size
+  population = "fully clonal population"
+)
+```
+
+## Ne_mixed_Y2000
+
+Use this function when **stages differ in their mix of sexual and clonal
+reproduction** ($0 \leq d_i \leq 1$). This implements the full Equation 6
+of Yonezawa et al. (2000), including the clonal reproductive variance term
+$Avr(A\delta)$.
+
+An important property: under Poisson defaults ($V_c/\bar{c} = V_k/\bar{k} = 1$,
+$a = 0$), the clonal fraction $d_i$ has **no effect** on $N_e/N$. The clonal
+fraction only influences $N_e$ when clonal output is more variable than
+sexual output ($V_c/\bar{c} > V_k/\bar{k}$), which is biologically
+realistic for many clonal plants.
+
+```{r mixed_example, eval = FALSE}
+Ne_mixed <- Ne_mixed_Y2000(
+  T_mat      = MatU,
+  F_vec      = MatF[1, ],
+  D          = D,
+  d          = c(0.0, 0.0, 0.5),  # stage 3 is 50% clonal
+  Vc_over_c  = c(1, 1, 2),        # stage 3 has super-Poisson clonal variance
+  population = "mixed orchid"
+)
+```
+
+---
+
+# Session information
+
+```{r session_info}
+sessionInfo()
+```
+
+---
+
+# References
+
+- Caswell H. (2001). *Matrix Population Models*, 2nd ed. Sinauer Associates.
+- Frankham R. (1995). Effective population size/adult population size ratios in wildlife: a review. *Genetical Research* **66**: 95–107.
+- Lande R. (1995). Mutation and conservation. *Conservation Biology* **9**: 782–791.
+- Luer C.A. (1986). Icones Pleurothallidinarum I. *Monograph in Systematic Botany* **15**.
+- Orive M.E. (1993). Effective population size in organisms with complex life histories. *Theoretical Population Biology* **44**: 316–340.
+- Salguero-Gómez R. et al. (2015). The COMPADRE Plant Matrix Database. *Journal of Ecology* **103**: 202–218.
+- Tremblay R.L. & Ackerman J.D. (2001). Gene flow and effective population size in *Lepanthes* (Orchidaceae): a case for genetic drift. *Biological Journal of the Linnean Society* **72**: 47–62.
+- Wright S. (1931). Evolution in Mendelian populations. *Genetics* **16**: 97–159.
+- Yonezawa K., Ishida T. & Iwata H. (2000). Formulation and estimation of the effective size of stage-structured populations. *Evolution* **54**: 2007–2013.

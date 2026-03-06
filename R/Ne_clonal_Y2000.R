@@ -294,10 +294,14 @@
 #'               Ignored if L is supplied directly. Increase for very
 #'               long-lived species (> 100 yr lifespan).
 #'
-#' @param Ne_target  Numeric. The Ne conservation threshold used to compute
-#'               the minimum viable census size (default 5000, following
-#'               Lande 1995). Minimum N = Ne_target / (Ne/N).
-#'
+#' @param Ne_target  Numeric. Ne conservation threshold. Common choices:
+#'               50 (Franklin 1980, avoid inbreeding depression),
+#'               500 (long-term quantitative variation), or
+#'               5000 (Lande 1995, long-term evolutionary potential).
+#'               Default 50.
+#' @param census_N  Numeric or NULL. Actual or expected census population
+#'               size. If supplied, Ne_at_census = NeN * census_N is
+#'               added to the output. Default NULL.
 #' @param population  Character string. Optional label for the population,
 #'               used in printed output and the returned list.
 #'
@@ -392,7 +396,8 @@ Ne_clonal_Y2000 <- function(T_mat,
                              D,
                              L          = NULL,
                              x_max      = 500L,
-                             Ne_target  = 5000,
+                             Ne_target  = 50,
+                             census_N   = NULL,
                              population = NULL) {
 
   # ------------------------------------------------------------------
@@ -411,7 +416,9 @@ Ne_clonal_Y2000 <- function(T_mat,
          "  provide F_vec so L can be computed internally.")
 
   if (!is.numeric(Ne_target) || Ne_target <= 0)
-    stop("Ne_target must be a positive number (default 5000).")
+    stop("Ne_target must be a positive number (e.g. 50, 500, or 5000).")
+  if (!is.null(census_N) && (!is.numeric(census_N) || census_N <= 0))
+    stop("census_N must be a positive number if supplied.")
 
   # ------------------------------------------------------------------
   # Step 2: Compute or retrieve generation time L
@@ -448,7 +455,8 @@ Ne_clonal_Y2000 <- function(T_mat,
   # benchmark for maintaining long-term gene diversity. Since Ne/N gives
   # us the ratio, the minimum N is simply: Ne_target / (Ne/N).
   # ------------------------------------------------------------------
-  Min_N <- ceiling(Ne_target / rates$NeN)
+  Min_N        <- ceiling(Ne_target / rates$NeN)
+  Ne_at_census <- if (!is.null(census_N)) round(rates$NeN * census_N, 1) else NULL
 
   # ------------------------------------------------------------------
   # Step 6: Attach stage names if T_mat has them
@@ -472,7 +480,9 @@ Ne_clonal_Y2000 <- function(T_mat,
     u_dot      = u_dot,
     u2_bar     = u2_bar,
     Min_N      = Min_N,
-    Ne_target  = Ne_target
+    Ne_target  = Ne_target,
+    Ne_at_census = Ne_at_census,
+    census_N     = census_N
   )
 
   class(result) <- c("Ne_clonal_Y2000", "NeStage")
@@ -532,7 +542,14 @@ print.Ne_clonal_Y2000 <- function(x, digits = 3, ...) {
 #' @param D_exp    Expected (equilibrium) stage fractions. If NULL, derived
 #'                 from the dominant eigenvector of A = T_mat + F_mat.
 #' @param L        Generation time (years). If NULL, computed internally.
-#' @param Ne_target  Conservation Ne threshold (default 5000).
+#' @param Ne_target  Numeric. Ne conservation threshold. Common choices:
+#'               50 (Franklin 1980, avoid inbreeding depression),
+#'               500 (long-term quantitative variation), or
+#'               5000 (Lande 1995, long-term evolutionary potential).
+#'               Default 50.
+#' @param census_N  Numeric or NULL. Actual or expected census population
+#'               size. If supplied, Ne_at_census = NeN * census_N is
+#'               added to the output. Default NULL.
 #' @param population  Character label for the population.
 #'
 #' @return A list with two Ne_clonal_Y2000 result objects:
@@ -565,7 +582,8 @@ Ne_clonal_Y2000_both <- function(T_mat,
                                   D_obs,
                                   D_exp      = NULL,
                                   L          = NULL,
-                                  Ne_target  = 5000,
+                                  Ne_target  = 50,
+                             census_N   = NULL,
                                   population = NULL) {
 
   # Derive D_exp from the stable stage distribution if not supplied
@@ -588,6 +606,8 @@ Ne_clonal_Y2000_both <- function(T_mat,
       D          = D_obs,
       L          = L,
       Ne_target  = Ne_target,
+    Ne_at_census = Ne_at_census,
+    census_N     = census_N,
       population = paste0(pop_label, " (observed D)")
     ),
     expected = Ne_clonal_Y2000(
@@ -596,6 +616,8 @@ Ne_clonal_Y2000_both <- function(T_mat,
       D          = D_exp,
       L          = L,
       Ne_target  = Ne_target,
+    Ne_at_census = Ne_at_census,
+    census_N     = census_N,
       population = paste0(pop_label, " (expected D)")
     )
   )

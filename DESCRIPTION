@@ -1,27 +1,42 @@
 Package: NeStage
-Type: Package
-Title: Estimation of Ny/N, Ne/N, and Stage-Based Genetic Metrics
-Version: 0.6.1
-Authors@R: person("Raymond L.", "Tremblay", email = "raymond.tremblay@gmail.com", role = c("aut", "cre"))
-Description: Provides tools to compute Ny/N, Ne/N, generation time, and 
-    related demographic-genetic metrics from stage-structured projection 
-    matrices. Implements the Yonezawa-based workflow used in population 
-    genetics and plant demography, including exact (observed and expected) 
-    matrix estimators and a sex-only transformation. Includes helper 
-    functions for comparisons, reproducible logging, and minimal plotting.
+Title: Variance Effective Population Size for Stage-Structured Populations
+Version: 0.1.0
+Authors@R: 
+    person("Raymond L.", "Tremblay",
+           email = "raymond.tremblay@upr.edu",
+           role  = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7570-0554"))
+Description: Computes the variance effective population size (Ne) for
+    stage-structured plant and animal populations following the framework of
+    Yonezawa et al. (2000) <doi:10.1111/j.0014-3820.2000.tb01244.x>.
+    Three model functions cover clonal, sexual, and mixed (sexual + clonal)
+    reproduction, all accepting a survival-transition matrix (MatU) and a
+    fecundity vector (MatF row 1) as inputs. A suite of four sensitivity
+    functions sweeps key parameters — sexual reproductive variance (Vk/k-bar),
+    clonal reproductive variance (Vc/c-bar), clonal fraction (d), and
+    generation time (L) — and returns ggplot2 figures and elasticity statistics
+    to guide conservation decision-making. The package also reports the minimum
+    census size needed to achieve a user-specified Ne target and the estimated
+    Ne at a user-supplied census population size.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
-Depends: R (>= 4.1)
+RoxygenNote: 7.3.1
+URL: https://github.com/RaymondLTremblay/NeStage
+BugReports: https://github.com/RaymondLTremblay/NeStage/issues
 Imports:
-    stats,
-    utils
+    ggplot2 (>= 3.4.0)
 Suggests:
+    dplyr,
+    tidyr,
+    purrr,
+    expm,
+    gt (>= 0.9.0),
     knitr,
+    popbio,
     rmarkdown,
-    testthat (>= 3.0.0),
-    ggplot2
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-
+Depends:
+    R (>= 4.1.0)

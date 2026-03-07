@@ -1,3 +1,20 @@
+# NeStage 0.7.2 (2026-03-06)
+
+- Added `Ne_compadre_sexual_filter()`: fetches and filters COMPADRE for
+  sexually reproducing plant species (mean matrices, wild, unmanipulated,
+  annual, no clonal reproduction, one matrix per species).
+- Added `Ne_compadre_sexual()`: runs `Ne_sexual_Y2000()` across all
+  species in a filtered CompadreDB object; returns a tidy summary table
+  and full per-species result list.
+- Added vignette `NeStage_COMPADRE.Rmd`: step-by-step workflow for
+  comparative Ne/N analysis across plant families using COMPADRE.
+- Added `Rcompadre` to Suggests in DESCRIPTION.
+- Fixed: replaced `source()` blocks in all three existing vignettes
+  (`Ne_Yonezawa2000.Rmd`, `NeStage_functions.Rmd`, `NeStage_sensitivity.Rmd`)
+  with `library(NeStage)` -- these caused `R CMD build` failures.
+- Moved analysis script to `inst/scripts/Ne_compadre_sexual_analysis.R`.
+- devtools::check(): 0 errors | 0 warnings | 0 notes.
+
 # NeStage 0.7.1 (2026-03-06)
 - Added Quick Start vignette (`NeStage_quickstart.Rmd`): minimum working
   examples for all three core functions with data format checklist.

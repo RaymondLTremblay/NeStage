@@ -1,6 +1,6 @@
 Package: NeStage
 Title: Variance Effective Population Size for Stage-Structured Populations
-Version: 0.7.0
+Version: 0.7.2
 Authors@R: 
     person("Raymond L.", "Tremblay",
            email = "raymond.tremblay@upr.edu",

@@ -28,20 +28,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r source-nestage, include=FALSE}
-# Source NeStage functions — required when knitting before package installation.
-# Once installed via devtools::install(), replace with library(NeStage).
-local({
-  r_dir <- file.path("..", "R")
-  if (dir.exists(r_dir)) {
-    source(file.path(r_dir, "Ne_clonal_Y2000.R"))
-    source(file.path(r_dir, "Ne_sexual_Y2000.R"))
-    source(file.path(r_dir, "Ne_mixed_Y2000.R"))
-    source(file.path(r_dir, "Ne_sensitivity.R"))
-  } else {
-    library(NeStage)
-  }
-})
+```{r load-nestage, include=FALSE}
+library(NeStage)
 ```
 
 ---

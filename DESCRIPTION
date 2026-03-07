@@ -27,6 +27,7 @@ BugReports: https://github.com/RaymondLTremblay/NeStage/issues
 Imports:
     ggplot2 (>= 3.4.0)
 Suggests:
+    Rcompadre,
     dplyr,
     tidyr,
     purrr,

@@ -24,23 +24,7 @@ knitr::opts_chunk$set(
   message   = FALSE
 )
 
-# Source all NeStage functions — vignettes knit in a fresh R session.
-# During development (before the package is installed), source directly.
-# Once installed via devtools::install(), these lines are not needed.
-local({
-  r_dir <- file.path("..", "R")
-  if (dir.exists(r_dir)) {
-    # Building vignette from within the package directory
-    source(file.path(r_dir, "Ne_clonal_Y2000.R"))
-    source(file.path(r_dir, "Ne_sexual_Y2000.R"))
-    source(file.path(r_dir, "Ne_mixed_Y2000.R"))
-    source(file.path(r_dir, "Ne_sensitivity.R"))
-  } else {
-    # Package already installed — functions available via library(NeStage)
-    library(NeStage)
-  }
-})
-```
+library(NeStage)
 
 ```{r packages, include = FALSE}
 library(expm)     # matrix exponentiation (%^%)

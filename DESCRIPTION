@@ -6,7 +6,7 @@ Date: 2026-03-07
 Authors@R: person("Raymond L.", "Tremblay",
            email = "raymond.tremblay@gmail.com",
            role  = c("aut", "cre"),
-           comment = c(ORCID = "https://orcid.org/0000-0001-6896-5844"))
+           comment = c(ORCID = "0000-0001-6896-5844"))
 Description: Computes effective population size (Ne) and the Ne/N ratio for
     stage-structured populations using the matrix population model framework
     of Yonezawa (2000). Functions are provided for sexually reproducing,

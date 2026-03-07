@@ -1,33 +1,27 @@
 Package: NeStage
-Title: Variance Effective Population Size for Stage-Structured Populations
-Version: 0.7.2
-Authors@R: 
-    person("Raymond L.", "Tremblay",
-           email = "raymond.tremblay@upr.edu",
+Type: Package
+Title: Effective Population Size from Stage-Structured Populations
+Version: 0.8.0
+Date: 2026-03-07
+Authors@R: person("Raymond L.", "Tremblay",
+           email = "raymond.tremblay@gmail.com",
            role  = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-8588-4372"))
-Description: Computes the variance effective population size (Ne) for
-    stage-structured plant and animal populations following the framework of
-    Yonezawa et al. (2000) <doi:10.1111/j.0014-3820.2000.tb01243.x>.
-    Three model functions cover clonal, sexual, and mixed (sexual + clonal)
-    reproduction, all accepting a survival-transition matrix (MatU) and a
-    fecundity vector (MatF row 1) as inputs. A suite of four sensitivity
-    functions sweeps key parameters — sexual reproductive variance (Vk/k-bar),
-    clonal reproductive variance (Vc/c-bar), clonal fraction (d), and
-    generation time (L) — and returns ggplot2 figures and elasticity statistics
-    to guide conservation decision-making. The package also reports the minimum
-    census size needed to achieve a user-specified Ne target and the estimated
-    Ne at a user-supplied census population size.
-License: MIT + file LICENSE
+           comment = c(ORCID = "https://orcid.org/0000-0001-6896-5844"))
+Description: Computes effective population size (Ne) and the Ne/N ratio for
+    stage-structured populations using the matrix population model framework
+    of Yonezawa (2000). Functions are provided for sexually reproducing,
+    clonally reproducing, and mixed (sexual + clonal) populations. Includes
+    sensitivity and elasticity analyses for Ne/N with respect to vital rates.
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
+Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-URL: https://github.com/RaymondLTremblay/NeStage
-BugReports: https://github.com/RaymondLTremblay/NeStage/issues
+Depends:
+    R (>= 4.1.0)
 Imports:
-    ggplot2 (>= 3.4.0)
+    ggplot2
 Suggests:
-    Rcompadre,
     dplyr,
     tidyr,
     purrr,
@@ -39,6 +33,5 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
-Config/testthat/edition: 3
-Depends:
-    R (>= 4.1.0)
+URL: https://github.com/RaymondLTremblay/NeStage
+BugReports: https://github.com/RaymondLTremblay/NeStage/issues

@@ -127,14 +127,14 @@ analyses of how life history strategy relates to genetic vulnerability.
 
 # AI Usage Disclosure
 
-The authors used AI assistance (Claude, Anthropic) for code review, 
+The author used AI assistance (Claude, Anthropic) for code review, 
 roxygen2 documentation formatting, and vignette drafting. All scientific 
 content, mathematical derivations, biological interpretations, and design 
 decisions were made by the author.
 
 # Acknowledgements
 
-The author thank the maintainers of the COMPADRE Plant Matrix Database for
+The author thanks the maintainers of the COMPADRE Plant Matrix Database for
 making demographic data freely available.
 
 # References

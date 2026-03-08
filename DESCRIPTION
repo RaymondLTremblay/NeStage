@@ -26,6 +26,7 @@ Suggests:
     tidyr,
     purrr,
     expm,
+    ggplot2,
     gt (>= 0.9.0),
     knitr,
     popbio,
@@ -35,3 +36,4 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://github.com/RaymondLTremblay/NeStage
 BugReports: https://github.com/RaymondLTremblay/NeStage/issues
+References: Yonezawa K., Ishida T. & Iwata H. (2000). Formulation and estimation of the effective size of stage-structured populations. *Evolution* **54**: 2007–2013.

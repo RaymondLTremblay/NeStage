@@ -26,7 +26,6 @@ Suggests:
     tidyr,
     purrr,
     expm,
-    ggplot2,
     gt (>= 0.9.0),
     knitr,
     popbio,

@@ -8,7 +8,7 @@ Tested on:
 
 ## New submission
 
-This is a new submission to CRAN.
+This is a resubmission to CRAN.
 
 NeStage computes effective population size (Ne) and the Ne/N ratio for
 stage-structured populations using matrix population models, following the

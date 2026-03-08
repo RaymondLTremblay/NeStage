@@ -6,7 +6,7 @@ Tested on:
 - macOS Tahoe 26.3, R 4.5.2 (aarch64-apple-darwin20) — local
 - Windows (win-builder devel) — via devtools::check_win_devel()
 
-## New submission
+## Resubmission
 
 This is a resubmission to CRAN.
 

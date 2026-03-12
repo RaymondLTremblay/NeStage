@@ -1,14 +1,15 @@
-## R CMD check results
+## R CMD check results (NeStage 0.8.0)
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 4 notes
 
-Tested on:
-- macOS Tahoe 26.3, R 4.5.2 (aarch64-apple-darwin20) — local
-- Windows (win-builder devel) — via devtools::check_win_devel()
+- NOTE: New submission
+- NOTE: unable to verify current time (network issue on test machine)
+- NOTE: pandoc not installed locally (README/NEWS check skipped)
+- NOTE: local HTML tidy version outdated (HTML validation skipped)
 
 ## Resubmission
-
-This is a resubmission to CRAN.
+Previous submission was rejected due to install.packages() calls in vignettes.
+These have been removed. All vignettes now use rmarkdown::html_vignette.
 
 NeStage computes effective population size (Ne) and the Ne/N ratio for
 stage-structured populations using matrix population models, following the

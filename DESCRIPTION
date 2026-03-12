@@ -7,9 +7,11 @@ Authors@R: person("Raymond L.", "Tremblay",
            email = "raymond.tremblay@gmail.com",
            role  = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-8588-4372"))
+Author: Raymond L. Tremblay [aut, cre] (<https://orcid.org/0000-0002-8588-4372>)
+Maintainer: Raymond L. Tremblay <raymond.tremblay@gmail.com>
 Description: Computes effective population size (Ne) and the Ne/N ratio for
     stage-structured populations using the matrix population model framework
-    of Yonezawa (2000) <doi:10.1046/j.1365-2540.2000.00747.x>. Functions
+    of Yonezawa (2000) <doi:10.1111/j.0014-3820.2000.tb01244.x>. Functions
     are provided for sexually reproducing, clonally reproducing, and mixed
     (sexual + clonal) populations. Includes sensitivity and elasticity
     analyses for Ne/N with respect to vital rates.

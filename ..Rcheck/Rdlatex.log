@@ -1,0 +1,154 @@
+Hmm ... looks like a package
+Converting parsed Rd's to LaTeX 
+Creating pdf output from LaTeX ...
+
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2024-06-01> patch level 2
+L3 programming layer <2024-07-20>
+(./Rd2.tex
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2024/02/08 v1.4n Standard LaTeX document class
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/bk10.clo)) (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/alltt.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/eucal.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/psnfss/times.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/zi4.sty `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/keyval.tex))))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/makeidx.sty)
+Writing index file Rd2.idx
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
+No file Rd2.aux.
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd)
+No file Rd2.toc.
+
+[1{/Users/raymondtremblay/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}{/Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
+[2]
+[3]
+[4]
+[5]
+[6]
+[7]
+[8]
+[9]
+[10]
+[11]
+Overfull \hbox (8.40906pt too wide) in paragraph at lines 679--681
+[]\T1/ptm/m/n/10 The model func-tion: Ne_clonal_Y2000, Ne_sexual_Y2000, or Ne_mixed_Y2000. 
+
+[12]
+[13]
+[14]
+[15]
+[16]
+[17]
+No file Rd2.ind.
+
+[18] (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)</Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (18 pages, 114793 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (9 entries accepted, 0 rejected).
+Sorting entries....done (27 comparisons).
+Generating output file Rd2.ind....done (13 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2024-06-01> patch level 2
+L3 programming layer <2024-07-20>
+(./Rd2.tex
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2024/02/08 v1.4n Standard LaTeX document class
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/bk10.clo)) (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/alltt.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/eucal.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/psnfss/times.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/zi4.sty `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/keyval.tex))))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/makeidx.sty)
+Writing index file Rd2.idx
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.aux) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.out) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.out) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.toc)
+[1{/Users/raymondtremblay/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}{/Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
+[2]
+[3]
+[4]
+[5]
+[6]
+[7]
+[8]
+[9]
+[10]
+[11]
+Overfull \hbox (8.40906pt too wide) in paragraph at lines 679--681
+[]\T1/ptm/m/n/10 The model func-tion: Ne_clonal_Y2000, Ne_sexual_Y2000, or Ne_mixed_Y2000. 
+
+[12]
+[13]
+[14]
+[15]
+[16]
+[17]
+[18] (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.ind
+[19]
+
+[20]) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)</Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (20 pages, 117521 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (9 entries accepted, 0 rejected).
+Sorting entries....done (27 comparisons).
+Generating output file Rd2.ind....done (13 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2024-06-01> patch level 2
+L3 programming layer <2024-07-20>
+(./Rd2.tex
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2024/02/08 v1.4n Standard LaTeX document class
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/bk10.clo)) (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/alltt.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/eucal.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/psnfss/times.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/zi4.sty `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/keyval.tex))))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty)) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/base/makeidx.sty)
+Writing index file Rd2.idx
+(/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.aux) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.out) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.out) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd) (/Users/raymondtremblay/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.toc
+[1{/Users/raymondtremblay/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}{/Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}])
+[2]
+[3]
+[4]
+[5]
+[6]
+[7]
+[8]
+[9]
+[10]
+[11]
+Overfull \hbox (8.40906pt too wide) in paragraph at lines 679--681
+[]\T1/ptm/m/n/10 The model func-tion: Ne_clonal_Y2000, Ne_sexual_Y2000, or Ne_mixed_Y2000. 
+
+[12]
+[13]
+[14]
+[15]
+[16]
+[17]
+[18] (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.ind
+[19]
+
+[20]) (/private/var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T/RtmplejWf0/Rd2pdf4de33053c799/Rd2.aux) )
+(see the transcript file for additional information)</Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/raymondtremblay/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (20 pages, 117701 bytes).
+Transcript written on Rd2.log.
+Saving output to ‘NeStage-manual.pdf’ ...
+Done
+You may want to clean up by 'rm -Rf /var/folders/3k/1ft37x9130vdbz21tw1497x40000gn/T//RtmplejWf0/Rd2pdf4de33053c799'

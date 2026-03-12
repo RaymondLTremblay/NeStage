@@ -1,0 +1,17 @@
+Ne_clonal_Y2000         Variance effective population size for 100%
+                        clonal stage-structured populations
+Ne_clonal_Y2000_both    Run Ne_clonal_Y2000 with both observed and
+                        expected stage fractions
+Ne_mixed_Y2000          Variance effective population size for mixed
+                        sexual/clonal stage-structured populations
+Ne_mixed_Y2000_both     Run Ne_mixed_Y2000 with both observed and
+                        expected stage fractions
+Ne_sensitivity_L        Sensitivity of Ne/N to generation time L
+Ne_sensitivity_Vc       Sensitivity of Ne/N to clonal reproductive
+                        variance in one stage
+Ne_sensitivity_Vk       Sensitivity of Ne/N to sexual reproductive
+                        variance in one stage
+Ne_sensitivity_d        Sensitivity of Ne/N to clonal fraction d_i in
+                        one stage
+Ne_sexual_Y2000         Variance effective population size for 100%
+                        sexual stage-structured populations

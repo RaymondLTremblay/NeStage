@@ -9,3 +9,13 @@
 ^CRAN_submission_checklist\.md$
 ^WORDLIST$
 ^CRAN-SUBMISSION$
+^NeStage\.Rproj$
+^\.Rproj\.user$
+^paper\.bib$
+^paper\.md$
+^CRAN-SUBMISSION$
+^CRAN_submission_checklist\.md$
+^\.git$
+^\.DS_Store$
+^\.RData$
+^\.Rhistory$

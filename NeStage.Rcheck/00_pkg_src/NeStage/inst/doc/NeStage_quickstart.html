@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Raymond L. Tremblay" />
+
+
+<title>NeStage: Quick Start Guide</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">NeStage: Quick Start Guide</h1>
+<h4 class="author">Raymond L. Tremblay</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#overview" id="toc-overview"><span class="toc-section-number">1</span> Overview</a></li>
+<li><a href="#what-data-do-you-need" id="toc-what-data-do-you-need"><span class="toc-section-number">2</span>
+What data do you need?</a>
+<ul>
+<li><a href="#t_mat-survivaltransition-matrix" id="toc-t_mat-survivaltransition-matrix"><span class="toc-section-number">2.1</span> <code>T_mat</code> —
+Survival/transition matrix</a></li>
+<li><a href="#f_vec-fecundity-vector" id="toc-f_vec-fecundity-vector"><span class="toc-section-number">2.2</span> <code>F_vec</code> — Fecundity
+vector</a></li>
+<li><a href="#d-stage-frequency-distribution" id="toc-d-stage-frequency-distribution"><span class="toc-section-number">2.3</span> <code>D</code> — Stage frequency
+distribution</a></li>
+<li><a href="#l-generation-time-optional-but-recommended" id="toc-l-generation-time-optional-but-recommended"><span class="toc-section-number">2.4</span> <code>L</code> — Generation time
+(optional but recommended)</a></li>
+<li><a href="#quick-data-checklist" id="toc-quick-data-checklist"><span class="toc-section-number">2.5</span> Quick data checklist</a></li>
+</ul></li>
+<li><a href="#ne_clonal_y2000-purely-clonal-populations" id="toc-ne_clonal_y2000-purely-clonal-populations"><span class="toc-section-number">3</span> <code>Ne_clonal_Y2000()</code> —
+Purely clonal populations</a></li>
+<li><a href="#ne_sexual_y2000-purely-sexual-populations" id="toc-ne_sexual_y2000-purely-sexual-populations"><span class="toc-section-number">4</span> <code>Ne_sexual_Y2000()</code> —
+Purely sexual populations</a></li>
+<li><a href="#ne_mixed_y2000-mixed-sexual-clonal-populations" id="toc-ne_mixed_y2000-mixed-sexual-clonal-populations"><span class="toc-section-number">5</span> <code>Ne_mixed_Y2000()</code> —
+Mixed sexual + clonal populations</a></li>
+<li><a href="#which-function-should-i-use" id="toc-which-function-should-i-use"><span class="toc-section-number">6</span> Which function should I
+use?</a></li>
+<li><a href="#interpreting-the-results" id="toc-interpreting-the-results"><span class="toc-section-number">7</span> Interpreting the results</a></li>
+<li><a href="#next-steps" id="toc-next-steps"><span class="toc-section-number">8</span> Next steps</a></li>
+<li><a href="#references" id="toc-references"><span class="toc-section-number">9</span> References</a></li>
+</ul>
+</div>
+
+<hr />
+<div id="overview" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Overview</h1>
+<p>This vignette shows the <strong>minimum code needed</strong> to run
+each of the three core NeStage functions. If you have your demographic
+data ready, you should be able to get results in under five minutes.</p>
+<p>For full mathematical background and replication of Yonezawa et
+al. (2000) Table 4, see <code>vignette(&quot;Ne_Yonezawa2000&quot;)</code>.</p>
+<hr />
+</div>
+<div id="what-data-do-you-need" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> What data do you
+need?</h1>
+<p>All three functions share the same three core inputs. Before running
+any function, check that your data meets these requirements.</p>
+<div id="t_mat-survivaltransition-matrix" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> <code>T_mat</code> —
+Survival/transition matrix</h2>
+<ul>
+<li>A <strong>square numeric matrix</strong> of size <em>s</em> ×
+<em>s</em>, where <em>s</em> is the number of life-history stages (e.g.,
+seedling, juvenile, adult = 3 stages).</li>
+<li>Entry in row <em>j</em>, column <em>i</em> is the probability that
+an individual in <strong>stage <em>i</em></strong> this year is found in
+<strong>stage <em>j</em></strong> next year.</li>
+<li><strong>Column sums must be ≤ 1</strong> (total annual survival per
+stage cannot exceed 1).</li>
+<li>No negative values, no <code>NA</code> or <code>Inf</code>.</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Example: 3-stage plant (seedling, juvenile, adult)</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>T_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="fl">0.30</span>, <span class="fl">0.05</span>, <span class="fl">0.00</span>,   <span class="co"># row 1: transitions INTO stage 1</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fl">0.40</span>, <span class="fl">0.65</span>, <span class="fl">0.10</span>,   <span class="co"># row 2: transitions INTO stage 2</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="fl">0.00</span>, <span class="fl">0.20</span>, <span class="fl">0.80</span>    <span class="co"># row 3: transitions INTO stage 3</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co"># Quick check: column sums must all be &lt;= 1</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">colSums</span>(T_mat)   <span class="co"># should all be &lt;= 1.0</span></span></code></pre></div>
+</div>
+<div id="f_vec-fecundity-vector" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> <code>F_vec</code> —
+Fecundity vector</h2>
+<ul>
+<li>A <strong>numeric vector of length <em>s</em></strong>: the mean
+number of offspring (or clonal propagules) produced per individual per
+stage per year.</li>
+<li>Must be <strong>≥ 0</strong> for all stages; at least one stage must
+have <code>F_vec &gt; 0</code>.</li>
+<li>For clonal populations: propagules (bulblets, stolons, etc.).</li>
+<li>For sexual populations: seeds or juvenile recruits per adult per
+year.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Example: only adults (stage 3) reproduce</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>F_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">3.0</span>)</span></code></pre></div>
+</div>
+<div id="d-stage-frequency-distribution" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> <code>D</code> —
+Stage frequency distribution</h2>
+<ul>
+<li>A <strong>numeric vector of length <em>s</em></strong>: the
+proportion of the population in each stage. <strong>Must sum to
+1.</strong></li>
+<li>Use observed field counts:
+<code>D &lt;- counts / sum(counts)</code></li>
+<li>Or use the stable stage distribution from the transition matrix (see
+<code>vignette(&quot;Ne_Yonezawa2000&quot;)</code> for details).</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Example: from field counts</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">120</span>, <span class="dv">50</span>, <span class="dv">30</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>D <span class="ot">&lt;-</span> counts <span class="sc">/</span> <span class="fu">sum</span>(counts)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>D        <span class="co"># c(0.60, 0.25, 0.15)</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">sum</span>(D)   <span class="co"># must equal 1</span></span></code></pre></div>
+</div>
+<div id="l-generation-time-optional-but-recommended" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> <code>L</code> —
+Generation time (optional but recommended)</h2>
+<ul>
+<li>A <strong>single positive number</strong>: the mean generation time
+in years.</li>
+<li>If you <strong>supply <code>L</code></strong> directly from a
+published source, it is used as-is (recommended for replicating
+published results).</li>
+<li>If you <strong>omit <code>L</code></strong>, it is computed
+internally from <code>T_mat</code> and <code>F_vec</code> using the
+Yonezawa (2000) definition (iterates to age 500).</li>
+</ul>
+</div>
+<div id="quick-data-checklist" class="section level2" number="2.5">
+<h2><span class="header-section-number">2.5</span> Quick data
+checklist</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Type</th>
+<th>Length / Size</th>
+<th>Constraint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>T_mat</code></td>
+<td>numeric matrix</td>
+<td><em>s</em> × <em>s</em></td>
+<td>col sums ≤ 1, ≥ 0</td>
+</tr>
+<tr class="even">
+<td><code>F_vec</code></td>
+<td>numeric vector</td>
+<td><em>s</em></td>
+<td>≥ 0, at least one &gt; 0</td>
+</tr>
+<tr class="odd">
+<td><code>D</code></td>
+<td>numeric vector</td>
+<td><em>s</em></td>
+<td>sums to 1, ≥ 0</td>
+</tr>
+<tr class="even">
+<td><code>L</code></td>
+<td>numeric scalar</td>
+<td>1</td>
+<td>&gt; 0 (optional)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+</div>
+<div id="ne_clonal_y2000-purely-clonal-populations" class="section level1" number="3">
+<h1><span class="header-section-number">3</span>
+<code>Ne_clonal_Y2000()</code> — Purely clonal populations</h1>
+<p>Use this function when your population reproduces <strong>exclusively
+through clonal means</strong> (bulblets, stolons, rhizomes, vegetative
+fragmentation) and sexual reproduction contributes nothing to
+recruitment.</p>
+<p>It implements Equations 10 and 11 of Yonezawa et al. (2000) and
+returns <code>Ne/N</code> (generation-time effective size ratio),
+<code>Ny/N</code> (annual effective size ratio), and the minimum census
+size <code>Min_N</code> needed to achieve your
+<code>Ne_target</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(NeStage)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># --- Your data goes here ---</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>T_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fl">0.789</span>, <span class="fl">0.121</span>, <span class="fl">0.054</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fl">0.007</span>, <span class="fl">0.621</span>, <span class="fl">0.335</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fl">0.001</span>, <span class="fl">0.258</span>, <span class="fl">0.611</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>F_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.055</span>, <span class="fl">1.328</span>, <span class="fl">2.398</span>)   <span class="co"># clonal propagules per stage per year</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>D     <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.935</span>, <span class="fl">0.038</span>, <span class="fl">0.027</span>)   <span class="co"># observed stage fractions (must sum to 1)</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>L     <span class="ot">&lt;-</span> <span class="fl">13.399</span>                    <span class="co"># generation time (years); omit to compute</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co"># --- Run the function ---</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">Ne_clonal_Y2000</span>(</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  <span class="at">T_mat      =</span> T_mat,</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>  <span class="at">F_vec      =</span> F_vec,</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  <span class="at">D          =</span> D,</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="at">L          =</span> L,</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>  <span class="at">Ne_target  =</span> <span class="dv">5000</span>,        <span class="co"># minimum Ne for long-term viability (Lande 1995)</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;My population&quot;</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>)</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="fu">print</span>(result)</span></code></pre></div>
+<pre><code>## 
+## === NeStage: Clonal population Ne (Yonezawa 2000, Eq. 10-11) ===
+##   Population  : My population
+##   Model       : clonal_Y2000
+## 
+##   --- Stage survival ---
+##     u_{.stage_1} = 0.7970
+##     u_{.stage_2} = 1.0000
+##     u_{.stage_3} = 1.0000
+##     u2_bar (stage-weighted mean of squared survivals) = 0.658920
+## 
+##   --- Generation time ---
+##     L = 13.399 yr  [source: user]
+## 
+##   --- Effective size ratios ---
+##     Ny/N (annual, Eq. 11)          = 2.932
+##     Ne/N (generation-time, Eq. 10) = 0.219
+## 
+##   --- Conservation threshold ---
+##     Ne target                      = 5000
+##     Minimum census size N          = 22851
+##     (Ne/N = 0.219 =&gt; need N &gt;= 22851 for Ne &gt;= 5000)</code></pre>
+<div id="key-outputs" class="section level3" number="3.0.1">
+<h3><span class="header-section-number">3.0.1</span> Key outputs</h3>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>result$NeN</code></td>
+<td>Ne/N — how large Ne is relative to census size N</td>
+</tr>
+<tr class="even">
+<td><code>result$NyN</code></td>
+<td>Ny/N — annual effective size ratio</td>
+</tr>
+<tr class="odd">
+<td><code>result$Min_N</code></td>
+<td>Minimum census N to achieve Ne &gt;= <code>Ne_target</code></td>
+</tr>
+<tr class="even">
+<td><code>result$L</code></td>
+<td>Generation time used</td>
+</tr>
+<tr class="odd">
+<td><code>result$u2_bar</code></td>
+<td>Stage-weighted mean of squared survivals (key intermediate)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+</div>
+<div id="ne_sexual_y2000-purely-sexual-populations" class="section level1" number="4">
+<h1><span class="header-section-number">4</span>
+<code>Ne_sexual_Y2000()</code> — Purely sexual populations</h1>
+<p>Use this function when your population reproduces <strong>exclusively
+through sexual means</strong> (seeds, spores, offspring) and clonal
+reproduction plays no role. This applies to most vertebrates, annual
+plants, and outcrossing trees.</p>
+<p>It implements Equation 6 of Yonezawa (2000) with <em>d</em>_i = 0 (no
+clonal fraction). Note that <code>Ny/N</code> is <strong>not</strong>
+computed for sexual populations — it is defined only for the clonal
+model.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># --- Your data goes here ---</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>T_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fl">0.30</span>, <span class="fl">0.05</span>, <span class="fl">0.00</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fl">0.40</span>, <span class="fl">0.65</span>, <span class="fl">0.10</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fl">0.00</span>, <span class="fl">0.20</span>, <span class="fl">0.80</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>F_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">3.0</span>)      <span class="co"># seeds/offspring per individual per stage</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>D     <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.60</span>, <span class="fl">0.25</span>, <span class="fl">0.15</span>)   <span class="co"># observed stage fractions (must sum to 1)</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co"># --- Run the function ---</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>result_sex <span class="ot">&lt;-</span> <span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  <span class="at">T_mat      =</span> T_mat,</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>  <span class="at">F_vec      =</span> F_vec,</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="at">D          =</span> D,</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="co"># L omitted: computed internally from T_mat and F_vec</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="at">Ne_target  =</span> <span class="dv">5000</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;My sexual population&quot;</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>)</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="fu">print</span>(result_sex)</span></code></pre></div>
+<pre><code>## 
+## === NeStage: Sexual population Ne (Yonezawa 2000, Eq. 6, d=0) ===
+##   Population  : My sexual population
+##   Model       : sexual_Y2000
+## 
+##   --- Stage survival ---
+##     u_{.stage_1} = 0.7000
+##     u_{.stage_2} = 0.9000
+##     u_{.stage_3} = 0.9000
+##     u_bar  (population mean annual survival)          = 0.780000
+##     u2_bar (stage-weighted mean of squared survivals) = 0.618000
+## 
+##   --- Reproductive parameters ---
+##     a (Hardy-Weinberg deviation)                      = 0.0000
+##     Vk/k_bar (stage_1) = 1.0000
+##     Vk/k_bar (stage_2) = 1.0000
+##     Vk/k_bar (stage_3) = 1.0000
+##     Avr(S) (recruitment-weighted mean S_i)            = 2.000000
+## 
+##   --- Variance decomposition ---
+##     V component 1 (between-stage survival variance)   = 0.019200
+##     V component 2 (reproductive variance)             = 0.440000
+##     V total                                           = 0.459200
+## 
+##   --- Generation time ---
+##     L = 5.802 yr  [source: computed]
+## 
+##   --- Effective size ratio ---
+##     Ne/N (generation-time, Eq. 6) = 0.751
+##     Note: Ny/N is not defined for purely sexual populations.
+## 
+##   --- Conservation threshold ---
+##     Ne target              = 5000 (minimum Ne for viability)
+##     Minimum census size N  = 6661
+##     (Ne/N = 0.751 =&gt; need N &gt;= 6661 for Ne &gt;= 5000)</code></pre>
+<div id="optional-adjust-reproductive-variance-vk_over_k" class="section level3" number="4.0.1">
+<h3><span class="header-section-number">4.0.1</span> Optional: adjust
+reproductive variance <code>Vk_over_k</code></h3>
+<p>The parameter <code>Vk_over_k</code> controls how <strong>unequal
+reproductive success</strong> is among individuals within each stage. It
+is the variance-to-mean ratio of sexual reproductive output, written
+(V_k / k-bar)_i for stage i.</p>
+<p><strong>The default is <code>Vk_over_k = 1</code> for all stages
+(Poisson variance).</strong> This means every individual in a stage has
+an equal chance of reproducing — no individual is consistently a better
+or worse reproducer. This is a reasonable starting assumption when you
+have no data on reproductive inequality.</p>
+<p><strong>When should you increase it above 1?</strong> - A few
+dominant plants produce most of the seeds while others produce few -
+Pollinators strongly prefer certain individuals over others - Resource
+limitation means only the largest or most competitive individuals
+reproduce successfully in a given year - You have field data showing
+high variance in seed or offspring counts among individuals of the same
+stage</p>
+<p><strong>What happens to Ne when <code>Vk_over_k</code> &gt;
+1?</strong> Fewer individuals effectively contribute genes to the next
+generation, which means the population behaves genetically as if it were
+smaller than it actually is — Ne decreases. A value of 3 means the
+variance in reproductive output is three times what you would expect by
+chance.</p>
+<p><strong>In practice:</strong> - <code>Vk_over_k = 1</code> — Poisson
+default, equal reproductive success - <code>Vk_over_k = 2</code> —
+moderate inequality, common in many plant populations -
+<code>Vk_over_k = 5+</code> — high inequality, e.g. wind-pollinated
+trees or highly clumped resources</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Stage 3 adults have high reproductive variance (pollinator-limited)</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># Stages 1 and 2 kept at Poisson default (= 1)</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>result_highvar <span class="ot">&lt;-</span> <span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">T_mat     =</span> T_mat,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">F_vec     =</span> F_vec,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">D         =</span> D,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">Vk_over_k =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">3</span>),   <span class="co"># stage 3: Vk/k_bar = 3</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">Ne_target =</span> <span class="dv">5000</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>)</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">print</span>(result_highvar)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co"># Ne/N will be lower than the Poisson default above</span></span></code></pre></div>
+</div>
+<div id="key-outputs-1" class="section level3" number="4.0.2">
+<h3><span class="header-section-number">4.0.2</span> Key outputs</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>result$NeN</code></td>
+<td>Ne/N — generation-time effective size ratio</td>
+</tr>
+<tr class="even">
+<td><code>result$Min_N</code></td>
+<td>Minimum census N for Ne &gt;= <code>Ne_target</code></td>
+</tr>
+<tr class="odd">
+<td><code>result$V</code></td>
+<td>Full variance term from Eq. 6</td>
+</tr>
+<tr class="even">
+<td><code>result$V_component1</code></td>
+<td>Between-stage survival variance</td>
+</tr>
+<tr class="odd">
+<td><code>result$V_component2</code></td>
+<td>Reproductive variance component</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+</div>
+<div id="ne_mixed_y2000-mixed-sexual-clonal-populations" class="section level1" number="5">
+<h1><span class="header-section-number">5</span>
+<code>Ne_mixed_Y2000()</code> — Mixed sexual + clonal populations</h1>
+<p>Use this function when your population reproduces through
+<strong>both sexual and clonal means</strong>, with each stage
+potentially having a different mix. Examples include perennial herbs
+with both seeds and vegetative propagules, grasses producing seeds and
+tillers, and corals that spawn and fragment.</p>
+<p>It implements the full general Equation 6 of Yonezawa (2000). One
+additional required input compared to the other two functions is
+<code>d</code> — the per-stage clonal fraction.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># --- Your data goes here ---</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>T_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fl">0.30</span>, <span class="fl">0.05</span>, <span class="fl">0.00</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fl">0.40</span>, <span class="fl">0.65</span>, <span class="fl">0.10</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fl">0.00</span>, <span class="fl">0.20</span>, <span class="fl">0.80</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>F_vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">3.0</span>)      <span class="co"># total fecundity per stage (sexual + clonal)</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>D     <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.60</span>, <span class="fl">0.25</span>, <span class="fl">0.15</span>)   <span class="co"># observed stage fractions (must sum to 1)</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co"># d: clonal fraction per stage</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#   d_i = 0   -&gt; stage i reproduces entirely sexually</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#   d_i = 1   -&gt; stage i reproduces entirely clonally</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#   d_i = 0.7 -&gt; 70% of stage i reproduction is clonal</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.7</span>)   <span class="co"># only adults (stage 3) reproduce clonally</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co"># --- Run the function ---</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>result_mix <span class="ot">&lt;-</span> <span class="fu">Ne_mixed_Y2000</span>(</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="at">T_mat      =</span> T_mat,</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  <span class="at">F_vec      =</span> F_vec,</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  <span class="at">D          =</span> D,</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>  <span class="at">d          =</span> d,</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>  <span class="co"># Vk_over_k and Vc_over_c default to rep(1, s) -- Poisson variance</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>  <span class="at">Ne_target  =</span> <span class="dv">5000</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;My mixed population&quot;</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>)</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">print</span>(result_mix)</span></code></pre></div>
+<pre><code>## 
+## === NeStage: Mixed sexual/clonal Ne (Yonezawa 2000, Eq. 6) ===
+##   Population  : My mixed population
+##   Model       : mixed_Y2000
+## 
+##   --- Clonal fractions per stage (d_i) ---
+##     d_stage_1 = 0.0000  (0% clonal, 100% sexual)
+##     d_stage_2 = 0.0000  (0% clonal, 100% sexual)
+##     d_stage_3 = 0.7000  (70% clonal, 30% sexual)
+## 
+##   --- Stage survival ---
+##     u_{.stage_1} = 0.7000
+##     u_{.stage_2} = 0.9000
+##     u_{.stage_3} = 0.9000
+##     u_bar  (population mean annual survival)          = 0.780000
+##     u2_bar (stage-weighted mean of squared survivals) = 0.618000
+## 
+##   --- Reproductive parameters ---
+##     a (Hardy-Weinberg deviation)                      = 0.0000
+##     Vk/k_bar (stage_1) = 1.0000
+##     Vk/k_bar (stage_2) = 1.0000
+##     Vk/k_bar (stage_3) = 1.0000
+##     Vc/c_bar (stage_1) = 1.0000
+##     Vc/c_bar (stage_2) = 1.0000
+##     Vc/c_bar (stage_3) = 1.0000
+##     Avr(S)  (sexual reproductive variance term)       = 2.000000
+##     Avr(Ad) (clonal reproductive variance term)       = 0.000000
+## 
+##   --- Variance decomposition ---
+##     V term 1 (between-stage survival variance)        = 0.019200
+##     V term 2 (sexual reproductive variance)           = 0.440000
+##     V term 3 (clonal reproductive variance)           = 0.000000
+##     Note: V term 3 = 0 because Vc/c_bar == Vk/k_bar and a == 0.
+##            Supply Vc_over_c != 1 to model unequal clonal variance.
+##     V total                                           = 0.459200
+## 
+##   --- Generation time ---
+##     L = 5.802 yr  [source: computed]
+## 
+##   --- Effective size ratios ---
+##     Ne/N (generation-time, Eq. 6)  = 0.751
+##     Ny/N                           = not requested (set show_Ny = TRUE)
+## 
+##   --- Conservation threshold ---
+##     Ne target              = 5000
+##     Minimum census size N  = 6661
+##     (Ne/N = 0.751 =&gt; need N &gt;= 6661 for Ne &gt;= 5000)</code></pre>
+<div id="the-d-vector-most-common-source-of-confusion" class="section level3" number="5.0.1">
+<h3><span class="header-section-number">5.0.1</span> The <code>d</code>
+vector — most common source of confusion</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># All stages reproduce sexually only (equivalent to Ne_sexual_Y2000)</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co"># All stages reproduce clonally only</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co"># Only the largest stage (stage 3) has clonal reproduction</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co"># Gradual increase in clonal fraction across stages</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.8</span>)</span></code></pre></div>
+</div>
+<div id="key-outputs-2" class="section level3" number="5.0.2">
+<h3><span class="header-section-number">5.0.2</span> Key outputs</h3>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Output</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>result$NeN</code></td>
+<td>Ne/N — generation-time effective size ratio</td>
+</tr>
+<tr class="even">
+<td><code>result$Min_N</code></td>
+<td>Minimum census N for Ne &gt;= <code>Ne_target</code></td>
+</tr>
+<tr class="odd">
+<td><code>result$V</code></td>
+<td>Full variance term from Eq. 6</td>
+</tr>
+<tr class="even">
+<td><code>result$V_term1</code></td>
+<td>Between-stage survival variance</td>
+</tr>
+<tr class="odd">
+<td><code>result$V_term2</code></td>
+<td>Sexual reproductive variance</td>
+</tr>
+<tr class="even">
+<td><code>result$V_term3</code></td>
+<td>Clonal reproductive variance (0 under Poisson defaults)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+</div>
+<div id="which-function-should-i-use" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Which function should I
+use?</h1>
+<table>
+<thead>
+<tr class="header">
+<th>My population reproduces via…</th>
+<th>Function to use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clonal only (no sexual)</td>
+<td><code>Ne_clonal_Y2000()</code></td>
+</tr>
+<tr class="even">
+<td>Sexual only (no clonal)</td>
+<td><code>Ne_sexual_Y2000()</code></td>
+</tr>
+<tr class="odd">
+<td>Both sexual and clonal</td>
+<td><code>Ne_mixed_Y2000()</code></td>
+</tr>
+<tr class="even">
+<td>Unsure / want to compare</td>
+<td>Run all three and compare <code>Ne/N</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="interpreting-the-results" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Interpreting the
+results</h1>
+<p>A few benchmarks to help you interpret <code>Ne/N</code>:</p>
+<ul>
+<li><strong>Ne/N ~ 0.10</strong> is the empirical median across 102
+wildlife species (Frankham 1995). Values below this suggest
+higher-than-average genetic vulnerability.</li>
+<li><strong>Ne &gt;= 50</strong> is the short-term threshold to avoid
+inbreeding depression (Franklin 1980).</li>
+<li><strong>Ne &gt;= 500</strong> maintains quantitative genetic
+variation (Franklin 1980).</li>
+<li><strong>Ne &gt;= 5000</strong> is the long-term evolutionary
+viability threshold (Lande 1995) — the default <code>Ne_target</code> in
+all NeStage functions.</li>
+</ul>
+<p>The <code>Min_N</code> output tells you directly: <em>“Your
+population needs at least this many individuals to achieve your Ne
+target.”</em></p>
+<hr />
+</div>
+<div id="next-steps" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Next steps</h1>
+<ul>
+<li>For full mathematical derivations and replication of Yonezawa (2000)
+Table 4, see <code>vignette(&quot;Ne_Yonezawa2000&quot;)</code>.</li>
+<li>For sensitivity analysis (sweeping Vk, Vc, d, or L), see
+<code>vignette(&quot;NeStage_sensitivity&quot;)</code>.</li>
+<li>For full function documentation: <code>?Ne_clonal_Y2000</code>,
+<code>?Ne_sexual_Y2000</code>, <code>?Ne_mixed_Y2000</code>.</li>
+</ul>
+<hr />
+</div>
+<div id="references" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> References</h1>
+<p>Frankham R. (1995). Effective population size/adult population size
+ratios in wildlife: a review. <em>Genetical Research</em>
+<strong>66</strong>: 95–107.</p>
+<p>Franklin I.R. (1980). Evolutionary change in small populations. In:
+Soule M.E. &amp; Wilcox B.A. (eds) <em>Conservation Biology: An
+Evolutionary-Ecological Perspective</em>. Sinauer Associates,
+pp. 135–149.</p>
+<p>Lande R. (1995). Mutation and conservation. <em>Conservation
+Biology</em> <strong>9</strong>: 728–791.</p>
+<p>Yonezawa K., Kinoshita E., Watano Y., and Zentoh H. (2000).
+Formulation and estimation of the effective size of stage-structured
+populations in <em>Fritillaria camtschatcensis</em>, a perennial herb
+with a complex life history. <em>Evolution</em> <strong>54</strong>(6):
+2007–2013. <a href="https://doi.org/10.1111/j.0014-3820.2000.tb01244.x" class="uri">https://doi.org/10.1111/j.0014-3820.2000.tb01244.x</a></p>
+<hr />
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.5.2 (2025-10-31)
+## Platform: x86_64-apple-darwin20
+## Running under: macOS Monterey 12.7.6
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-x86_64/Resources/lib/libRblas.0.dylib 
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.5-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+## 
+## locale:
+## [1] C/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## time zone: America/Puerto_Rico
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.51    purrr_1.2.1   tidyr_1.3.2   dplyr_1.2.0   ggplot2_4.0.2
+## [6] expm_1.0-0    Matrix_1.7-4  NeStage_0.8.0
+## 
+## loaded via a namespace (and not attached):
+##  [1] vctrs_0.7.1        cli_3.6.5          rlang_1.1.7        xfun_0.56         
+##  [5] otel_0.2.0         generics_0.1.4     S7_0.2.1           jsonlite_2.0.0    
+##  [9] labeling_0.4.3     glue_1.8.0         htmltools_0.5.9    sass_0.4.10       
+## [13] scales_1.4.0       rmarkdown_2.30     grid_4.5.2         tibble_3.3.1      
+## [17] evaluate_1.0.5     jquerylib_0.1.4    fastmap_1.2.0      yaml_2.3.12       
+## [21] lifecycle_1.0.5    compiler_4.5.2     RColorBrewer_1.1-3 pkgconfig_2.0.3   
+## [25] rstudioapi_0.18.0  farver_2.1.2       lattice_0.22-9     digest_0.6.39     
+## [29] R6_2.6.1           tidyselect_1.2.1   pillar_1.11.1      magrittr_2.0.4    
+## [33] bslib_0.10.0       withr_3.0.2        tools_4.5.2        gtable_0.3.6      
+## [37] cachem_1.1.0</code></pre>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

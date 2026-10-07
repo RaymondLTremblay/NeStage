@@ -97,14 +97,14 @@ print(out)
 #>  ─────────────────────────────────────────────────────
 #>   Stages s                           = 6
 #>   Stage-weighted survival (u_bar)    = 0.741
-#>   Generation time L                  = 14.6 months
+#>   Generation time L                  = 40.2 months
 #>   V (total variance)                 = 0.420
-#>   Ne/N                               = 0.572
+#>   Ne/N                               = 0.207
 #>   --- Conservation threshold ---
 #>   Ne target                          = 50
-#>   Minimum census size N              = 88
-#>   Ne at your census size (N = 40)    = 22.9
-#>   WARNING: Ne (22.9) < Ne target (50) at N = 40
+#>   Minimum census size N              = 242
+#>   Ne at your census size (N = 40)    = 8.3
+#>   WARNING: Ne (8.3) < Ne target (50) at N = 40
 #>  ─────────────────────────────────────────────────────
 ```
 

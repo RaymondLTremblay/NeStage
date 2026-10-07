@@ -18,7 +18,8 @@ Ne_mixed_Y2000(
   Ne_target = 50,
   census_N = NULL,
   show_Ny = FALSE,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 )
 }
 \arguments{
@@ -79,6 +80,11 @@ is defined here using the clonal component of the model
 and is most meaningful when clonal reproduction dominates.}
 
 \item{population}{Character string. Optional population label.}
+
+\item{recruit_row}{Integer. The stage (matrix row) that newborns enter,
+i.e. where F_vec is placed in F_mat. Default 1. Set to a
+later stage when the first stage is dormancy (e.g. a seed
+bank). Must name exactly one valid stage.}
 }
 \value{
 A named list with elements:
@@ -165,7 +171,7 @@ Yonezawa K., Kinoshita E., Watano Y., and Zentoh H. (2000).
 Formulation and estimation of the effective size of stage-structured
 populations in Fritillaria camtschatcensis, a perennial herb with a
 complex life history. \emph{Evolution} \strong{54}(6): 2007-2013.
-\doi{10.1111/j.0014-3820.2000.tb01243.x}
+\doi{10.1111/j.0014-3820.2000.tb01244.x}
 
 Lande R. (1995). Mutation and conservation.
 \emph{Conservation Biology} \strong{9}: 728-791.

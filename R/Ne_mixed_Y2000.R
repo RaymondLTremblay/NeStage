@@ -260,37 +260,26 @@
 # SECTION 2: Generation time L
 # -----------------------------------------------------------------------------
 # Same definition as Ne_clonal_Y2000 and Ne_sexual_Y2000:
-# population-average mean age of reproduction, computed by iterating
-# the survival matrix T to x_max = 500, weighted by the stable stage
-# distribution w of A = T + F_mat.
+# mean age of reproduction of a cohort of newborns entering stage
+# recruit_row, computed by iterating the survival matrix T to x_max = 500.
 
-.compute_L_mixed <- function(T_mat, F_vec, x_max = 500L) {
+.compute_L_mixed <- function(T_mat, F_vec, x_max = 500L, recruit_row = 1L) {
   s <- nrow(T_mat)
-  F_mat <- matrix(0, s, s)
-  F_mat[1, ] <- F_vec
 
-  A <- T_mat + F_mat
-  ev <- eigen(A)
-  w <- Re(ev$vectors[, which.max(Re(ev$values))])
-  w <- abs(w) / sum(abs(w))
-
-  Tx <- diag(s)
-  num <- 0
-  den <- 0
+  # Follow a cohort of newborns entering stage recruit_row at age 0.
+  # Column recruit_row of T^x is the stage distribution at age x of that
+  # cohort, so sum(F_vec * T^x[, recruit_row]) is l_x * m_x (expected
+  # offspring at age x per newborn). Survival is already included and is
+  # not multiplied in a second time.
+  Tx <- diag(s) # T^0 = identity matrix
+  num <- 0 # accumulates sum(x * l_x * m_x)
+  den <- 0 # accumulates sum(l_x * m_x)
 
   for (x in seq_len(x_max)) {
-    Tx <- T_mat %*% Tx
-
-    l_bar_x <- 0
-    m_bar_x <- 0
-    for (i in seq_len(s)) {
-      u_jxi <- Tx[, i]
-      l_bar_x <- l_bar_x + w[i] * sum(u_jxi)
-      m_bar_x <- m_bar_x + w[i] * sum(F_vec * u_jxi)
-    }
-
-    num <- num + x * m_bar_x * l_bar_x
-    den <- den + m_bar_x * l_bar_x
+    Tx <- T_mat %*% Tx # T^x = T * T^(x-1)
+    lm_x <- sum(F_vec * Tx[, recruit_row])
+    num <- num + x * lm_x
+    den <- den + lm_x
   }
 
   if (den <= 0) {
@@ -473,6 +462,10 @@
 #'               and is most meaningful when clonal reproduction dominates.
 #'
 #' @param population  Character string. Optional population label.
+#' @param recruit_row Integer. The stage (matrix row) that newborns enter,
+#'               i.e. where F_vec is placed in F_mat. Default 1. Set to a
+#'               later stage when the first stage is dormancy (e.g. a seed
+#'               bank). Must name exactly one valid stage.
 #'
 #' @return A named list with elements:
 #'   \describe{
@@ -562,7 +555,8 @@ Ne_mixed_Y2000 <- function(
   Ne_target = 50,
   census_N = NULL,
   show_Ny = FALSE,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   # ------------------------------------------------------------------
   # Step 1: Validate all inputs
@@ -573,6 +567,7 @@ Ne_mixed_Y2000 <- function(
   .validate_F_vec_mx(F_vec, s)
   .validate_d(d, s)
   .validate_a_mx(a)
+  .validate_recruit_row(recruit_row, s)
   if (!is.null(L)) {
     .validate_L_mx(L)
   }
@@ -604,7 +599,12 @@ Ne_mixed_Y2000 <- function(
     L_use <- as.numeric(L)
     L_source <- "user"
   } else {
-    L_use <- .compute_L_mixed(T_mat, F_vec, x_max = as.integer(x_max))
+    L_use <- .compute_L_mixed(
+      T_mat,
+      F_vec,
+      x_max = as.integer(x_max),
+      recruit_row = recruit_row
+    )
     L_source <- "computed"
   }
 
@@ -838,6 +838,9 @@ print.Ne_mixed_Y2000 <- function(x, digits = 3, ...) {
 #'               added to the output. Default NULL.
 #' @param show_Ny    Logical. Compute Ny/N? (default FALSE).
 #' @param population Character label for the population.
+#' @param recruit_row Integer. Stage (matrix row) that newborns enter; where
+#'               F_vec is placed in F_mat. Default 1. Set to a later stage
+#'               when the first stage is dormancy (e.g. a seed bank).
 #'
 #' @return A list with two Ne_mixed_Y2000 result objects:
 #'   \describe{
@@ -859,12 +862,12 @@ Ne_mixed_Y2000_both <- function(
   Ne_target = 50,
   census_N = NULL,
   show_Ny = FALSE,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   if (is.null(D_exp)) {
     s <- nrow(T_mat)
-    F_mat <- matrix(0, s, s)
-    F_mat[1, ] <- F_vec
+    F_mat <- .build_F_mat(F_vec, s, recruit_row)
     A <- T_mat + F_mat
     ev <- eigen(A)
     w <- Re(ev$vectors[, which.max(Re(ev$values))])
@@ -889,7 +892,8 @@ Ne_mixed_Y2000_both <- function(
       Ne_target = Ne_target,
       census_N = census_N,
       show_Ny = show_Ny,
-      population = paste0(pop_label, " (observed D)")
+      population = paste0(pop_label, " (observed D)"),
+      recruit_row = recruit_row
     ),
     expected = Ne_mixed_Y2000(
       T_mat = T_mat,
@@ -903,7 +907,8 @@ Ne_mixed_Y2000_both <- function(
       Ne_target = Ne_target,
       census_N = census_N,
       show_Ny = show_Ny,
-      population = paste0(pop_label, " (expected D)")
+      population = paste0(pop_label, " (expected D)"),
+      recruit_row = recruit_row
     )
   )
 }

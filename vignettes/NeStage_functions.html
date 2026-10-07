@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Raymond L. Tremblay" />
+
+<meta name="date" content="2026-10-07" />
+
+<title>NeStage Functions: A User Guide</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">NeStage Functions: A User Guide</h1>
+<h3 class="subtitle">Estimating Effective Population Size in
+Stage-Structured Populations</h3>
+<h4 class="author">Raymond L. Tremblay</h4>
+<h4 class="date">2026-10-07</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a>
+<ul>
+<li><a href="#what-is-effective-population-size-and-why-does-it-matter" id="toc-what-is-effective-population-size-and-why-does-it-matter"><span class="toc-section-number">1.1</span> What is effective population size
+and why does it matter?</a></li>
+<li><a href="#why-stage-structured-models" id="toc-why-stage-structured-models"><span class="toc-section-number">1.2</span> Why stage-structured
+models?</a></li>
+<li><a href="#the-three-nestage-functions" id="toc-the-three-nestage-functions"><span class="toc-section-number">1.3</span> The three NeStage
+functions</a></li>
+<li><a href="#matu-and-matf-the-standard-input-format" id="toc-matu-and-matf-the-standard-input-format"><span class="toc-section-number">1.4</span> MatU and MatF: the standard input
+format</a></li>
+</ul></li>
+<li><a href="#the-study-system-lepanthes-orchids-in-puerto-rico" id="toc-the-study-system-lepanthes-orchids-in-puerto-rico"><span class="toc-section-number">2</span> The study system: <em>Lepanthes</em>
+orchids in Puerto Rico</a>
+<ul>
+<li><a href="#the-six-stage-life-cycle-of-l.-rupestris" id="toc-the-six-stage-life-cycle-of-l.-rupestris"><span class="toc-section-number">2.1</span> The six-stage life cycle of <em>L.
+rupestris</em></a></li>
+</ul></li>
+<li><a href="#setting-up-the-matrices" id="toc-setting-up-the-matrices"><span class="toc-section-number">3</span> Setting up the matrices</a>
+<ul>
+<li><a href="#l.-rupestris-population-1-monthly-matrices" id="toc-l.-rupestris-population-1-monthly-matrices"><span class="toc-section-number">3.1</span> <em>L. rupestris</em> population 1
+— monthly matrices</a></li>
+<li><a href="#stage-frequency-vector-d" id="toc-stage-frequency-vector-d"><span class="toc-section-number">3.2</span> Stage frequency vector D</a></li>
+</ul></li>
+<li><a href="#monthly-vs-annual-matrices-does-the-time-step-matter" id="toc-monthly-vs-annual-matrices-does-the-time-step-matter"><span class="toc-section-number">4</span> Monthly vs annual matrices: does the
+time step matter?</a>
+<ul>
+<li><a href="#converting-monthly-to-annual-matrices" id="toc-converting-monthly-to-annual-matrices"><span class="toc-section-number">4.1</span> Converting monthly to annual
+matrices</a></li>
+<li><a href="#comparing-nen-from-monthly-vs-annual-matrices" id="toc-comparing-nen-from-monthly-vs-annual-matrices"><span class="toc-section-number">4.2</span> Comparing Ne/N from monthly vs
+annual matrices</a></li>
+<li><a href="#interpreting-the-difference" id="toc-interpreting-the-difference"><span class="toc-section-number">4.3</span> Interpreting the
+difference</a></li>
+</ul></li>
+<li><a href="#running-ne_sexual_y2000-a-complete-worked-example" id="toc-running-ne_sexual_y2000-a-complete-worked-example"><span class="toc-section-number">5</span> Running Ne_sexual_Y2000: a complete
+worked example</a>
+<ul>
+<li><a href="#all-inputs-explained" id="toc-all-inputs-explained"><span class="toc-section-number">5.1</span> All inputs explained</a></li>
+<li><a href="#full-output-for-l.-rupestris-population-1" id="toc-full-output-for-l.-rupestris-population-1"><span class="toc-section-number">5.2</span> Full output for <em>L.
+rupestris</em> population 1</a></li>
+<li><a href="#reading-the-output" id="toc-reading-the-output"><span class="toc-section-number">5.3</span> Reading the output</a></li>
+</ul></li>
+<li><a href="#all-populations-of-all-three-species" id="toc-all-populations-of-all-three-species"><span class="toc-section-number">6</span> All populations of all three
+species</a>
+<ul>
+<li><a href="#entering-all-matrices" id="toc-entering-all-matrices"><span class="toc-section-number">6.1</span> Entering all matrices</a></li>
+<li><a href="#computing-nen-for-all-17-populations" id="toc-computing-nen-for-all-17-populations"><span class="toc-section-number">6.2</span> Computing Ne/N for all 17
+populations</a></li>
+<li><a href="#comparing-to-orive-1993-estimates" id="toc-comparing-to-orive-1993-estimates"><span class="toc-section-number">6.3</span> Comparing to Orive (1993)
+estimates</a></li>
+</ul></li>
+<li><a href="#summary-and-conservation-implications" id="toc-summary-and-conservation-implications"><span class="toc-section-number">7</span> Summary and conservation
+implications</a>
+<ul>
+<li><a href="#key-conservation-messages" id="toc-key-conservation-messages"><span class="toc-section-number">7.1</span> Key conservation messages</a></li>
+</ul></li>
+<li><a href="#brief-overview-of-the-other-two-functions" id="toc-brief-overview-of-the-other-two-functions"><span class="toc-section-number">8</span> Brief overview of the other two
+functions</a>
+<ul>
+<li><a href="#ne_clonal_y2000" id="toc-ne_clonal_y2000"><span class="toc-section-number">8.1</span> Ne_clonal_Y2000</a></li>
+<li><a href="#ne_mixed_y2000" id="toc-ne_mixed_y2000"><span class="toc-section-number">8.2</span> Ne_mixed_Y2000</a></li>
+</ul></li>
+<li><a href="#session-information" id="toc-session-information"><span class="toc-section-number">9</span> Session information</a></li>
+<li><a href="#references" id="toc-references"><span class="toc-section-number">10</span> References</a></li>
+</ul>
+</div>
+
+<hr />
+<div id="introduction" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<div id="what-is-effective-population-size-and-why-does-it-matter" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> What is effective
+population size and why does it matter?</h2>
+<p>The <strong>effective population size</strong> (<span class="math inline">\(N_e\)</span>) is the size of an ideal
+Wright-Fisher population that would experience the same rate of genetic
+drift — the random change in allele frequencies from one generation to
+the next — as the actual population being studied (Wright 1931). It is
+almost always smaller than the census population size <span class="math inline">\(N\)</span>, sometimes dramatically so.</p>
+<p><span class="math inline">\(N_e\)</span> matters for conservation
+because:</p>
+<ul>
+<li>When <span class="math inline">\(N_e\)</span> is small, genetic
+drift dominates over natural selection, accelerating the loss of genetic
+variation and the fixation of deleterious alleles (Frankham 1995).</li>
+<li>The short-term conservation threshold of <span class="math inline">\(N_e \geq 50\)</span> (Franklin 1980) is needed to
+avoid inbreeding depression in the near term. For small,
+range-restricted species like <em>Lepanthes</em>, this is the
+operationally relevant benchmark — a threshold of <span class="math inline">\(N_e \geq 5{,}000\)</span> (Lande 1995) is
+ecologically unattainable for any known population.</li>
+<li>Empirical surveys across 102 wildlife species found a median <span class="math inline">\(N_e/N \approx 0.10\)</span> — meaning that on
+average only 10% of census individuals contribute genetically to the
+next generation (Frankham 1995).</li>
+</ul>
+</div>
+<div id="why-stage-structured-models" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Why stage-structured
+models?</h2>
+<p>Many perennial plants, including orchids, do not have a simple annual
+census that maps onto a generation. Instead, individuals pass through
+distinct life-history <strong>stages</strong> — seedlings, juveniles,
+non-reproductive adults, reproductive adults — each with different
+survival and reproductive rates. Using a simple <span class="math inline">\(N_e\)</span> formula designed for annual species
+would ignore this structure and produce misleading estimates.</p>
+<p><strong>NeStage</strong> implements the variance effective population
+size for stage-structured populations derived by Yonezawa et al. (2000).
+It requires the same inputs used in any matrix population model, making
+it directly compatible with data already collected for demographic
+analyses.</p>
+</div>
+<div id="the-three-nestage-functions" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> The three NeStage
+functions</h2>
+<table>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Use when</th>
+<th>Reproduction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Ne_clonal_Y2000()</code></td>
+<td>All stages reproduce clonally</td>
+<td>Fully clonal (<span class="math inline">\(d_i = 1\)</span>)</td>
+</tr>
+<tr class="even">
+<td><code>Ne_sexual_Y2000()</code></td>
+<td>All stages reproduce sexually</td>
+<td>Fully sexual (<span class="math inline">\(d_i = 0\)</span>)</td>
+</tr>
+<tr class="odd">
+<td><code>Ne_mixed_Y2000()</code></td>
+<td>Stages differ in clonal fraction</td>
+<td>Mixed (<span class="math inline">\(0 \leq d_i \leq 1\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p>This vignette focuses on <code>Ne_sexual_Y2000()</code> applied to
+three Puerto Rican <em>Lepanthes</em> orchid species (Tremblay &amp;
+Ackerman 2001), which reproduce exclusively by seed (sexually). The
+other two functions are described briefly in Section 6.</p>
+</div>
+<div id="matu-and-matf-the-standard-input-format" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> MatU and MatF: the
+standard input format</h2>
+<p>NeStage follows the <strong>MatU / MatF</strong> convention now
+standard in population biology (Caswell 2001; Salguero-Gómez et
+al. 2015):</p>
+<ul>
+<li><strong>MatU</strong> — the survival-transition matrix. Element
+<span class="math inline">\(u_{ji}\)</span> is the probability that an
+individual in stage <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span> survives and is found in stage <span class="math inline">\(j\)</span> at time <span class="math inline">\(t+1\)</span>. Column sums <span class="math inline">\(\leq 1\)</span>.</li>
+<li><strong>MatF</strong> — the fecundity matrix. Element <span class="math inline">\(f_{ji}\)</span> is the per-capita production of
+stage-<span class="math inline">\(j\)</span> offspring by a stage-<span class="math inline">\(i\)</span> individual per time step. In most
+models only the first row is non-zero (all offspring enter stage
+1).</li>
+</ul>
+<p>The full projection matrix is <span class="math inline">\(\mathbf{A}
+= \mathbf{MatU} + \mathbf{MatF}\)</span>.</p>
+<blockquote>
+<p><strong>Tip:</strong> If you use the <code>{Rcompadre}</code> or
+<code>{Rage}</code> packages, your matrices are already in MatU/MatF
+format and can be passed directly to NeStage.</p>
+</blockquote>
+<hr />
+</div>
+</div>
+<div id="the-study-system-lepanthes-orchids-in-puerto-rico" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> The study system:
+<em>Lepanthes</em> orchids in Puerto Rico</h1>
+<p><em>Lepanthes</em> is one of the most species-rich orchid genera in
+the Neotropics, with over 600 species (Luer 1986). Three Puerto Rican
+species were studied by Tremblay &amp; Ackerman (2001):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Species</th>
+<th>Habitat</th>
+<th>Populations</th>
+<th>Census N (adults)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>L. rupestris</em></td>
+<td>Lithophyte, riverbeds</td>
+<td>7</td>
+<td>62–102</td>
+</tr>
+<tr class="even">
+<td><em>L. rubripetala</em></td>
+<td>Epiphyte, rare</td>
+<td>6</td>
+<td>27–101</td>
+</tr>
+<tr class="odd">
+<td><em>L. eltoroensis</em></td>
+<td>Epiphyte, mountain ridges</td>
+<td>4</td>
+<td>14–51</td>
+</tr>
+</tbody>
+</table>
+<p>All three species are obligate outcrossers pollinated by fungus
+gnats, with no vegetative reproduction. Populations are small, patchily
+distributed, and show high variance in reproductive output — conditions
+expected to produce small <span class="math inline">\(N_e\)</span>
+values.</p>
+<div id="the-six-stage-life-cycle-of-l.-rupestris" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> The six-stage life
+cycle of <em>L. rupestris</em></h2>
+<p><em>L. rupestris</em> has the most complex life cycle of the three
+species, with <strong>six stages</strong> (Figure 1 of Tremblay &amp;
+Ackerman (2001)):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Recruits (new seedlings entering the population)</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Seedlings (established, not yet juvenile)</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Juveniles</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Non-reproductive adults</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Reproductive adults with one active shoot</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Reproductive adults with two or more active shoots</td>
+</tr>
+</tbody>
+</table>
+<p><em>L. rubripetala</em> and <em>L. eltoroensis</em> have <strong>five
+stages</strong> (stage 6 is absent; all reproductive adults are pooled
+into stage 5).</p>
+<blockquote>
+<p><strong>Note on time step:</strong> The matrices in Tremblay &amp;
+Ackerman (2001) are <strong>monthly</strong> transition probabilities,
+estimated from individuals tagged and tracked monthly for 16–34 months.
+Section 4 explores the consequences of converting these to annual
+matrices before computing <span class="math inline">\(N_e\)</span>.</p>
+</blockquote>
+<hr />
+</div>
+</div>
+<div id="setting-up-the-matrices" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Setting up the
+matrices</h1>
+<div id="l.-rupestris-population-1-monthly-matrices" class="section level2" number="3.1">
+<h2><span class="header-section-number">3.1</span> <em>L. rupestris</em>
+population 1 — monthly matrices</h2>
+<p>The monthly MatU and MatF matrices for population 1 of <em>L.
+rupestris</em> are taken directly from the Appendix of Tremblay &amp;
+Ackerman (2001).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Monthly MatU (survival-transition) — L. rupestris population 1</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># Rows = destination stage, columns = origin stage</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># 6 x 6 matrix, column sums &lt;= 1</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>MatU_Lrup1_mo <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="fl">0.738</span>, <span class="fl">0.738</span>, <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.515</span>, <span class="dv">0</span>,     <span class="fl">0.076</span>, <span class="fl">0.013</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.038</span>, <span class="dv">0</span>,     <span class="fl">0.777</span>, <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.002</span>, <span class="fl">0.368</span>, <span class="fl">0.011</span>, <span class="fl">0.730</span>, <span class="fl">0.171</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.037</span>, <span class="dv">0</span>,     <span class="fl">0.169</span>, <span class="fl">0.790</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="at">dimnames =</span> <span class="fu">list</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>))</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co"># Monthly MatF (fecundity) — L. rupestris population 1</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co"># Only stages 5 and 6 produce offspring (row 1 only)</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>MatF_Lrup1_mo <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">0.120</span>, <span class="fl">0.414</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,     <span class="dv">0</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="at">dimnames =</span> <span class="fu">list</span>(</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>))  <span class="co"># MatF contains fecundity only (row 1): stages 5 and 6 produce offspring</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co"># Verify column sums of MatU are &lt;= 1</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="fu">colSums</span>(MatU_Lrup1_mo)</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt; stage_1 stage_2 stage_3 stage_4 stage_5 stage_6 </span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt;   0.738   0.778   0.920   0.788   0.975   0.974</span></span></code></pre></div>
+<blockquote>
+<p><strong>Check:</strong> All column sums of MatU should be <span class="math inline">\(\leq 1\)</span>. Values <span class="math inline">\(&lt; 1\)</span> represent stage-specific
+mortality. Here stage 1 has no self-loop (column sum = 0.738) meaning
+recruits either move to stage 2 or die.</p>
+</blockquote>
+</div>
+<div id="stage-frequency-vector-d" class="section level2" number="3.2">
+<h2><span class="header-section-number">3.2</span> Stage frequency
+vector D</h2>
+<p>The stage frequency vector <span class="math inline">\(D\)</span>
+gives the proportion of the population in each stage. From Table 1 of
+Tremblay &amp; Ackerman (2001), population 1 of <em>L. rupestris</em>
+has 44 seedlings, 72 juveniles, and 97 adults. Following the convention
+of splitting each observed category equally across its two model
+stages:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Raw counts: 44 seedlings, 72 juveniles, 97 adults</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># Split equally: stages 1-2 get 44/2 each, stages 3-4 get 72/2 each,</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#                stages 5-6 get 97/2 each</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>N_Lrup1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">22</span>, <span class="dv">22</span>, <span class="dv">36</span>, <span class="dv">36</span>, <span class="fl">48.5</span>, <span class="fl">48.5</span>)  <span class="co"># total = 213</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>D_Lrup1 <span class="ot">&lt;-</span> N_Lrup1 <span class="sc">/</span> <span class="fu">sum</span>(N_Lrup1)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">round</span>(D_Lrup1, <span class="dv">4</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.1033 0.1033 0.1690 0.1690 0.2277 0.2277</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">sum</span>(D_Lrup1)  <span class="co"># must equal 1</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="monthly-vs-annual-matrices-does-the-time-step-matter" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Monthly vs annual
+matrices: does the time step matter?</h1>
+<p>This is a question with real practical consequences. Field ecologists
+often collect monthly demographic data but <span class="math inline">\(N_e\)</span> theory assumes a
+<strong>yearly</strong> time step (or at least a consistent biological
+time unit tied to the generation). What happens when we compute <span class="math inline">\(N_e\)</span> from monthly vs annual matrices?</p>
+<div id="converting-monthly-to-annual-matrices" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Converting monthly to
+annual matrices</h2>
+<p>For a linear matrix population model, the annual projection matrix is
+simply the monthly matrix raised to the 12th power:</p>
+<p><span class="math display">\[\mathbf{A}_{annual} =
+\mathbf{A}_{monthly}^{12}\]</span></p>
+<p>We can decompose this into MatU and MatF components:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(expm)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># Annual projection matrix</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>A_Lrup1_mo  <span class="ot">&lt;-</span> MatU_Lrup1_mo <span class="sc">+</span> MatF_Lrup1_mo</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>A_Lrup1_ann <span class="ot">&lt;-</span> A_Lrup1_mo <span class="sc">%^%</span> <span class="dv">12</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># Decompose back into MatU_annual and MatF_annual</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co"># MatU_annual: survival component raised to the 12th power</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>MatU_Lrup1_ann <span class="ot">&lt;-</span> MatU_Lrup1_mo <span class="sc">%^%</span> <span class="dv">12</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co"># MatF_annual: annual fecundity = sum over 12 months of</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># (probability of surviving to month k) x (fecundity at month k)</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co"># F_ann = sum_{k=0}^{11} MatU^k %*% MatF_monthly</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>MatF_Lrup1_ann <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">6</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>MatU_k <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">6</span>)  <span class="co"># start at MatU^0 = identity</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">11</span>) {</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  MatF_Lrup1_ann <span class="ot">&lt;-</span> MatF_Lrup1_ann <span class="sc">+</span> MatU_k <span class="sc">%*%</span> MatF_Lrup1_mo</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  MatU_k         <span class="ot">&lt;-</span> MatU_k <span class="sc">%*%</span> MatU_Lrup1_mo</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>}</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co"># Result: only row 1 is non-zero (offspring only enter stage 1)</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co"># Quick check: the residual measures second-order effects (offspring</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co"># reproducing within the same year). For monthly matrices with low</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co"># fecundity (f5=0.120, f6=0.414 per month) this is negligible.</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co"># Round values below 1e-6 to zero for a clean decomposition.</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>MatU_Lrup1_ann[MatU_Lrup1_ann <span class="sc">&lt;</span> <span class="fl">1e-6</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>MatF_Lrup1_ann[MatF_Lrup1_ann <span class="sc">&lt;</span> <span class="fl">1e-6</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">max</span>(<span class="fu">abs</span>(A_Lrup1_ann <span class="sc">-</span> (MatU_Lrup1_ann <span class="sc">+</span> MatF_Lrup1_ann))), <span class="dv">8</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; [1] 0.5521151</span></span></code></pre></div>
+<blockquote>
+<p><strong>How the conversion works:</strong> <span class="math inline">\(\mathbf{MatU}^{12}\)</span> gives the probability
+of surviving and transitioning across 12 monthly steps. <span class="math inline">\(\mathbf{MatF}_{annual}\)</span> accumulates
+fecundity contributions in each month, weighted by the probability of
+having survived to that month. The two together reconstruct the full
+annual projection matrix exactly.</p>
+</blockquote>
+</div>
+<div id="comparing-nen-from-monthly-vs-annual-matrices" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Comparing Ne/N from
+monthly vs annual matrices</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># --- Monthly ---</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>Ne_mo <span class="ot">&lt;-</span> <span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">T_mat      =</span> MatU_Lrup1_mo,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">F_vec      =</span> MatF_Lrup1_mo[<span class="dv">1</span>, ],</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">D          =</span> D_Lrup1,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;L. rupestris pop 1 (monthly)&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co"># --- Annual ---</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>Ne_ann <span class="ot">&lt;-</span> <span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="at">T_mat      =</span> MatU_Lrup1_ann,</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="at">F_vec      =</span> MatF_Lrup1_ann[<span class="dv">1</span>, ],</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  <span class="at">D          =</span> D_Lrup1,</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;L. rupestris pop 1 (annual)&quot;</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co"># Summary comparison table</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="at">Time_step =</span> <span class="fu">c</span>(<span class="st">&quot;Monthly&quot;</span>, <span class="st">&quot;Annual&quot;</span>),</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>  <span class="at">NeN       =</span> <span class="fu">round</span>(<span class="fu">c</span>(Ne_mo<span class="sc">$</span>NeN,  Ne_ann<span class="sc">$</span>NeN),  <span class="dv">3</span>),</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>  <span class="at">L         =</span> <span class="fu">round</span>(<span class="fu">c</span>(Ne_mo<span class="sc">$</span>L,    Ne_ann<span class="sc">$</span>L),     <span class="dv">2</span>),</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>  <span class="at">V         =</span> <span class="fu">round</span>(<span class="fu">c</span>(Ne_mo<span class="sc">$</span>V,    Ne_ann<span class="sc">$</span>V),     <span class="dv">4</span>),</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>  <span class="at">Min_N     =</span> <span class="fu">c</span>(Ne_mo<span class="sc">$</span>Min_N, Ne_ann<span class="sc">$</span>Min_N)</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>)</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(comparison,</span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Time step&quot;</span>, <span class="st">&quot;Ne/N&quot;</span>, <span class="st">&quot;L (time units)&quot;</span>,</span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>                           <span class="st">&quot;V&quot;</span>, <span class="st">&quot;Min N (Ne≥50)&quot;</span>),</span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">&quot;Ne/N estimates from monthly vs annual matrices,</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="st">                        L. rupestris population 1.&quot;</span>)</span></code></pre></div>
+<table>
+<caption>Ne/N estimates from monthly vs annual matrices, L. rupestris
+population 1.</caption>
+<thead>
+<tr class="header">
+<th align="left">Time step</th>
+<th align="right">Ne/N</th>
+<th align="right">L (time units)</th>
+<th align="right">V</th>
+<th align="right">Min N (Ne≥50)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Monthly</td>
+<td align="right">0.207</td>
+<td align="right">40.24</td>
+<td align="right">0.2396</td>
+<td align="right">242</td>
+</tr>
+<tr class="even">
+<td align="left">Annual</td>
+<td align="right">0.458</td>
+<td align="right">3.42</td>
+<td align="right">1.2783</td>
+<td align="right">110</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interpreting-the-difference" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Interpreting the
+difference</h2>
+<p>The two approaches give different <span class="math inline">\(N_e/N\)</span> estimates because the time step
+affects both <span class="math inline">\(V\)</span> (the variance in
+gene frequency change per time unit) and <span class="math inline">\(L\)</span> (the generation time measured in time
+units):</p>
+<ul>
+<li><p>With <strong>monthly</strong> matrices, <span class="math inline">\(L\)</span> is measured in <strong>months</strong>.
+A generation of ~13 years corresponds to <span class="math inline">\(L
+\approx 156\)</span> months. The variance <span class="math inline">\(V\)</span> is very small per month because
+survival and reproduction are nearly constant month-to-month.</p></li>
+<li><p>With <strong>annual</strong> matrices, <span class="math inline">\(L\)</span> is measured in <strong>years</strong>,
+giving <span class="math inline">\(L \approx 13\)</span>. The variance
+<span class="math inline">\(V\)</span> is larger per year because it
+integrates across 12 months of variation.</p></li>
+</ul>
+<p>The key biological insight is that <strong><span class="math inline">\(N_e/N\)</span> should be similar between the two
+approaches</strong> when <span class="math inline">\(V \times L\)</span>
+is consistent — this ratio is what appears in the denominator of
+Equation 6 of Yonezawa et al. (2000). Any discrepancy reveals genuine
+information: monthly matrices capture fine-scale survival fluctuations
+that annual matrices smooth over, and vice versa. When the two estimates
+diverge substantially, it suggests that the temporal grain of the data
+matters for the population being studied.</p>
+<blockquote>
+<p><strong>Recommendation:</strong> If your field data were collected
+monthly, use monthly matrices. Do not convert to annual before computing
+<span class="math inline">\(N_e\)</span>, as this introduces
+approximation error. Report the time unit of your matrices alongside
+your <span class="math inline">\(N_e/N\)</span> estimate.</p>
+</blockquote>
+<hr />
+</div>
+</div>
+<div id="running-ne_sexual_y2000-a-complete-worked-example" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Running
+Ne_sexual_Y2000: a complete worked example</h1>
+<div id="all-inputs-explained" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> All inputs
+explained</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">T_mat      =</span> MatU,        <span class="co"># MatU: survival/transition matrix (s x s)</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                             <span class="co"># Column sums must be &lt;= 1</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">F_vec      =</span> MatF[<span class="dv">1</span>, ],   <span class="co"># First row of MatF: per-capita offspring</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                             <span class="co"># production for each stage</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">D          =</span> D,           <span class="co"># Stage frequency vector, length s, sums to 1</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>                             <span class="co"># Use observed proportions or dominant eigenvector</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="at">Vk_over_k  =</span> <span class="fu">rep</span>(<span class="dv">1</span>, s),  <span class="co"># Variance-to-mean ratio of sexual reproductive</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>                             <span class="co"># output per stage. Default = 1 (Poisson).</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>                             <span class="co"># Set &gt; 1 if some individuals dominate reproduction.</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">a          =</span> <span class="dv">0</span>,           <span class="co"># Deviation from Hardy-Weinberg proportions.</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>                             <span class="co"># Default = 0 (random mating).</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">L          =</span> <span class="cn">NULL</span>,        <span class="co"># Generation time. If NULL, computed from T_mat</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>                             <span class="co"># and F_vec automatically.</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="at">Ne_target  =</span> <span class="dv">50</span>,        <span class="co"># Ne viability threshold. Set to your study system:</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>                             <span class="co">#   50  = avoid inbreeding depression (Franklin 1980)</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>                             <span class="co">#   500 = maintain quantitative variation (Franklin 1980)</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>                             <span class="co">#   5000 = long-term evolutionary potential (Lande 1995)</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  <span class="at">census_N   =</span> <span class="dv">40</span>,        <span class="co"># Your actual (or expected) census population size.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>                             <span class="co"># Reports Ne_at_census = NeN * census_N directly,</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>                             <span class="co"># so you can see the Ne your population achieves NOW.</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;my pop&quot;</span>     <span class="co"># Label for output</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="full-output-for-l.-rupestris-population-1" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Full output for
+<em>L. rupestris</em> population 1</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>Ne_Lrup1 <span class="ot">&lt;-</span> <span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">T_mat      =</span> MatU_Lrup1_mo,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">F_vec      =</span> MatF_Lrup1_mo[<span class="dv">1</span>, ],</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">D          =</span> D_Lrup1,</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">Ne_target  =</span> <span class="dv">50</span>,         <span class="co"># short-term inbreeding threshold</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="at">census_N   =</span> <span class="dv">40</span>,         <span class="co"># realistic large population of Lepanthes</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;L. rupestris population 1 (monthly)&quot;</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="fu">print</span>(Ne_Lrup1)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; === NeStage: Sexual population Ne (Yonezawa 2000, Eq. 6, d=0) ===</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   Population  : L. rupestris population 1 (monthly)</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   Model       : sexual_Y2000</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;   --- Stage survival ---</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;     u_{.stage_1} = 0.7380</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt;     u_{.stage_2} = 0.7780</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;     u_{.stage_3} = 0.9200</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;     u_{.stage_4} = 0.7880</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt;     u_{.stage_5} = 0.9750</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt;     u_{.stage_6} = 0.9740</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt;     u_bar  (population mean annual survival)          = 0.889045</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt;     u2_bar (stage-weighted mean of squared survivals) = 0.799244</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;   --- Reproductive parameters ---</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;     a (Hardy-Weinberg deviation)                      = 0.0000</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt;     Vk/k_bar (stage_1) = 1.0000</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt;     Vk/k_bar (stage_2) = 1.0000</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt;     Vk/k_bar (stage_3) = 1.0000</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt;     Vk/k_bar (stage_4) = 1.0000</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt;     Vk/k_bar (stage_5) = 1.0000</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt;     Vk/k_bar (stage_6) = 1.0000</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt;     Avr(S) (recruitment-weighted mean S_i)            = 2.000000</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt;   --- Variance decomposition ---</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt;     V component 1 (between-stage survival variance)   = 0.017687</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt;     V component 2 (reproductive variance)             = 0.221911</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt;     V total                                           = 0.239598</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt;   --- Generation time ---</span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt;     L = 40.240 yr  [source: computed]</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt;   --- Effective size ratio ---</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt;     Ne/N (generation-time, Eq. 6) = 0.207</span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt;     Note: Ny/N is not defined for purely sexual populations.</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt;   --- Conservation threshold ---</span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt;     Ne target              = 50 (minimum Ne for viability)</span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt;     Minimum census size N  = 242</span></span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt;     (Ne/N = 0.207 =&gt; need N &gt;= 242 for Ne &gt;= 50)</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt;     Ne at your census size (N = 40) = 8.3</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt;     </span><span class="al">WARNING</span><span class="co">: Ne (8.3) &lt; Ne target (50) at N = 40</span></span></code></pre></div>
+</div>
+<div id="reading-the-output" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> Reading the
+output</h2>
+<p>The output has four sections:</p>
+<p><strong>Stage survival</strong> reports the annual survival rates and
+the two key summary statistics: <span class="math inline">\(\bar{u}\)</span> (population-mean annual survival)
+and <span class="math inline">\(\bar{u^2}\)</span> (stage-weighted mean
+of squared survivals). The difference <span class="math inline">\(\bar{u} - \bar{u^2}\)</span> measures the
+<strong>between-stage variance in survival</strong> — stages with very
+different survival rates contribute more to genetic drift.</p>
+<p><strong>Variance decomposition</strong> breaks <span class="math inline">\(V\)</span> into its components:</p>
+<ul>
+<li><span class="math inline">\(V_{\text{term1}} = 2(1+a)(\bar{u} -
+\bar{u^2})\)</span> — between-stage survival variance. This is the only
+term that enters the purely clonal model (Eq. 10 of Yonezawa et
+al. (2000)).</li>
+<li><span class="math inline">\(V_{\text{term2}} = (1-\bar{u}) \cdot
+Avr(S)\)</span> — sexual reproductive variance. Larger when fecundity is
+unequal across stages.</li>
+</ul>
+<p><strong>Generation time</strong> <span class="math inline">\(L\)</span> is the mean age of reproduction,
+computed following Orive (1993), using the dominant eigenvector of <span class="math inline">\(\mathbf{A}\)</span> as the stable-stage
+distribution.</p>
+<p><strong>Effective size ratios</strong> give the key conservation
+outputs: - <span class="math inline">\(N_e/N\)</span> — the fraction of
+census individuals contributing to the effective population. Values
+below 0.10 are below the empirical median across 102 wildlife species
+(Frankham 1995). - Minimum census size <span class="math inline">\(N\)</span> required to achieve <span class="math inline">\(N_e \geq 50\)</span> (Franklin 1980).</p>
+<hr />
+</div>
+</div>
+<div id="all-populations-of-all-three-species" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> All populations of all
+three species</h1>
+<div id="entering-all-matrices" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Entering all
+matrices</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co"># L. rupestris — 7 populations, 6-stage model</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># Monthly MatU and MatF from Tremblay &amp; Ackerman (2001) Appendix</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co"># Helper: build MatF from fecundity values for stages 5 and 6</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>make_MatF_6 <span class="ot">&lt;-</span> <span class="cf">function</span>(f5, f6) {</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  F <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">6</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  F[<span class="dv">1</span>, <span class="dv">5</span>] <span class="ot">&lt;-</span> f5</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  F[<span class="dv">1</span>, <span class="dv">6</span>] <span class="ot">&lt;-</span> f6</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  F  <span class="co"># MatF contains fecundity only — no diagonal terms</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>}</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co"># Helper: build MatU for L. rupestris (6-stage, shared structure)</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co"># Fixed positions: row1=0, row2 col1=0.738 col2=0.738, row4 col2=0.038,</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#                  row5 col2=0.002</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co"># Free parameters (13 values, in row order):</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#   row3: s33, s35, s36</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#   row4: s43, s44</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#   row5: s53, s54, s55, s56</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#   row6: s63, s64, s65, s66</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>make_MatU_Lrup <span class="ot">&lt;-</span> <span class="cf">function</span>(s33, s35, s36,</span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>                            s43, s44,</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>                            s53, s54, s55, s56,</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>                            s63, s64, s65, s66) {</span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">0</span>,</span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>    <span class="fl">0.738</span>, <span class="fl">0.738</span>, <span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">0</span>,</span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     s33,  <span class="dv">0</span>,    s35,  s36,</span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.038</span>, s43,  s44,  <span class="dv">0</span>,    <span class="dv">0</span>,</span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.002</span>, s53,  s54,  s55,  s56,</span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     s63,  s64,  s65,  s66</span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>  ), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>), <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>)))</span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>}</span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a></span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a><span class="co"># --- L. rupestris population 1 (already defined above) ---</span></span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>MatU_Lrup <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>MatF_Lrup <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a>MatU_Lrup[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> MatU_Lrup1_mo</span>
+<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a>MatF_Lrup[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> MatF_Lrup1_mo</span>
+<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a></span>
+<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a><span class="co"># --- L. rupestris population 2 ---</span></span>
+<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a>MatU_Lrup[[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrup</span>(</span>
+<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a>  <span class="fl">0.466</span>, <span class="fl">0.126</span>, <span class="fl">0.028</span>,   <span class="co"># row 3: s33, s35, s36</span></span>
+<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.777</span>,           <span class="co"># row 4: s43, s44</span></span>
+<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a>  <span class="fl">0.491</span>, <span class="fl">0.011</span>, <span class="fl">0.750</span>, <span class="fl">0.191</span>,  <span class="co"># row 5</span></span>
+<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a>  <span class="fl">0.022</span>, <span class="dv">0</span>,     <span class="fl">0.112</span>, <span class="fl">0.781</span>   <span class="co"># row 6</span></span>
+<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a>)</span>
+<span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a>MatF_Lrup[[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_6</span>(<span class="fl">0.086</span>, <span class="fl">0.273</span>)</span>
+<span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a></span>
+<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a><span class="co"># --- L. rupestris population 3 ---</span></span>
+<span id="cb7-53"><a href="#cb7-53" tabindex="-1"></a>MatU_Lrup[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrup</span>(</span>
+<span id="cb7-54"><a href="#cb7-54" tabindex="-1"></a>  <span class="fl">0.653</span>, <span class="fl">0.100</span>, <span class="fl">0.035</span>,</span>
+<span id="cb7-55"><a href="#cb7-55" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.777</span>,</span>
+<span id="cb7-56"><a href="#cb7-56" tabindex="-1"></a>  <span class="fl">0.307</span>, <span class="fl">0.011</span>, <span class="fl">0.794</span>, <span class="fl">0.338</span>,</span>
+<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a>  <span class="fl">0.009</span>, <span class="dv">0</span>,     <span class="fl">0.101</span>, <span class="fl">0.627</span></span>
+<span id="cb7-58"><a href="#cb7-58" tabindex="-1"></a>)</span>
+<span id="cb7-59"><a href="#cb7-59" tabindex="-1"></a>MatF_Lrup[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_6</span>(<span class="fl">0.076</span>, <span class="fl">0.204</span>)</span>
+<span id="cb7-60"><a href="#cb7-60" tabindex="-1"></a></span>
+<span id="cb7-61"><a href="#cb7-61" tabindex="-1"></a><span class="co"># --- L. rupestris population 4 ---</span></span>
+<span id="cb7-62"><a href="#cb7-62" tabindex="-1"></a>MatU_Lrup[[<span class="dv">4</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrup</span>(</span>
+<span id="cb7-63"><a href="#cb7-63" tabindex="-1"></a>  <span class="fl">0.600</span>, <span class="fl">0.101</span>, <span class="fl">0.018</span>,</span>
+<span id="cb7-64"><a href="#cb7-64" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.777</span>,</span>
+<span id="cb7-65"><a href="#cb7-65" tabindex="-1"></a>  <span class="fl">0.310</span>, <span class="fl">0.011</span>, <span class="fl">0.740</span>, <span class="fl">0.225</span>,</span>
+<span id="cb7-66"><a href="#cb7-66" tabindex="-1"></a>  <span class="fl">0.033</span>, <span class="dv">0</span>,     <span class="fl">0.150</span>, <span class="fl">0.744</span></span>
+<span id="cb7-67"><a href="#cb7-67" tabindex="-1"></a>)</span>
+<span id="cb7-68"><a href="#cb7-68" tabindex="-1"></a>MatF_Lrup[[<span class="dv">4</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_6</span>(<span class="fl">0.076</span>, <span class="fl">0.204</span>)</span>
+<span id="cb7-69"><a href="#cb7-69" tabindex="-1"></a></span>
+<span id="cb7-70"><a href="#cb7-70" tabindex="-1"></a><span class="co"># --- L. rupestris population 5 ---</span></span>
+<span id="cb7-71"><a href="#cb7-71" tabindex="-1"></a>MatU_Lrup[[<span class="dv">5</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrup</span>(</span>
+<span id="cb7-72"><a href="#cb7-72" tabindex="-1"></a>  <span class="fl">0.596</span>, <span class="fl">0.153</span>, <span class="fl">0.018</span>,</span>
+<span id="cb7-73"><a href="#cb7-73" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.777</span>,</span>
+<span id="cb7-74"><a href="#cb7-74" tabindex="-1"></a>  <span class="fl">0.348</span>, <span class="fl">0.011</span>, <span class="fl">0.728</span>, <span class="fl">0.286</span>,</span>
+<span id="cb7-75"><a href="#cb7-75" tabindex="-1"></a>  <span class="fl">0.000</span>, <span class="dv">0</span>,     <span class="fl">0.082</span>, <span class="fl">0.688</span></span>
+<span id="cb7-76"><a href="#cb7-76" tabindex="-1"></a>)</span>
+<span id="cb7-77"><a href="#cb7-77" tabindex="-1"></a>MatF_Lrup[[<span class="dv">5</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_6</span>(<span class="fl">0.041</span>, <span class="fl">0.165</span>)</span>
+<span id="cb7-78"><a href="#cb7-78" tabindex="-1"></a></span>
+<span id="cb7-79"><a href="#cb7-79" tabindex="-1"></a><span class="co"># --- L. rupestris population 6 ---</span></span>
+<span id="cb7-80"><a href="#cb7-80" tabindex="-1"></a>MatU_Lrup[[<span class="dv">6</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrup</span>(</span>
+<span id="cb7-81"><a href="#cb7-81" tabindex="-1"></a>  <span class="fl">0.528</span>, <span class="fl">0.133</span>, <span class="fl">0.020</span>,</span>
+<span id="cb7-82"><a href="#cb7-82" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.777</span>,</span>
+<span id="cb7-83"><a href="#cb7-83" tabindex="-1"></a>  <span class="fl">0.375</span>, <span class="fl">0.011</span>, <span class="fl">0.695</span>, <span class="fl">0.218</span>,</span>
+<span id="cb7-84"><a href="#cb7-84" tabindex="-1"></a>  <span class="fl">0.040</span>, <span class="dv">0</span>,     <span class="fl">0.140</span>, <span class="fl">0.749</span></span>
+<span id="cb7-85"><a href="#cb7-85" tabindex="-1"></a>)</span>
+<span id="cb7-86"><a href="#cb7-86" tabindex="-1"></a>MatF_Lrup[[<span class="dv">6</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_6</span>(<span class="fl">0.066</span>, <span class="fl">0.315</span>)</span>
+<span id="cb7-87"><a href="#cb7-87" tabindex="-1"></a></span>
+<span id="cb7-88"><a href="#cb7-88" tabindex="-1"></a><span class="co"># --- L. rupestris population 7 ---</span></span>
+<span id="cb7-89"><a href="#cb7-89" tabindex="-1"></a>MatU_Lrup[[<span class="dv">7</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrup</span>(</span>
+<span id="cb7-90"><a href="#cb7-90" tabindex="-1"></a>  <span class="fl">0.635</span>, <span class="fl">0.224</span>, <span class="fl">0.058</span>,</span>
+<span id="cb7-91"><a href="#cb7-91" tabindex="-1"></a>  <span class="dv">0</span>,     <span class="fl">0.777</span>,</span>
+<span id="cb7-92"><a href="#cb7-92" tabindex="-1"></a>  <span class="fl">0.333</span>, <span class="fl">0.011</span>, <span class="fl">0.695</span>, <span class="fl">0.299</span>,</span>
+<span id="cb7-93"><a href="#cb7-93" tabindex="-1"></a>  <span class="fl">0.018</span>, <span class="dv">0</span>,     <span class="fl">0.070</span>, <span class="fl">0.643</span></span>
+<span id="cb7-94"><a href="#cb7-94" tabindex="-1"></a>)</span>
+<span id="cb7-95"><a href="#cb7-95" tabindex="-1"></a>MatF_Lrup[[<span class="dv">7</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_6</span>(<span class="fl">0.119</span>, <span class="fl">0.507</span>)</span>
+<span id="cb7-96"><a href="#cb7-96" tabindex="-1"></a></span>
+<span id="cb7-97"><a href="#cb7-97" tabindex="-1"></a><span class="co"># Stage frequencies for L. rupestris (Table 1, split equally across stage pairs)</span></span>
+<span id="cb7-98"><a href="#cb7-98" tabindex="-1"></a><span class="co"># Seedlings / Juveniles / Adults from Table 1</span></span>
+<span id="cb7-99"><a href="#cb7-99" tabindex="-1"></a>N_Lrup_raw <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-100"><a href="#cb7-100" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">44</span>, <span class="dv">72</span>, <span class="dv">97</span>),   <span class="co"># pop 1</span></span>
+<span id="cb7-101"><a href="#cb7-101" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">135</span>, <span class="dv">86</span>),  <span class="co"># pop 2</span></span>
+<span id="cb7-102"><a href="#cb7-102" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">66</span>, <span class="dv">74</span>, <span class="dv">95</span>),   <span class="co"># pop 3</span></span>
+<span id="cb7-103"><a href="#cb7-103" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">14</span>, <span class="dv">8</span>,  <span class="dv">74</span>),   <span class="co"># pop 4</span></span>
+<span id="cb7-104"><a href="#cb7-104" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">28</span>, <span class="dv">6</span>,  <span class="dv">62</span>),   <span class="co"># pop 5</span></span>
+<span id="cb7-105"><a href="#cb7-105" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">66</span>, <span class="dv">33</span>, <span class="dv">98</span>),   <span class="co"># pop 6</span></span>
+<span id="cb7-106"><a href="#cb7-106" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">107</span>, <span class="dv">39</span>, <span class="dv">102</span>)  <span class="co"># pop 7</span></span>
+<span id="cb7-107"><a href="#cb7-107" tabindex="-1"></a>)</span>
+<span id="cb7-108"><a href="#cb7-108" tabindex="-1"></a></span>
+<span id="cb7-109"><a href="#cb7-109" tabindex="-1"></a>D_Lrup <span class="ot">&lt;-</span> <span class="fu">lapply</span>(N_Lrup_raw, <span class="cf">function</span>(n) {</span>
+<span id="cb7-110"><a href="#cb7-110" tabindex="-1"></a>  expanded <span class="ot">&lt;-</span> <span class="fu">c</span>(n[<span class="dv">1</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">1</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">2</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">2</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">3</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">3</span>]<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb7-111"><a href="#cb7-111" tabindex="-1"></a>  expanded <span class="sc">/</span> <span class="fu">sum</span>(expanded)</span>
+<span id="cb7-112"><a href="#cb7-112" tabindex="-1"></a>})</span>
+<span id="cb7-113"><a href="#cb7-113" tabindex="-1"></a></span>
+<span id="cb7-114"><a href="#cb7-114" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb7-115"><a href="#cb7-115" tabindex="-1"></a><span class="co"># L. rubripetala — 6 populations, 5-stage model</span></span>
+<span id="cb7-116"><a href="#cb7-116" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb7-117"><a href="#cb7-117" tabindex="-1"></a><span class="co"># make_MatU_Lrub: 5-stage MatU for L. rubripetala and L. eltoroensis</span></span>
+<span id="cb7-118"><a href="#cb7-118" tabindex="-1"></a><span class="co"># Fixed elements: row2 col1=0.667, col2=0.667; row4 col2=0.037, col4=0.812</span></span>
+<span id="cb7-119"><a href="#cb7-119" tabindex="-1"></a><span class="co"># Free parameters:</span></span>
+<span id="cb7-120"><a href="#cb7-120" tabindex="-1"></a><span class="co">#   s33 = stage3 -&gt; stage3 (stasis)</span></span>
+<span id="cb7-121"><a href="#cb7-121" tabindex="-1"></a><span class="co">#   s35 = stage5 -&gt; stage3 (retrogression from repro to juvenile)</span></span>
+<span id="cb7-122"><a href="#cb7-122" tabindex="-1"></a><span class="co">#   s53 = stage3 -&gt; stage5 (growth to reproductive)</span></span>
+<span id="cb7-123"><a href="#cb7-123" tabindex="-1"></a><span class="co">#   s54 = stage4 -&gt; stage5 (growth from non-repro adult)</span></span>
+<span id="cb7-124"><a href="#cb7-124" tabindex="-1"></a><span class="co">#   s55 = stage5 -&gt; stage5 (stasis in reproductive stage)</span></span>
+<span id="cb7-125"><a href="#cb7-125" tabindex="-1"></a>make_MatU_Lrub <span class="ot">&lt;-</span> <span class="cf">function</span>(s33, s35,</span>
+<span id="cb7-126"><a href="#cb7-126" tabindex="-1"></a>                             s53, s54, s55) {</span>
+<span id="cb7-127"><a href="#cb7-127" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb7-128"><a href="#cb7-128" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-129"><a href="#cb7-129" tabindex="-1"></a>    <span class="fl">0.667</span>, <span class="fl">0.667</span>, <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-130"><a href="#cb7-130" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     s33,   <span class="dv">0</span>,     s35,</span>
+<span id="cb7-131"><a href="#cb7-131" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.037</span>, <span class="dv">0</span>,     <span class="fl">0.812</span>, <span class="dv">0</span>,</span>
+<span id="cb7-132"><a href="#cb7-132" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     s53,   s54,   s55</span>
+<span id="cb7-133"><a href="#cb7-133" tabindex="-1"></a>  ), <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-134"><a href="#cb7-134" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)))</span>
+<span id="cb7-135"><a href="#cb7-135" tabindex="-1"></a>}</span>
+<span id="cb7-136"><a href="#cb7-136" tabindex="-1"></a></span>
+<span id="cb7-137"><a href="#cb7-137" tabindex="-1"></a>make_MatF_5 <span class="ot">&lt;-</span> <span class="cf">function</span>(f5) {</span>
+<span id="cb7-138"><a href="#cb7-138" tabindex="-1"></a>  F <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">5</span>)</span>
+<span id="cb7-139"><a href="#cb7-139" tabindex="-1"></a>  F[<span class="dv">1</span>, <span class="dv">5</span>] <span class="ot">&lt;-</span> f5</span>
+<span id="cb7-140"><a href="#cb7-140" tabindex="-1"></a>  F  <span class="co"># MatF contains fecundity only — no diagonal terms</span></span>
+<span id="cb7-141"><a href="#cb7-141" tabindex="-1"></a>}</span>
+<span id="cb7-142"><a href="#cb7-142" tabindex="-1"></a></span>
+<span id="cb7-143"><a href="#cb7-143" tabindex="-1"></a>MatU_Lrub <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-144"><a href="#cb7-144" tabindex="-1"></a>MatF_Lrub <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-145"><a href="#cb7-145" tabindex="-1"></a></span>
+<span id="cb7-146"><a href="#cb7-146" tabindex="-1"></a>MatU_Lrub[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrub</span>(<span class="fl">0.825</span>, <span class="fl">0.227</span>, <span class="fl">0.137</span>, <span class="fl">0.010</span>, <span class="fl">0.739</span>)</span>
+<span id="cb7-147"><a href="#cb7-147" tabindex="-1"></a>MatU_Lrub[[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrub</span>(<span class="fl">0.546</span>, <span class="fl">0.183</span>, <span class="fl">0.426</span>, <span class="fl">0.010</span>, <span class="fl">0.793</span>)</span>
+<span id="cb7-148"><a href="#cb7-148" tabindex="-1"></a>MatU_Lrub[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrub</span>(<span class="fl">0.606</span>, <span class="fl">0.137</span>, <span class="fl">0.337</span>, <span class="fl">0.010</span>, <span class="fl">0.848</span>)</span>
+<span id="cb7-149"><a href="#cb7-149" tabindex="-1"></a>MatU_Lrub[[<span class="dv">4</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrub</span>(<span class="fl">0.743</span>, <span class="fl">0.180</span>, <span class="fl">0.176</span>, <span class="fl">0.010</span>, <span class="fl">0.768</span>)</span>
+<span id="cb7-150"><a href="#cb7-150" tabindex="-1"></a>MatU_Lrub[[<span class="dv">5</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrub</span>(<span class="fl">0.726</span>, <span class="fl">0.250</span>, <span class="fl">0.237</span>, <span class="fl">0.010</span>, <span class="fl">0.739</span>)</span>
+<span id="cb7-151"><a href="#cb7-151" tabindex="-1"></a>MatU_Lrub[[<span class="dv">6</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatU_Lrub</span>(<span class="fl">0.801</span>, <span class="fl">0.179</span>, <span class="fl">0.131</span>, <span class="fl">0.010</span>, <span class="fl">0.784</span>)</span>
+<span id="cb7-152"><a href="#cb7-152" tabindex="-1"></a></span>
+<span id="cb7-153"><a href="#cb7-153" tabindex="-1"></a>MatF_Lrub[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.043</span>)</span>
+<span id="cb7-154"><a href="#cb7-154" tabindex="-1"></a>MatF_Lrub[[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.102</span>)</span>
+<span id="cb7-155"><a href="#cb7-155" tabindex="-1"></a>MatF_Lrub[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.108</span>)</span>
+<span id="cb7-156"><a href="#cb7-156" tabindex="-1"></a>MatF_Lrub[[<span class="dv">4</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.067</span>)</span>
+<span id="cb7-157"><a href="#cb7-157" tabindex="-1"></a>MatF_Lrub[[<span class="dv">5</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.067</span>)</span>
+<span id="cb7-158"><a href="#cb7-158" tabindex="-1"></a>MatF_Lrub[[<span class="dv">6</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.159</span>)</span>
+<span id="cb7-159"><a href="#cb7-159" tabindex="-1"></a></span>
+<span id="cb7-160"><a href="#cb7-160" tabindex="-1"></a><span class="co"># Stage frequencies (Table 1): seedlings / juveniles / adults (one repro stage)</span></span>
+<span id="cb7-161"><a href="#cb7-161" tabindex="-1"></a><span class="co"># For 5-stage model: stages 1-2 = seedlings/2, stages 3-4 = juveniles/2,</span></span>
+<span id="cb7-162"><a href="#cb7-162" tabindex="-1"></a><span class="co">#                    stage 5 = adults</span></span>
+<span id="cb7-163"><a href="#cb7-163" tabindex="-1"></a>N_Lrub_raw <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-164"><a href="#cb7-164" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">9</span>,  <span class="dv">44</span>, <span class="dv">101</span>),  <span class="co"># pop 1</span></span>
+<span id="cb7-165"><a href="#cb7-165" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">27</span>),   <span class="co"># pop 2 — no seedlings/juveniles observed</span></span>
+<span id="cb7-166"><a href="#cb7-166" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">5</span>,  <span class="dv">29</span>, <span class="dv">63</span>),   <span class="co"># pop 3</span></span>
+<span id="cb7-167"><a href="#cb7-167" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">37</span>, <span class="dv">49</span>, <span class="dv">41</span>),   <span class="co"># pop 4</span></span>
+<span id="cb7-168"><a href="#cb7-168" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">52</span>, <span class="dv">4</span>,  <span class="dv">46</span>),   <span class="co"># pop 5</span></span>
+<span id="cb7-169"><a href="#cb7-169" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">24</span>, <span class="dv">10</span>, <span class="dv">29</span>)    <span class="co"># pop 6</span></span>
+<span id="cb7-170"><a href="#cb7-170" tabindex="-1"></a>)</span>
+<span id="cb7-171"><a href="#cb7-171" tabindex="-1"></a></span>
+<span id="cb7-172"><a href="#cb7-172" tabindex="-1"></a><span class="co"># For populations with missing stage observations, derive D from the</span></span>
+<span id="cb7-173"><a href="#cb7-173" tabindex="-1"></a><span class="co"># stable stage distribution (dominant eigenvector of A = MatU + MatF)</span></span>
+<span id="cb7-174"><a href="#cb7-174" tabindex="-1"></a>  <span class="co"># — only used for L. rubripetala pop 2 where no seedlings or juveniles</span></span>
+<span id="cb7-175"><a href="#cb7-175" tabindex="-1"></a>  <span class="co"># were observed, so observed D cannot be constructed.</span></span>
+<span id="cb7-176"><a href="#cb7-176" tabindex="-1"></a><span class="co"># This is standard practice when observed counts are incomplete.</span></span>
+<span id="cb7-177"><a href="#cb7-177" tabindex="-1"></a>D_Lrub <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_along</span>(N_Lrub_raw), <span class="cf">function</span>(i) {</span>
+<span id="cb7-178"><a href="#cb7-178" tabindex="-1"></a>  n <span class="ot">&lt;-</span> N_Lrub_raw[[i]]</span>
+<span id="cb7-179"><a href="#cb7-179" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(n[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="sc">==</span> <span class="dv">0</span>)) {</span>
+<span id="cb7-180"><a href="#cb7-180" tabindex="-1"></a>    <span class="co"># No seedlings/juveniles observed — use stable stage distribution</span></span>
+<span id="cb7-181"><a href="#cb7-181" tabindex="-1"></a>    A <span class="ot">&lt;-</span> MatU_Lrub[[i]] <span class="sc">+</span> MatF_Lrub[[i]]</span>
+<span id="cb7-182"><a href="#cb7-182" tabindex="-1"></a>    ev <span class="ot">&lt;-</span> <span class="fu">Re</span>(<span class="fu">eigen</span>(A)<span class="sc">$</span>vectors[, <span class="dv">1</span>])</span>
+<span id="cb7-183"><a href="#cb7-183" tabindex="-1"></a>    ev <span class="ot">&lt;-</span> <span class="fu">abs</span>(ev)</span>
+<span id="cb7-184"><a href="#cb7-184" tabindex="-1"></a>    ev <span class="sc">/</span> <span class="fu">sum</span>(ev)</span>
+<span id="cb7-185"><a href="#cb7-185" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb7-186"><a href="#cb7-186" tabindex="-1"></a>    expanded <span class="ot">&lt;-</span> <span class="fu">c</span>(n[<span class="dv">1</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">1</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">2</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">2</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">3</span>])</span>
+<span id="cb7-187"><a href="#cb7-187" tabindex="-1"></a>    expanded <span class="sc">/</span> <span class="fu">sum</span>(expanded)</span>
+<span id="cb7-188"><a href="#cb7-188" tabindex="-1"></a>  }</span>
+<span id="cb7-189"><a href="#cb7-189" tabindex="-1"></a>})</span>
+<span id="cb7-190"><a href="#cb7-190" tabindex="-1"></a></span>
+<span id="cb7-191"><a href="#cb7-191" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb7-192"><a href="#cb7-192" tabindex="-1"></a><span class="co"># L. eltoroensis — 4 populations, 5-stage model (same structure as L. rubripetala)</span></span>
+<span id="cb7-193"><a href="#cb7-193" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb7-194"><a href="#cb7-194" tabindex="-1"></a>MatU_Lelt <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-195"><a href="#cb7-195" tabindex="-1"></a>MatF_Lelt <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-196"><a href="#cb7-196" tabindex="-1"></a></span>
+<span id="cb7-197"><a href="#cb7-197" tabindex="-1"></a>MatU_Lelt[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb7-198"><a href="#cb7-198" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-199"><a href="#cb7-199" tabindex="-1"></a>    <span class="fl">0.667</span>, <span class="fl">0.667</span>, <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-200"><a href="#cb7-200" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.719</span>, <span class="dv">0</span>,     <span class="fl">0.274</span>,</span>
+<span id="cb7-201"><a href="#cb7-201" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.037</span>, <span class="dv">0</span>,     <span class="fl">0.958</span>, <span class="dv">0</span>,</span>
+<span id="cb7-202"><a href="#cb7-202" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.258</span>, <span class="fl">0.021</span>, <span class="fl">0.720</span></span>
+<span id="cb7-203"><a href="#cb7-203" tabindex="-1"></a>  ), <span class="at">nrow=</span><span class="dv">5</span>, <span class="at">byrow=</span><span class="cn">TRUE</span>, <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)))</span>
+<span id="cb7-204"><a href="#cb7-204" tabindex="-1"></a>MatU_Lelt[[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb7-205"><a href="#cb7-205" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-206"><a href="#cb7-206" tabindex="-1"></a>    <span class="fl">0.667</span>, <span class="fl">0.667</span>, <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-207"><a href="#cb7-207" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.696</span>, <span class="dv">0</span>,     <span class="fl">0.255</span>,</span>
+<span id="cb7-208"><a href="#cb7-208" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.037</span>, <span class="dv">0</span>,     <span class="fl">0.958</span>, <span class="dv">0</span>,</span>
+<span id="cb7-209"><a href="#cb7-209" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.304</span>, <span class="fl">0.021</span>, <span class="fl">0.742</span></span>
+<span id="cb7-210"><a href="#cb7-210" tabindex="-1"></a>  ), <span class="at">nrow=</span><span class="dv">5</span>, <span class="at">byrow=</span><span class="cn">TRUE</span>, <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)))</span>
+<span id="cb7-211"><a href="#cb7-211" tabindex="-1"></a>MatU_Lelt[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb7-212"><a href="#cb7-212" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-213"><a href="#cb7-213" tabindex="-1"></a>    <span class="fl">0.667</span>, <span class="fl">0.667</span>, <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-214"><a href="#cb7-214" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.759</span>, <span class="dv">0</span>,     <span class="fl">0.406</span>,</span>
+<span id="cb7-215"><a href="#cb7-215" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.037</span>, <span class="dv">0</span>,     <span class="fl">0.958</span>, <span class="dv">0</span>,</span>
+<span id="cb7-216"><a href="#cb7-216" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.222</span>, <span class="fl">0.021</span>, <span class="fl">0.589</span></span>
+<span id="cb7-217"><a href="#cb7-217" tabindex="-1"></a>  ), <span class="at">nrow=</span><span class="dv">5</span>, <span class="at">byrow=</span><span class="cn">TRUE</span>, <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)))</span>
+<span id="cb7-218"><a href="#cb7-218" tabindex="-1"></a><span class="co"># Population 4: substitute L. rubripetala seedling transitions (as in paper)</span></span>
+<span id="cb7-219"><a href="#cb7-219" tabindex="-1"></a>MatU_Lelt[[<span class="dv">4</span>]] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb7-220"><a href="#cb7-220" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-221"><a href="#cb7-221" tabindex="-1"></a>    <span class="fl">0.667</span>, <span class="fl">0.667</span>, <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="dv">0</span>,</span>
+<span id="cb7-222"><a href="#cb7-222" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.719</span>, <span class="dv">0</span>,     <span class="fl">0.274</span>,</span>
+<span id="cb7-223"><a href="#cb7-223" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="fl">0.037</span>, <span class="dv">0</span>,     <span class="fl">0.958</span>, <span class="dv">0</span>,</span>
+<span id="cb7-224"><a href="#cb7-224" tabindex="-1"></a>    <span class="dv">0</span>,     <span class="dv">0</span>,     <span class="fl">0.258</span>, <span class="fl">0.021</span>, <span class="fl">0.720</span></span>
+<span id="cb7-225"><a href="#cb7-225" tabindex="-1"></a>  ), <span class="at">nrow=</span><span class="dv">5</span>, <span class="at">byrow=</span><span class="cn">TRUE</span>, <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>), <span class="fu">paste0</span>(<span class="st">&quot;stage_&quot;</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)))</span>
+<span id="cb7-226"><a href="#cb7-226" tabindex="-1"></a></span>
+<span id="cb7-227"><a href="#cb7-227" tabindex="-1"></a>MatF_Lelt[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.011</span>)</span>
+<span id="cb7-228"><a href="#cb7-228" tabindex="-1"></a>MatF_Lelt[[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.016</span>)</span>
+<span id="cb7-229"><a href="#cb7-229" tabindex="-1"></a>MatF_Lelt[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.024</span>)</span>
+<span id="cb7-230"><a href="#cb7-230" tabindex="-1"></a>MatF_Lelt[[<span class="dv">4</span>]] <span class="ot">&lt;-</span> <span class="fu">make_MatF_5</span>(<span class="fl">0.011</span>)  <span class="co"># use pop 1 fecundity as substitute</span></span>
+<span id="cb7-231"><a href="#cb7-231" tabindex="-1"></a></span>
+<span id="cb7-232"><a href="#cb7-232" tabindex="-1"></a><span class="co"># Stage frequencies (Table 1): juveniles and adults only (no seedlings observed)</span></span>
+<span id="cb7-233"><a href="#cb7-233" tabindex="-1"></a>N_Lelt_raw <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-234"><a href="#cb7-234" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">7</span>,  <span class="dv">42</span>),   <span class="co"># pop 1: juveniles, adults</span></span>
+<span id="cb7-235"><a href="#cb7-235" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">8</span>,  <span class="dv">51</span>),   <span class="co"># pop 2</span></span>
+<span id="cb7-236"><a href="#cb7-236" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">7</span>,  <span class="dv">43</span>),   <span class="co"># pop 3</span></span>
+<span id="cb7-237"><a href="#cb7-237" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">5</span>,  <span class="dv">14</span>)    <span class="co"># pop 4</span></span>
+<span id="cb7-238"><a href="#cb7-238" tabindex="-1"></a>)</span>
+<span id="cb7-239"><a href="#cb7-239" tabindex="-1"></a></span>
+<span id="cb7-240"><a href="#cb7-240" tabindex="-1"></a><span class="co"># L. eltoroensis: no seedlings observed in any population.</span></span>
+<span id="cb7-241"><a href="#cb7-241" tabindex="-1"></a><span class="co"># Stages 1-2 assigned 1% of total N each (small but non-zero);</span></span>
+<span id="cb7-242"><a href="#cb7-242" tabindex="-1"></a><span class="co"># stages 3-4 split juveniles equally; stage 5 = adults.</span></span>
+<span id="cb7-243"><a href="#cb7-243" tabindex="-1"></a><span class="co"># This preserves the observed juvenile:adult ratio while keeping</span></span>
+<span id="cb7-244"><a href="#cb7-244" tabindex="-1"></a><span class="co"># D biologically grounded rather than using the eigenvector,</span></span>
+<span id="cb7-245"><a href="#cb7-245" tabindex="-1"></a><span class="co"># which distorts Ne/N when lambda departs from 1.</span></span>
+<span id="cb7-246"><a href="#cb7-246" tabindex="-1"></a>D_Lelt <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_along</span>(N_Lelt_raw), <span class="cf">function</span>(i) {</span>
+<span id="cb7-247"><a href="#cb7-247" tabindex="-1"></a>  n    <span class="ot">&lt;-</span> N_Lelt_raw[[i]]</span>
+<span id="cb7-248"><a href="#cb7-248" tabindex="-1"></a>  tot  <span class="ot">&lt;-</span> <span class="fu">sum</span>(n)</span>
+<span id="cb7-249"><a href="#cb7-249" tabindex="-1"></a>  expanded <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.01</span><span class="sc">*</span>tot, <span class="fl">0.01</span><span class="sc">*</span>tot,  <span class="co"># stages 1-2: small non-zero</span></span>
+<span id="cb7-250"><a href="#cb7-250" tabindex="-1"></a>                n[<span class="dv">1</span>]<span class="sc">/</span><span class="dv">2</span>, n[<span class="dv">1</span>]<span class="sc">/</span><span class="dv">2</span>,       <span class="co"># stages 3-4: juveniles split</span></span>
+<span id="cb7-251"><a href="#cb7-251" tabindex="-1"></a>                n[<span class="dv">2</span>])                 <span class="co"># stage 5: adults</span></span>
+<span id="cb7-252"><a href="#cb7-252" tabindex="-1"></a>  expanded <span class="sc">/</span> <span class="fu">sum</span>(expanded)</span>
+<span id="cb7-253"><a href="#cb7-253" tabindex="-1"></a>})</span></code></pre></div>
+</div>
+<div id="computing-nen-for-all-17-populations" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Computing Ne/N for
+all 17 populations</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># census_N = 40: a large Lepanthes population (Tremblay &amp; Ackerman 2001)</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>run_Ne <span class="ot">&lt;-</span> <span class="cf">function</span>(MatU_list, MatF_list, D_list, species_name,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                   <span class="at">census_N =</span> <span class="dv">40</span>, <span class="at">Ne_target =</span> <span class="dv">50</span>) {</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="fu">seq_along</span>(MatU_list), <span class="cf">function</span>(i) {</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    r <span class="ot">&lt;-</span> <span class="fu">Ne_sexual_Y2000</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>      <span class="at">T_mat      =</span> MatU_list[[i]],</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>      <span class="at">F_vec      =</span> MatF_list[[i]][<span class="dv">1</span>, ],</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>      <span class="at">D          =</span> D_list[[i]],</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>      <span class="at">Ne_target  =</span> Ne_target,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>      <span class="at">census_N   =</span> census_N,</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>      <span class="at">population =</span> <span class="fu">paste</span>(species_name, <span class="st">&quot;pop&quot;</span>, i)</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>    )</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>      <span class="at">Species      =</span> species_name,</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>      <span class="at">Population   =</span> i,</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>      <span class="at">NeN          =</span> <span class="fu">round</span>(r<span class="sc">$</span>NeN,          <span class="dv">3</span>),</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>      <span class="at">Ne_at_census =</span> <span class="fu">round</span>(r<span class="sc">$</span>Ne_at_census,  <span class="dv">1</span>),</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>      <span class="at">Min_N        =</span> r<span class="sc">$</span>Min_N,</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>      <span class="at">L_months     =</span> <span class="fu">round</span>(r<span class="sc">$</span>L,             <span class="dv">1</span>),</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>      <span class="at">V            =</span> <span class="fu">round</span>(r<span class="sc">$</span>V,             <span class="dv">4</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>    )</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>  })</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>}</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>  <span class="fu">run_Ne</span>(MatU_Lrup, MatF_Lrup, D_Lrup, <span class="st">&quot;L. rupestris&quot;</span>),</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>  <span class="fu">run_Ne</span>(MatU_Lrub, MatF_Lrub, D_Lrub, <span class="st">&quot;L. rubripetala&quot;</span>),</span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>  <span class="fu">run_Ne</span>(MatU_Lelt, MatF_Lelt, D_Lelt, <span class="st">&quot;L. eltoroensis&quot;</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>)</span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="co"># Add italic species column for kable display</span></span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>results_display <span class="ot">&lt;-</span> results <span class="sc">%&gt;%</span></span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Species =</span> <span class="fu">paste0</span>(<span class="st">&quot;*&quot;</span>, Species, <span class="st">&quot;*&quot;</span>))</span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(results_display,</span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Population&quot;</span>, <span class="st">&quot;Ne/N&quot;</span>, <span class="st">&quot;Ne at N=40&quot;</span>,</span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>                           <span class="st">&quot;Min N (Ne≥50)&quot;</span>, <span class="st">&quot;L (months)&quot;</span>, <span class="st">&quot;V&quot;</span>),</span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a>             <span class="at">escape  =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">&quot;Ne/N estimates (monthly matrices) for all 17 populations</span></span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a><span class="st">                        of three Lepanthes species. Ne at N=40 = estimated Ne</span></span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a><span class="st">                        for a census population of 40 individuals (a large</span></span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a><span class="st">                        Lepanthes population). Min N = minimum census size</span></span>
+<span id="cb8-43"><a href="#cb8-43" tabindex="-1"></a><span class="st">                        required to achieve Ne &gt;= 50 (Franklin 1980).</span></span>
+<span id="cb8-44"><a href="#cb8-44" tabindex="-1"></a><span class="st">                        V = total variance in gene frequency change per time</span></span>
+<span id="cb8-45"><a href="#cb8-45" tabindex="-1"></a><span class="st">                        step (V = V_term1 + V_term2 of Yonezawa et al. 2000);</span></span>
+<span id="cb8-46"><a href="#cb8-46" tabindex="-1"></a><span class="st">                        larger V means stronger genetic drift per generation.&quot;</span>)</span></code></pre></div>
+<table>
+<caption>Ne/N estimates (monthly matrices) for all 17 populations of
+three Lepanthes species. Ne at N=40 = estimated Ne for a census
+population of 40 individuals (a large Lepanthes population). Min N =
+minimum census size required to achieve Ne &gt;= 50 (Franklin 1980). V =
+total variance in gene frequency change per time step (V = V_term1 +
+V_term2 of Yonezawa et al. 2000); larger V means stronger genetic drift
+per generation.</caption>
+<colgroup>
+<col width="22%" />
+<col width="14%" />
+<col width="7%" />
+<col width="14%" />
+<col width="18%" />
+<col width="14%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Species</th>
+<th align="right">Population</th>
+<th align="right">Ne/N</th>
+<th align="right">Ne at N=40</th>
+<th align="right">Min N (Ne≥50)</th>
+<th align="right">L (months)</th>
+<th align="right">V</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">1</td>
+<td align="right">0.207</td>
+<td align="right">8.3</td>
+<td align="right">242</td>
+<td align="right">40.2</td>
+<td align="right">0.2396</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">2</td>
+<td align="right">0.085</td>
+<td align="right">3.4</td>
+<td align="right">589</td>
+<td align="right">106.7</td>
+<td align="right">0.2205</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">3</td>
+<td align="right">0.077</td>
+<td align="right">3.1</td>
+<td align="right">646</td>
+<td align="right">108.0</td>
+<td align="right">0.2391</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">4</td>
+<td align="right">0.251</td>
+<td align="right">10.0</td>
+<td align="right">200</td>
+<td align="right">63.6</td>
+<td align="right">0.1253</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">5</td>
+<td align="right">0.285</td>
+<td align="right">11.4</td>
+<td align="right">176</td>
+<td align="right">33.7</td>
+<td align="right">0.2078</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">6</td>
+<td align="right">0.194</td>
+<td align="right">7.7</td>
+<td align="right">259</td>
+<td align="right">41.1</td>
+<td align="right">0.2514</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">7</td>
+<td align="right">0.075</td>
+<td align="right">3.0</td>
+<td align="right">671</td>
+<td align="right">97.3</td>
+<td align="right">0.2759</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">1</td>
+<td align="right">0.396</td>
+<td align="right">15.8</td>
+<td align="right">127</td>
+<td align="right">32.5</td>
+<td align="right">0.1554</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">2</td>
+<td align="right">0.226</td>
+<td align="right">9.0</td>
+<td align="right">222</td>
+<td align="right">47.4</td>
+<td align="right">0.1868</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">3</td>
+<td align="right">0.323</td>
+<td align="right">12.9</td>
+<td align="right">155</td>
+<td align="right">45.6</td>
+<td align="right">0.1357</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">4</td>
+<td align="right">0.268</td>
+<td align="right">10.7</td>
+<td align="right">187</td>
+<td align="right">21.9</td>
+<td align="right">0.3409</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">5</td>
+<td align="right">0.108</td>
+<td align="right">4.3</td>
+<td align="right">464</td>
+<td align="right">48.3</td>
+<td align="right">0.3842</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">6</td>
+<td align="right">0.235</td>
+<td align="right">9.4</td>
+<td align="right">213</td>
+<td align="right">24.5</td>
+<td align="right">0.3465</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">1</td>
+<td align="right">0.667</td>
+<td align="right">26.7</td>
+<td align="right">76</td>
+<td align="right">93.0</td>
+<td align="right">0.0323</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">2</td>
+<td align="right">0.359</td>
+<td align="right">14.4</td>
+<td align="right">140</td>
+<td align="right">232.3</td>
+<td align="right">0.0240</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">3</td>
+<td align="right">0.702</td>
+<td align="right">28.1</td>
+<td align="right">72</td>
+<td align="right">95.1</td>
+<td align="right">0.0300</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">4</td>
+<td align="right">0.597</td>
+<td align="right">23.9</td>
+<td align="right">84</td>
+<td align="right">93.0</td>
+<td align="right">0.0360</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="comparing-to-orive-1993-estimates" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Comparing to Orive
+(1993) estimates</h2>
+<p>Tremblay &amp; Ackerman (2001) used Orive’s (1993) coalescence model
+(Table 7 of the paper). The table below computes the Ne/N range per
+species directly from the NeStage results and compares it to Orive’s
+estimates:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>species_summary <span class="ot">&lt;-</span> results <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">group_by</span>(Species) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="at">N_pops   =</span> <span class="fu">n</span>(),</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="at">NeN_min  =</span> <span class="fu">round</span>(<span class="fu">min</span>(NeN),      <span class="dv">3</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="at">NeN_max  =</span> <span class="fu">round</span>(<span class="fu">max</span>(NeN),      <span class="dv">3</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="at">NeN_mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>(NeN),     <span class="dv">3</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    <span class="at">L_mean   =</span> <span class="fu">round</span>(<span class="fu">mean</span>(L_months),<span class="dv">1</span>),</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="at">.groups  =</span> <span class="st">&quot;drop&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    <span class="at">NeN_range_NeStage =</span> <span class="fu">paste0</span>(NeN_min, <span class="st">&quot;–&quot;</span>, NeN_max),</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>    <span class="at">NeN_range_Orive   =</span> <span class="fu">c</span>(<span class="st">&quot;0.227–0.360&quot;</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>                           <span class="st">&quot;0.339–0.445&quot;</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>                           <span class="st">&quot;0.453–0.473&quot;</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>    <span class="at">Species =</span> <span class="fu">paste0</span>(<span class="st">&quot;*&quot;</span>, Species, <span class="st">&quot;*&quot;</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  <span class="fu">select</span>(Species, N_pops, NeN_range_NeStage, NeN_range_Orive, NeN_mean, L_mean)</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(species_summary,</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Populations&quot;</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>                           <span class="st">&quot;Ne/N range (NeStage)&quot;</span>, <span class="st">&quot;Ne/N range (Orive 1993)&quot;</span>,</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>                           <span class="st">&quot;Mean Ne/N&quot;</span>, <span class="st">&quot;Mean L (months)&quot;</span>),</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>             <span class="at">escape  =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">&quot;Species-level summary of Ne/N estimates from NeStage</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="st">                        (Yonezawa 2000 variance Ne, monthly matrices) compared</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="st">                        to the coalescence Ne of Orive (1993) reported in</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="st">                        Tremblay &amp; Ackerman (2001) Table 7.&quot;</span>)</span></code></pre></div>
+<table>
+<caption>Species-level summary of Ne/N estimates from NeStage (Yonezawa
+2000 variance Ne, monthly matrices) compared to the coalescence Ne of
+Orive (1993) reported in Tremblay &amp; Ackerman (2001) Table
+7.</caption>
+<colgroup>
+<col width="17%" />
+<col width="12%" />
+<col width="21%" />
+<col width="24%" />
+<col width="10%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Species</th>
+<th align="right">Populations</th>
+<th align="left">Ne/N range (NeStage)</th>
+<th align="left">Ne/N range (Orive 1993)</th>
+<th align="right">Mean Ne/N</th>
+<th align="right">Mean L (months)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">4</td>
+<td align="left">0.359–0.702</td>
+<td align="left">0.227–0.360</td>
+<td align="right">0.581</td>
+<td align="right">128.3</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">6</td>
+<td align="left">0.108–0.396</td>
+<td align="left">0.339–0.445</td>
+<td align="right">0.259</td>
+<td align="right">36.7</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">7</td>
+<td align="left">0.075–0.285</td>
+<td align="left">0.453–0.473</td>
+<td align="right">0.168</td>
+<td align="right">70.1</td>
+</tr>
+</tbody>
+</table>
+<p>The two approaches measure subtly different quantities:</p>
+<ul>
+<li><strong>Orive (1993)</strong> computes the <strong>inbreeding
+effective size</strong> based on coalescence time — the expected time
+for two gene copies to share a common ancestor. It captures the effects
+of both genetic drift and the specific mating structure of the
+population.</li>
+<li><strong>Yonezawa (2000)</strong> computes the <strong>variance
+effective size</strong> based on the variance in gene frequency change
+per generation. It focuses on how unequal lifetime reproductive
+contributions reduce the effective contribution of census individuals to
+the gene pool.</li>
+</ul>
+<p>Both measure genetic drift but from different angles. Agreement
+between the two is reassuring; divergence indicates that mating
+structure (Orive) or reproductive variance (Yonezawa) is driving the
+discrepancy.</p>
+<hr />
+</div>
+</div>
+<div id="summary-and-conservation-implications" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Summary and
+conservation implications</h1>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Summary plot: Ne/N by species and population</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">ggplot</span>(results_display, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(Population), <span class="at">y =</span> NeN,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>                     <span class="at">color =</span> Species, <span class="at">group =</span> Species)) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.10</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">&quot;grey40&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="at">x =</span> <span class="fl">0.7</span>, <span class="at">y =</span> <span class="fl">0.105</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">&quot;Frankham (1995)</span><span class="sc">\n</span><span class="st">median Ne/N = 0.10&quot;</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;grey40&quot;</span>) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#2166ac&quot;</span>, <span class="st">&quot;#1b7837&quot;</span>, <span class="st">&quot;#d6604d&quot;</span>),</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>      <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">&quot;L. eltoroensis&quot;</span>)),</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>      <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">&quot;L. rubripetala&quot;</span>)),</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>      <span class="fu">expression</span>(<span class="fu">italic</span>(<span class="st">&quot;L. rupestris&quot;</span>))</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>    )</span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>    <span class="at">title    =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(N[e]<span class="sc">/</span>N, <span class="st">&quot; across populations of three &quot;</span>,</span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>                                <span class="fu">italic</span>(<span class="st">&quot;Lepanthes&quot;</span>), <span class="st">&quot; species&quot;</span>)),</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Monthly transition matrices | Yonezawa (2000) variance Ne&quot;</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">&quot;Population&quot;</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>    <span class="at">y        =</span> <span class="fu">expression</span>(N[e]<span class="sc">/</span>N),</span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>    <span class="at">color    =</span> <span class="st">&quot;Species&quot;</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>    <span class="at">caption  =</span> <span class="st">&quot;Dashed line = empirical median across 102 wildlife species (Frankham 1995).&quot;</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>  <span class="fu">theme_classic</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>    <span class="at">plot.title    =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>    <span class="at">legend.text   =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">&quot;italic&quot;</span>),</span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">&quot;grey92&quot;</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>)</span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># How many populations have Ne &lt; 50 (Wright drift threshold)?</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>results_display <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    <span class="at">Drift_risk =</span> <span class="fu">ifelse</span>(Ne_at_census <span class="sc">&lt;</span> <span class="dv">50</span>, <span class="st">&quot;HIGH (Ne &lt; 50)&quot;</span>, <span class="st">&quot;lower&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="fu">select</span>(Species, Population, NeN, Ne_at_census, Drift_risk) <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Species&quot;</span>, <span class="st">&quot;Pop&quot;</span>, <span class="st">&quot;Ne/N&quot;</span>, <span class="st">&quot;Estimated Ne&quot;</span>, <span class="st">&quot;Drift risk&quot;</span>),</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>    <span class="at">escape    =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>    <span class="at">caption   =</span> <span class="st">&quot;Estimated Ne assuming a census size of N = 40, representative</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="st">                 of a large Lepanthes population (Tremblay &amp; Ackerman 2001).</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="st">                 Ne &lt; 50 indicates populations where genetic drift dominates</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="st">                 over natural selection (Wright 1931; Franklin 1980).&quot;</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  )</span></code></pre></div>
+<table>
+<caption>Estimated Ne assuming a census size of N = 40, representative
+of a large Lepanthes population (Tremblay &amp; Ackerman 2001). Ne &lt;
+50 indicates populations where genetic drift dominates over natural
+selection (Wright 1931; Franklin 1980).</caption>
+<thead>
+<tr class="header">
+<th align="left">Species</th>
+<th align="right">Pop</th>
+<th align="right">Ne/N</th>
+<th align="right">Estimated Ne</th>
+<th align="left">Drift risk</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">1</td>
+<td align="right">0.207</td>
+<td align="right">8.3</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">2</td>
+<td align="right">0.085</td>
+<td align="right">3.4</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">3</td>
+<td align="right">0.077</td>
+<td align="right">3.1</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">4</td>
+<td align="right">0.251</td>
+<td align="right">10.0</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">5</td>
+<td align="right">0.285</td>
+<td align="right">11.4</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">6</td>
+<td align="right">0.194</td>
+<td align="right">7.7</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rupestris</em></td>
+<td align="right">7</td>
+<td align="right">0.075</td>
+<td align="right">3.0</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">1</td>
+<td align="right">0.396</td>
+<td align="right">15.8</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">2</td>
+<td align="right">0.226</td>
+<td align="right">9.0</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">3</td>
+<td align="right">0.323</td>
+<td align="right">12.9</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">4</td>
+<td align="right">0.268</td>
+<td align="right">10.7</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">5</td>
+<td align="right">0.108</td>
+<td align="right">4.3</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. rubripetala</em></td>
+<td align="right">6</td>
+<td align="right">0.235</td>
+<td align="right">9.4</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">1</td>
+<td align="right">0.667</td>
+<td align="right">26.7</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">2</td>
+<td align="right">0.359</td>
+<td align="right">14.4</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="even">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">3</td>
+<td align="right">0.702</td>
+<td align="right">28.1</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>L. eltoroensis</em></td>
+<td align="right">4</td>
+<td align="right">0.597</td>
+<td align="right">23.9</td>
+<td align="left">HIGH (Ne &lt; 50)</td>
+</tr>
+</tbody>
+</table>
+<div id="key-conservation-messages" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Key conservation
+messages</h2>
+<ol style="list-style-type: decimal">
+<li><p><strong>All three species have very small effective population
+sizes.</strong> Even with the most optimistic Ne/N estimates, census
+populations of 50–100 individuals — typical for these species — yield Ne
+well below 50.</p></li>
+<li><p><strong>The minimum census size for long-term conservation (<span class="math inline">\(N_e \geq 5{,}000\)</span>) is far larger than any
+observed population.</strong> This confirms the finding of Tremblay
+&amp; Ackerman (2001) that these orchid populations face substantial
+genetic vulnerability.</p></li>
+<li><p><strong>Ne/N varies substantially among populations and
+species.</strong> <em>L. rupestris</em> shows greater among-population
+variation than the other two species, likely reflecting habitat
+heterogeneity along the Luquillo river system.</p></li>
+<li><p><strong>Ne/N estimates from monthly vs annual matrices may
+differ.</strong> When reporting Ne/N, always state the time step of your
+matrices. Monthly matrices are preferred for species with fine-scale
+demographic variation.</p></li>
+</ol>
+<hr />
+</div>
+</div>
+<div id="brief-overview-of-the-other-two-functions" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Brief overview of the
+other two functions</h1>
+<div id="ne_clonal_y2000" class="section level2" number="8.1">
+<h2><span class="header-section-number">8.1</span> Ne_clonal_Y2000</h2>
+<p>Use this function when <strong>all reproduction is clonal</strong>
+(<span class="math inline">\(d_i = 1\)</span> for all stages). This
+implements Equations 10–11 of Yonezawa et al. (2000):</p>
+<p><span class="math display">\[N_e = \frac{N}{(1 - \bar{u^2}) \cdot L},
+\quad
+N_y = \frac{N}{1 - \bar{u^2}}\]</span></p>
+<p>The clonal model is simpler than the general Equation 6 because
+sexual reproductive variance does not enter. It is the appropriate model
+for populations maintained entirely by vegetative reproduction (e.g.,
+many ferns, some grasses, clonal shrubs).</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>Ne_clonal <span class="ot">&lt;-</span> <span class="fu">Ne_clonal_Y2000</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">T_mat      =</span> MatU,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">F_vec      =</span> MatF[<span class="dv">1</span>, ],</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">D          =</span> D,</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="at">show_Ny    =</span> <span class="cn">TRUE</span>,       <span class="co"># also compute annual effective size</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;fully clonal population&quot;</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="ne_mixed_y2000" class="section level2" number="8.2">
+<h2><span class="header-section-number">8.2</span> Ne_mixed_Y2000</h2>
+<p>Use this function when <strong>stages differ in their mix of sexual
+and clonal reproduction</strong> (<span class="math inline">\(0 \leq d_i
+\leq 1\)</span>). This implements the full Equation 6 of Yonezawa et
+al. (2000), including the clonal reproductive variance term <span class="math inline">\(Avr(A\delta)\)</span>.</p>
+<p>An important property: under Poisson defaults (<span class="math inline">\(V_c/\bar{c} = V_k/\bar{k} = 1\)</span>, <span class="math inline">\(a = 0\)</span>), the clonal fraction <span class="math inline">\(d_i\)</span> has <strong>no effect</strong> on
+<span class="math inline">\(N_e/N\)</span>. The clonal fraction only
+influences <span class="math inline">\(N_e\)</span> when clonal output
+is more variable than sexual output (<span class="math inline">\(V_c/\bar{c} &gt; V_k/\bar{k}\)</span>), which is
+biologically realistic for many clonal plants.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>Ne_mixed <span class="ot">&lt;-</span> <span class="fu">Ne_mixed_Y2000</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">T_mat      =</span> MatU,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">F_vec      =</span> MatF[<span class="dv">1</span>, ],</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">D          =</span> D,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">d          =</span> <span class="fu">c</span>(<span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.5</span>),  <span class="co"># stage 3 is 50% clonal</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">Vc_over_c  =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>),        <span class="co"># stage 3 has super-Poisson clonal variance</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="at">population =</span> <span class="st">&quot;mixed orchid&quot;</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="session-information" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> Session
+information</h1>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; R version 4.6.1 (2026-06-24)</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; Platform: aarch64-apple-darwin23</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; Running under: macOS Tahoe 26.6.2</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib </span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt; time zone: America/Puerto_Rico</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt;  [1] knitr_1.52    purrr_1.2.2   tidyr_1.3.2   dplyr_1.2.1   ggplot2_4.0.3</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt;  [6] expm_1.0-1    Matrix_1.7-6  popbio_2.8    gt_1.3.0      NeStage_0.8.0</span></span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6       jsonlite_2.0.0     compiler_4.6.1     tidyselect_1.2.1  </span></span>
+<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a><span class="co">#&gt;  [5] xml2_1.6.0         jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12       </span></span>
+<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a><span class="co">#&gt;  [9] fastmap_1.2.0      lattice_0.23-1     R6_2.6.1           labeling_0.4.3    </span></span>
+<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a><span class="co">#&gt; [13] commonmark_2.0.0   generics_0.1.4     tibble_3.3.1       RColorBrewer_1.1-3</span></span>
+<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a><span class="co">#&gt; [17] bslib_0.12.0       pillar_1.11.1      rlang_1.3.0        cachem_1.1.0      </span></span>
+<span id="cb14-29"><a href="#cb14-29" tabindex="-1"></a><span class="co">#&gt; [21] litedown_0.11      xfun_0.61          S7_0.2.2           fs_2.1.0          </span></span>
+<span id="cb14-30"><a href="#cb14-30" tabindex="-1"></a><span class="co">#&gt; [25] sass_0.4.10        otel_0.2.0         cli_3.6.6          withr_3.0.3       </span></span>
+<span id="cb14-31"><a href="#cb14-31" tabindex="-1"></a><span class="co">#&gt; [29] magrittr_2.0.5     digest_0.6.39      grid_4.6.1         rstudioapi_0.19.0 </span></span>
+<span id="cb14-32"><a href="#cb14-32" tabindex="-1"></a><span class="co">#&gt; [33] markdown_2.0       lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    </span></span>
+<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a><span class="co">#&gt; [37] glue_1.8.1         farver_2.1.2       rmarkdown_2.32     tools_4.6.1       </span></span>
+<span id="cb14-34"><a href="#cb14-34" tabindex="-1"></a><span class="co">#&gt; [41] pkgconfig_2.0.3    htmltools_0.5.9</span></span></code></pre></div>
+<hr />
+</div>
+<div id="references" class="section level1" number="10">
+<h1><span class="header-section-number">10</span> References</h1>
+<ul>
+<li>Caswell H. (2001). <em>Matrix Population Models</em>, 2nd
+ed. Sinauer Associates.</li>
+<li>Frankham R. (1995). Effective population size/adult population size
+ratios in wildlife: a review. <em>Genetical Research</em>
+<strong>66</strong>: 95–107.</li>
+<li>Lande R. (1995). Mutation and conservation. <em>Conservation
+Biology</em> <strong>9</strong>: 782–791.</li>
+<li>Luer C.A. (1986). Icones Pleurothallidinarum I. <em>Monograph in
+Systematic Botany</em> <strong>15</strong>.</li>
+<li>Orive M.E. (1993). Effective population size in organisms with
+complex life histories. <em>Theoretical Population Biology</em>
+<strong>44</strong>: 316–340.</li>
+<li>Salguero-Gómez R. et al. (2015). The COMPADRE Plant Matrix Database.
+<em>Journal of Ecology</em> <strong>103</strong>: 202–218.</li>
+<li>Tremblay R.L. &amp; Ackerman J.D. (2001). Gene flow and effective
+population size in <em>Lepanthes</em> (Orchidaceae): a case for genetic
+drift. <em>Biological Journal of the Linnean Society</em>
+<strong>72</strong>: 47–62.</li>
+<li>Wright S. (1931). Evolution in Mendelian populations.
+<em>Genetics</em> <strong>16</strong>: 97–159.</li>
+<li>Yonezawa K., Ishida T. &amp; Iwata H. (2000). Formulation and
+estimation of the effective size of stage-structured populations.
+<em>Evolution</em> <strong>54</strong>: 2007–2013.</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

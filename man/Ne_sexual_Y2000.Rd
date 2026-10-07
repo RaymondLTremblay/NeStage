@@ -14,7 +14,8 @@ Ne_sexual_Y2000(
   x_max = 500L,
   Ne_target = 50,
   census_N = NULL,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 )
 }
 \arguments{
@@ -70,6 +71,12 @@ is reported in the output, showing the Ne your population
 is likely achieving right now. Default NULL (not reported).}
 
 \item{population}{Character string. Optional label for the population.}
+
+\item{recruit_row}{Integer. The stage (matrix row) that offspring enter,
+i.e. where F_vec is placed in F_mat. Default 1. Set to a
+later stage when the first stage is dormancy (e.g. a seed
+bank), so recruits enter the active stage instead. Must name
+exactly one valid stage.}
 }
 \value{
 A named list with the following elements:
@@ -161,7 +168,7 @@ Yonezawa K., Kinoshita E., Watano Y., and Zentoh H. (2000).
 Formulation and estimation of the effective size of stage-structured
 populations in Fritillaria camtschatcensis, a perennial herb with a
 complex life history. \emph{Evolution} \strong{54}(6): 2007-2013.
-\doi{10.1111/j.0014-3820.2000.tb01243.x}
+\doi{10.1111/j.0014-3820.2000.tb01244.x}
 
 Lande R. (1995). Mutation and conservation.
 \emph{Conservation Biology} \strong{9}: 728-791.

@@ -151,6 +151,9 @@ utils::globalVariables(c("NeN", "Vk_over_k", "Vc_over_c", "d_focal", "L"))
 #' @param L          Generation time. If NULL, computed internally.
 #' @param Ne_target  Ne conservation threshold. Default 5000.
 #' @param population Character label.
+#' @param recruit_row Integer. Stage (matrix row) that newborns enter; where
+#'                   F_vec is placed in F_mat. Default 1. Set to a later stage
+#'                   when the first stage is dormancy (e.g. a seed bank).
 #'
 #' @return A list with:
 #'   \describe{
@@ -194,9 +197,11 @@ Ne_sensitivity_Vk <- function(
   a = 0,
   L = NULL,
   Ne_target = 5000,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   s <- nrow(T_mat)
+  .validate_recruit_row(recruit_row, s)
   focal <- .resolve_stage(stage_index, stage_name, s, T_mat)
   s_name <- if (!is.null(colnames(T_mat))) {
     colnames(T_mat)[focal]
@@ -226,7 +231,8 @@ Ne_sensitivity_Vk <- function(
       a = a,
       L = L,
       Ne_target = Ne_target,
-      population = population
+      population = population,
+      recruit_row = recruit_row
     )
 
     if (!is.null(d)) {
@@ -376,6 +382,9 @@ Ne_sensitivity_Vk <- function(
 #' @param L          Generation time. If NULL, computed internally.
 #' @param Ne_target  Ne conservation threshold. Default 5000.
 #' @param population Character label.
+#' @param recruit_row Integer. Stage (matrix row) that newborns enter; where
+#'                   F_vec is placed in F_mat. Default 1. Set to a later stage
+#'                   when the first stage is dormancy (e.g. a seed bank).
 #'
 #' @return A list with:
 #'   \describe{
@@ -418,9 +427,11 @@ Ne_sensitivity_Vc <- function(
   a = 0,
   L = NULL,
   Ne_target = 5000,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   s <- nrow(T_mat)
+  .validate_recruit_row(recruit_row, s)
   focal <- .resolve_stage(stage_index, stage_name, s, T_mat)
   s_name <- if (!is.null(colnames(T_mat))) {
     colnames(T_mat)[focal]
@@ -446,7 +457,8 @@ Ne_sensitivity_Vc <- function(
       a = a,
       L = L,
       Ne_target = Ne_target,
-      population = population
+      population = population,
+      recruit_row = recruit_row
     )
 
     data.frame(
@@ -575,6 +587,9 @@ Ne_sensitivity_Vc <- function(
 #' @param L          Generation time. If NULL, computed internally.
 #' @param Ne_target  Ne conservation threshold. Default 5000.
 #' @param population Character label.
+#' @param recruit_row Integer. Stage (matrix row) that newborns enter; where
+#'                   F_vec is placed in F_mat. Default 1. Set to a later stage
+#'                   when the first stage is dormancy (e.g. a seed bank).
 #'
 #' @return A list with:
 #'   \describe{
@@ -628,9 +643,11 @@ Ne_sensitivity_d <- function(
   a = 0,
   L = NULL,
   Ne_target = 5000,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   s <- nrow(T_mat)
+  .validate_recruit_row(recruit_row, s)
   focal <- .resolve_stage(stage_index, stage_name, s, T_mat)
   s_name <- if (!is.null(colnames(T_mat))) {
     colnames(T_mat)[focal]
@@ -676,7 +693,8 @@ Ne_sensitivity_d <- function(
       a = a,
       L = L,
       Ne_target = Ne_target,
-      population = population
+      population = population,
+      recruit_row = recruit_row
     )
 
     data.frame(
@@ -803,6 +821,9 @@ Ne_sensitivity_d <- function(
 #' @param a          Hardy-Weinberg deviation. Default 0.
 #' @param Ne_target  Ne conservation threshold. Default 5000.
 #' @param population Character label.
+#' @param recruit_row Integer. Stage (matrix row) that newborns enter; where
+#'                   F_vec is placed in F_mat. Default 1. Set to a later stage
+#'                   when the first stage is dormancy (e.g. a seed bank).
 #'
 #' @return A list with:
 #'   \describe{
@@ -845,10 +866,12 @@ Ne_sensitivity_L <- function(
   Vc_over_c = NULL,
   a = 0,
   Ne_target = 5000,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   s <- nrow(T_mat)
   fn_name <- deparse(substitute(model_fn))
+  .validate_recruit_row(recruit_row, s)
 
   if (is.null(Vk_over_k)) {
     Vk_over_k <- rep(1, s)
@@ -861,7 +884,8 @@ Ne_sensitivity_L <- function(
       D = D,
       L = lval,
       Ne_target = Ne_target,
-      population = population
+      population = population,
+      recruit_row = recruit_row
     )
 
     # Add model-specific arguments
@@ -903,30 +927,12 @@ Ne_sensitivity_L <- function(
   df <- do.call(rbind, results)
 
   # Compute reference L if not supplied
+  # Uses the same newborn-cohort definition as the model functions.
   if (is.null(L_ref)) {
-    s_ <- nrow(T_mat)
-    F_mat <- matrix(0, s_, s_)
-    F_mat[1, ] <- F_vec
-    A_ <- T_mat + F_mat
-    ev_ <- eigen(A_)
-    w_ <- Re(ev_$vectors[, which.max(Re(ev_$values))])
-    w_ <- abs(w_) / sum(abs(w_))
-    Tx_ <- diag(s_)
-    num_ <- 0
-    den_ <- 0
-    for (x in seq_len(500L)) {
-      Tx_ <- T_mat %*% Tx_
-      l_ <- 0
-      m_ <- 0
-      for (i in seq_len(s_)) {
-        u_ <- Tx_[, i]
-        l_ <- l_ + w_[i] * sum(u_)
-        m_ <- m_ + w_[i] * sum(F_vec * u_)
-      }
-      num_ <- num_ + x * m_ * l_
-      den_ <- den_ + m_ * l_
-    }
-    L_ref <- if (den_ > 0) as.numeric(num_ / den_) else NA_real_
+    L_ref <- tryCatch(
+      .compute_L_clonal(T_mat, F_vec, x_max = 500L, recruit_row = recruit_row),
+      error = function(e) NA_real_
+    )
   }
 
   # Model label for plot

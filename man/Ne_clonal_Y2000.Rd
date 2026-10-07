@@ -12,7 +12,8 @@ Ne_clonal_Y2000(
   x_max = 500L,
   Ne_target = 50,
   census_N = NULL,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 )
 }
 \arguments{
@@ -24,8 +25,8 @@ Column sums must be <= 1 (total annual survival per stage).}
 
 \item{F_vec}{Numeric vector of length s. Fecundity of each stage: the
 mean number of clonal propagules produced per individual per
-year. Used only to compute L (generation time) via the
-stable stage distribution of A = T_mat + F_mat.
+year. Used only to compute L (generation time), the mean
+age of reproduction of a newborn cohort.
 Set F_vec = NULL if supplying L directly.}
 
 \item{D}{Numeric vector of length s. The stage frequency distribution:
@@ -55,6 +56,13 @@ added to the output. Default NULL.}
 
 \item{population}{Character string. Optional label for the population,
 used in printed output and the returned list.}
+
+\item{recruit_row}{Integer. The stage (matrix row) that newborns enter,
+i.e. where the fecundity vector F_vec is placed in
+F_mat. Default 1 (the first stage is the recruitment stage).
+Set to a later stage when the first stage is dormancy, e.g.
+a seed bank: recruit_row = 2 sends newborns to the active
+recruitment stage instead. Must name exactly one valid stage.}
 }
 \value{
 A named list with the following elements:

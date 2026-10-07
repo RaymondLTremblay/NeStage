@@ -1,19 +1,4 @@
----
-title: "Replicating Yonezawa et al. (2000) with NeStage"
-author: "Raymond L. Tremblay"
-date: "`r Sys.Date()`"
-output:
-  rmarkdown::html_vignette:
-    toc: true
-    toc_depth: 3
-    number_sections: true
-vignette: >
-  %\VignetteIndexEntry{Replicating Yonezawa et al. (2000) with NeStage}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include=FALSE}
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   echo    = TRUE,
   eval    = TRUE,
@@ -21,154 +6,11 @@ knitr::opts_chunk$set(
   warning = FALSE,
   comment = "#>"
 )
-```
 
-```{r load-nestage, include=FALSE}
+## ----load-nestage, include=FALSE----------------------------------------------
 library(NeStage)
-```
 
----
-
-# Introduction: What the Yonezawa (2000) model does
-
-## Purpose and scope
-
-This vignette is the **primary replication document** for the `NeStage` package.
-Its goals are:
-
-1. Introduce the Yonezawa (2000) variance effective population size framework
-   for stage-structured populations.
-2. Walk through every formula step-by-step, with equation numbers
-   cross-referenced to the paper.
-3. Reproduce **all numerical results** in Table 4 of Yonezawa et al. (2000)
-   from the raw inputs in Table 2.
-4. Demonstrate that the `NeStage` package functions return the same values,
-   establishing the package as a validated implementation.
-
-The paper is: **Yonezawa K., Kinoshita E., Watano Y., and Zentoh H. (2000)**.
-Formulation and estimation of the effective size of stage-structured populations
-in *Fritillaria camtschatcensis*, a perennial herb with a complex life history.
-*Evolution* 54(6): 2007–2013.
-
-## What the model does
-
-Yonezawa et al. (2000) derive a **variance effective population size** ($N_e$)
-for **stage-structured** populations where individuals can progress or regress
-among life-history stages and reproduce **sexually and/or clonally**. Two
-effective sizes emerge:
-
-- $N_y$: the **annual** effective size — the magnitude of genetic drift per
-  **year** (Eq. 11).
-- $N_e$: the **generation-time** effective size — the magnitude of drift over
-  a **full generation** (Eq. 6 / Eq. 10).
-
-The key biological insight is that $N_e$ can be much smaller than the census
-size $N$ — for *Fritillaria camtschatcensis*, only 20–30% — meaning populations
-must be far larger than naive counts suggest to conserve gene diversity.
-
-## Biological system
-
-*Fritillaria camtschatcensis* is a perennial herb of alpine grasslands in Japan
-with three identifiable life-history stages:
-
-- **Stage 1**: one-leaf, nonflowering
-- **Stage 2**: multileaf, nonflowering
-- **Stage 3**: multileaf, flowering
-
-Plants in all stages produce clonal progeny (bulblets) each year; death occurs
-only in Stage 1. Although Stage 3 plants set seeds, no seedlings were observed
-in the field, so populations are maintained **almost entirely by clonal
-reproduction**. Two populations were studied: **Miz** (Mizuyajiri, 2450 m) and
-**Nan** (Nanryu, 2050 m) on Mount Hakusan, central Honshu, Japan.
-
----
-
-# Notation and key formulas
-
-## Variables (for $s$ stages)
-
-| Symbol | Definition |
-|--------|-----------|
-| $s$ | Number of demographic stages (3 here) |
-| $D_i$ | Fraction of the population in stage $i$; $\sum_i D_i = 1$ |
-| $u_{ji}$ | Transition rate: probability a stage-$i$ plant at year $t$ is in stage $j$ at year $t+1$ |
-| $u_{\cdot i} = \sum_j u_{ji}$ | Total annual survival rate of stage $i$ |
-| $\bar{u} = \sum_i D_i\,u_{\cdot i}$ | Population-average annual survival |
-| $\overline{u^2} = \sum_i D_i\,u_{\cdot i}^2$ | Stage-weighted second moment of survival |
-| $F_i$ | Newborns produced per plant in stage $i$ per year |
-| $r_i = F_i\,D_i$ | Contribution of newborns from stage $i$ to the whole population |
-| $d_i \in [0,1]$ | Clonal reproduction rate of stage $i$; sexual rate $= 1 - d_i$ |
-| $(V_k/\bar{k})_i$ | Variance/mean ratio of sexual (gametic) reproductive output, stage $i$ |
-| $(V_c/\bar{c})_i$ | Variance/mean ratio of clonal reproductive output, stage $i$ |
-| $a$ | Deviation from Hardy-Weinberg proportions ($a = 0$ under random mating) |
-| $L$ | Generation time: population-average mean age of reproduction |
-
-> **Note on $\bar{u}^2$ vs $\overline{u^2}$**: $\bar{u}^2 = \bigl(\sum_i D_i\,u_{\cdot i}\bigr)^2$
-> is the square of the mean survival, while $\overline{u^2} = \sum_i D_i\,u_{\cdot i}^2$
-> is the mean of squared survivals. Their difference captures stage-to-stage
-> variation in survival and is the first source of genetic drift in Eq. 5.
-
-## The one-year variance of allele-frequency change (Eq. 5)
-
-$$
-V(\Delta p)
-= \frac{pq}{2N}\left\{(1+a)\big(\overline{u^2} - \bar{u}^{\,2}\big)
-+ \frac{1}{2}(1 - \bar{u})\big[\mathrm{Avr}(S) + \mathrm{Avr}(A\delta)\big]\right\}
-$$
-
-where
-
-$$
-S_i = (1 - a) + (1 + a)\left(\frac{V_k}{\bar{k}}\right)_i, \qquad
-A_i = 2(1 + a)\left(\frac{V_c}{\bar{c}}\right)_i - S_i
-$$
-
-## General generation-time effective size $N_e$ (Eq. 6)
-
-$$
-\boxed{N_e = \frac{2N}{V \cdot L}}, \qquad
-V = 2(1+a)\big(\overline{u^2} - \bar{u}^{\,2}\big) +
-    (1-\bar{u})\big[\mathrm{Avr}(S) + \mathrm{Avr}(A\delta)\big]
-$$
-
-## Clonal-dominant Poisson special case (Eq. 10)
-
-In *Fritillaria*, all reproduction is effectively clonal ($d_i \approx 1$),
-Poisson-distributed ($(V_c/\bar{c})_i = 1$), and $a = 0$.
-Under these assumptions $V = 2(1 - \bar{u})$, yielding:
-
-$$
-\boxed{N_e \approx \frac{N}{(1 - \bar{u})\,L}} \qquad \text{(Eq. 10)}
-$$
-
-## Annual effective size $N_y$ (Eq. 11)
-
-$$
-\boxed{N_y = \frac{N}{1 - \bar{u}}} \qquad \text{(Eq. 11)}
-$$
-
----
-
-# Glossary of R objects
-
-| Object | Type | Definition |
-|--------|------|-----------|
-| `T_pop` | $s \times s$ matrix | Transition matrix (MatU): entry $(j,i)$ = rate from stage $i$ to stage $j$ |
-| `F_pop` | $s \times s$ matrix | Fecundity matrix (MatF): row 1 contains $F_i$, all other entries 0 |
-| `D_obs` | numeric vector ($s$) | Observed stage fractions; $\sum_i D_i = 1$ |
-| `D_exp` | numeric vector ($s$) | Expected (equilibrium) stage fractions |
-| `u_dot` | numeric vector ($s$) | $u_{\cdot i} = \sum_j u_{ji}$: total annual survival per stage |
-| `L` | scalar | Generation time (years) |
-
----
-
-# Step 1 — Load packages and define pedagogical helpers
-
-These helper functions are kept here for the step-by-step walkthrough in
-Steps 2–6. From Step 7 onwards, all calculations use the `NeStage` package
-functions directly.
-
-```{r helpers, message=FALSE, warning=FALSE}
+## ----helpers, message=FALSE, warning=FALSE------------------------------------
 library(gt)
 library(popbio)
 
@@ -195,15 +37,8 @@ over_u2_from_T <- function(T_mat, D) { u <- colSums(T_mat); sum(D * u^2) }
 # Clonal-dominant formulas (Eq. 10 and Eq. 11) — for pedagogical Steps 4–5
 Ny_over_N        <- function(over_u2)    1 / (1 - over_u2)
 Ne_over_N_approx <- function(over_u2, L) 1 / ((1 - over_u2) * L)
-```
 
----
-
-# Step 2 — Enter Table 2 data (Miz and Nan populations)
-
-All values transcribed directly from **Table 2** of Yonezawa et al. (2000).
-
-```{r data-entry, message=FALSE, warning=FALSE}
+## ----data-entry, message=FALSE, warning=FALSE---------------------------------
 stages <- c("Stage 1 (one-leaf)", "Stage 2 (multileaf NF)", "Stage 3 (multileaf FL)")
 
 # --- Population Miz ---
@@ -233,9 +68,8 @@ D_exp_Nan <- c(0.951, 0.034, 0.015)
 F_vec_Nan <- c(0.138, 2.773, 5.016)
 F_Nan     <- matrix(0, 3, 3, dimnames = dimnames(T_Nan))
 F_Nan[1,] <- F_vec_Nan
-```
 
-```{r table2-gt, message=FALSE, warning=FALSE}
+## ----table2-gt, message=FALSE, warning=FALSE----------------------------------
 tbl2 <- data.frame(
   Variable = c(
     "u11","u21","u31","u12","u22","u32","u13","u23","u33",
@@ -288,13 +122,8 @@ gt(tbl2) |>
   tab_style(style = cell_text(weight = "bold"),
             locations = cells_row_groups()) |>
   tab_options(table.width = pct(85), table.font.size = px(13))
-```
 
----
-
-# Step 3 — Compute $\lambda$, stable stage distribution, and generation time $L$
-
-```{r eigen-and-L, message=FALSE, warning=FALSE}
+## ----eigen-and-L, message=FALSE, warning=FALSE--------------------------------
 A_Miz <- T_Miz + F_Miz
 A_Nan <- T_Nan + F_Nan
 
@@ -311,9 +140,8 @@ L_Miz_Y <- gen_time_yonezawa(T_Miz, F_Miz, xmax = 500)
 L_Nan_Y <- gen_time_yonezawa(T_Nan, F_Nan, xmax = 500)
 L_Miz_P <- as.numeric(popbio::generation.time(A_Miz))
 L_Nan_P <- as.numeric(popbio::generation.time(A_Nan))
-```
 
-```{r eigen-gt, message=FALSE, warning=FALSE}
+## ----eigen-gt, message=FALSE, warning=FALSE-----------------------------------
 data.frame(
   Population = c("Miz", "Nan"),
   lambda     = round(c(eg_Miz$lambda1, eg_Nan$lambda1), 4),
@@ -339,24 +167,8 @@ data.frame(
   tab_style(style = cell_fill(color = "#f0f7fb"),
             locations = cells_column_spanners()) |>
   tab_options(table.width = pct(80))
-```
 
-> **$L$ for replication**: $L = 13.399$ (Miz) and $L = 8.353$ (Nan) are taken
-> directly from Table 4 and passed to `NeStage` via the `L` parameter, overriding
-> the internally computed value. This ensures exact replication of the paper.
-> The *T*^x iteration reproduces both values to three decimals, so supplying
-> *L* or letting `NeStage` compute it gives the same result.
-
----
-
-# Step 4 — Manual computation of Table 4 quantities
-
-This section works through the formulas by hand to verify we understand each
-component before delegating to `NeStage`.
-
-## Observed stage fractions
-
-```{r compute-table4-observed, message=FALSE, warning=FALSE}
+## ----compute-table4-observed, message=FALSE, warning=FALSE--------------------
 ou2_Miz_obs <- over_u2_from_T(T_Miz, D_obs_Miz)
 ou2_Nan_obs <- over_u2_from_T(T_Nan, D_obs_Nan)
 
@@ -366,11 +178,8 @@ NeN_Miz_obs  <- Ne_over_N_approx(ou2_Miz_obs, L_Miz)
 NeN_Nan_obs  <- Ne_over_N_approx(ou2_Nan_obs, L_Nan)
 MinN_Miz_obs <- ceiling(5000 / NeN_Miz_obs)
 MinN_Nan_obs <- ceiling(5000 / NeN_Nan_obs)
-```
 
-## Expected (equilibrium) stage fractions
-
-```{r compute-parenthetical, message=FALSE, warning=FALSE}
+## ----compute-parenthetical, message=FALSE, warning=FALSE----------------------
 ou2_Miz_exp <- over_u2_from_T(T_Miz, D_exp_Miz)
 ou2_Nan_exp <- over_u2_from_T(T_Nan, D_exp_Nan)
 
@@ -380,16 +189,8 @@ NeN_Miz_exp  <- Ne_over_N_approx(ou2_Miz_exp, L_Miz)
 NeN_Nan_exp  <- Ne_over_N_approx(ou2_Nan_exp, L_Nan)
 MinN_Miz_exp <- ceiling(5000 / NeN_Miz_exp)
 MinN_Nan_exp <- ceiling(5000 / NeN_Nan_exp)
-```
 
----
-
-# Step 5 — Replication check: computed vs. paper Table 4
-
-Paper values placed side-by-side with computed values.
-✓ = agreement within the precision of the published table.
-
-```{r replication-check, message=FALSE, warning=FALSE}
+## ----replication-check, message=FALSE, warning=FALSE--------------------------
 pop  <- c("Miz", "Nan")
 
 # Paper values (Table 4, Yonezawa et al. 2000)
@@ -473,42 +274,27 @@ data.frame(
   tab_style(style = cell_fill(color = "#f0f7fb"),
             locations = cells_column_spanners()) |>
   tab_options(table.width = pct(85), table.font.size = px(13))
-```
 
----
+## ----clonal-inputs-explained, eval=FALSE--------------------------------------
+# Ne_clonal_Y2000(
+#   T_mat      = T_Miz,    # MatU: survival-transition matrix (s x s)
+#                           # Column sums must be <= 1
+#   F_vec      = F_vec_Miz, # Per-capita clonal offspring production per stage
+#                           # (row 1 of MatF, or a numeric vector of length s)
+#   D          = D_obs_Miz, # Stage frequency vector, sums to 1
+#   L          = L_Miz,    # Generation time (years). If NULL, computed
+#                           # internally via the Yonezawa T^x iteration.
+#                           # Supply the paper value here for exact replication.
+#   Ne_target  = 5000,     # Ne viability threshold (Lande 1995).
+#                           # For Fritillaria (widespread alpine species) the
+#                           # long-term evolutionary threshold is appropriate.
+#                           # For small endemic species use 50 (Franklin 1980).
+#   census_N   = 200,      # Your actual or expected census population size.
+#                           # Reports Ne_at_census = NeN * census_N directly.
+#   population = "Miz"     # Label for printed output
+# )
 
-# Step 6 — NeStage package: `Ne_clonal_Y2000()`
-
-*Fritillaria camtschatcensis* reproduces almost entirely by clonal bulblets,
-with no seedling recruitment observed. This maps directly to `Ne_clonal_Y2000()`,
-which implements the clonal-dominant Poisson special case (Eq. 10 and Eq. 11)
-of Yonezawa et al. (2000).
-
-## Inputs explained
-
-```{r clonal-inputs-explained, eval=FALSE}
-Ne_clonal_Y2000(
-  T_mat      = T_Miz,    # MatU: survival-transition matrix (s x s)
-                          # Column sums must be <= 1
-  F_vec      = F_vec_Miz, # Per-capita clonal offspring production per stage
-                          # (row 1 of MatF, or a numeric vector of length s)
-  D          = D_obs_Miz, # Stage frequency vector, sums to 1
-  L          = L_Miz,    # Generation time (years). If NULL, computed
-                          # internally via the Yonezawa T^x iteration.
-                          # Supply the paper value here for exact replication.
-  Ne_target  = 5000,     # Ne viability threshold (Lande 1995).
-                          # For Fritillaria (widespread alpine species) the
-                          # long-term evolutionary threshold is appropriate.
-                          # For small endemic species use 50 (Franklin 1980).
-  census_N   = 200,      # Your actual or expected census population size.
-                          # Reports Ne_at_census = NeN * census_N directly.
-  population = "Miz"     # Label for printed output
-)
-```
-
-## Running `Ne_clonal_Y2000()` for both populations
-
-```{r clonal-observed, message=FALSE, warning=FALSE}
+## ----clonal-observed, message=FALSE, warning=FALSE----------------------------
 # --- Observed stage fractions ---
 Ne_Miz_obs <- Ne_clonal_Y2000(
   T_mat      = T_Miz,
@@ -550,17 +336,11 @@ Ne_Nan_exp <- Ne_clonal_Y2000(
   census_N   = 200,
   population = "Nan (expected D)"
 )
-```
 
-## Print output for Miz (observed D)
-
-```{r print-Miz-obs}
+## ----print-Miz-obs------------------------------------------------------------
 print(Ne_Miz_obs)
-```
 
-## Comparing `Ne_clonal_Y2000()` output to paper Table 4
-
-```{r nestage-vs-paper, message=FALSE, warning=FALSE}
+## ----nestage-vs-paper, message=FALSE, warning=FALSE---------------------------
 data.frame(
   Population = c("Miz", "Nan", "Miz", "Nan"),
   D_type     = c("Observed", "Observed", "Expected", "Expected"),
@@ -606,24 +386,8 @@ data.frame(
     locations = cells_column_spanners(spanners = "Min *N* for *N*_e ≥ 5000")
   ) |>
   tab_options(table.width = pct(90))
-```
 
-> **Replication confirmed** when NeStage values match the paper within rounding
-> (±1 in the last reported decimal for Ne/N; ±25 for Min N).
-
----
-
-# Step 7 — General model: `Ne_mixed_Y2000()`
-
-`Ne_clonal_Y2000()` is the correct function for *Fritillaria* because all
-reproduction is clonal. But `Ne_mixed_Y2000()` implements the **full general
-model** (Eq. 6) and reduces to the clonal-dominant Poisson case when
-`d = rep(1, s)`, `Vc_over_c = rep(1, s)`, and `a = 0`. We verify this
-internal consistency here.
-
-## Internal consistency: general model must match clonal shortcut
-
-```{r mixed-consistency, message=FALSE, warning=FALSE}
+## ----mixed-consistency, message=FALSE, warning=FALSE--------------------------
 # Run the general model with clonal-dominant Poisson defaults
 Ne_Miz_gen <- Ne_mixed_Y2000(
   T_mat      = T_Miz,
@@ -675,17 +439,8 @@ data.frame(
   ) |>
   tab_footnote("Difference should be < 1e-10 under clonal-dominant Poisson defaults.") |>
   tab_options(table.width = pct(70))
-```
 
-## Sensitivity to the clonal fraction $d_i$
-
-Under Poisson defaults ($V_c/\bar{c} = V_k/\bar{k} = 1$, $a = 0$), the
-clonal fraction $d_i$ has **no effect** on $N_e/N$. The clonal fraction only
-matters when clonal output is more variable than sexual output
-($V_c/\bar{c} > V_k/\bar{k}$). We verify this property here and then
-explore what happens under super-Poisson clonal variance.
-
-```{r mixed-sensitivity, message=FALSE, warning=FALSE}
+## ----mixed-sensitivity, message=FALSE, warning=FALSE--------------------------
 # Vary d from 0 (fully sexual) to 1 (fully clonal) under Poisson defaults
 d_vals <- c(0, 0.25, 0.5, 0.75, 1.0)
 
@@ -749,13 +504,8 @@ gt(sensitivity_Vc) |>
        increasing genetic drift and reducing *N*_e/*N*.")
   ) |>
   tab_options(table.width = pct(55))
-```
 
----
-
-# Final summary: full replication of Table 4
-
-```{r final-summary, message=FALSE, warning=FALSE}
+## ----final-summary, message=FALSE, warning=FALSE------------------------------
 data.frame(
   Population  = c("Miz", "Nan", "Miz", "Nan"),
   D_type      = c("Observed", "Observed", "Expected", "Expected"),
@@ -801,14 +551,7 @@ data.frame(
     locations = cells_column_labels(columns = MinN)
   ) |>
   tab_options(table.width = pct(85))
-```
 
-> **Replication confirmed** when NeStage values match Table 4 within rounding.
-
----
-
-# Session information
-
-```{r session-info}
+## ----session-info-------------------------------------------------------------
 sessionInfo()
-```
+

@@ -52,10 +52,9 @@
 #   Using u_bar^2 instead of u2_bar would be a mathematical error.
 #
 # Generation time L:
-#   L is the population-average mean age of reproduction. It is computed by
-#   iterating the survival matrix T to age x_max = 500, then averaging
-#   cohort statistics across all starting stages weighted by the stable
-#   stage distribution w (dominant right eigenvector of A = T + F_mat).
+#   L is the mean age of reproduction of a cohort of newborns. It is
+#   computed by iterating the survival matrix T to age x_max = 500 for a
+#   cohort that enters stage recruit_row at age 0.
 #   See .compute_L_clonal() below for the implementation.
 #   Alternatively, the user may supply L directly from the published source
 #   (recommended for replication of specific papers).
@@ -157,66 +156,52 @@
 # -----------------------------------------------------------------------------
 # SECTION 2: Generation time L
 # -----------------------------------------------------------------------------
-# L is the population-average mean age of reproduction. This section
+# L is the mean age of reproduction of a cohort of newborns. This section
 # implements the Yonezawa (2000) definition (paper p. 2008):
 #
-#   L = sum_{x=1}^{x_max} x * m_bar_x * l_bar_x
-#       / sum_{x=1}^{x_max} m_bar_x * l_bar_x
+#   L = sum_{x=1}^{x_max} x * l_x * m_x / sum_{x=1}^{x_max} l_x * m_x
 #
-# where the population-average survivorship and reproduction at age x are:
+# where, for a newborn entering stage r = recruit_row at age 0,
 #
-#   l_bar_x = sum_i w_i * sum_j T[j, i]^x   (probability of surviving to age x)
-#   m_bar_x = sum_i w_i * sum_j F_j * T[j, i]^x / l_bar_x
-#             (mean reproductive output at age x, averaged over stages)
+#   l_x       = sum_j T[j, r]^x              (probability of surviving to age x)
+#   l_x * m_x = sum_j F_j * T[j, r]^x        (expected offspring at age x)
 #
 # T[j,i]^x  = element (j,i) of T^x = the survival matrix raised to power x,
 #              i.e. the probability that an individual starting in stage i
 #              at age 0 is found in stage j at age x.
 #
-# The weighting by the stable stage distribution w (dominant right eigenvector
-# of A = T + F_mat) is essential: it gives each starting stage its
-# demographically appropriate weight in the population average.
+# sum_j F_j * T[j, r]^x already includes survival to age x, so it is used
+# directly as l_x * m_x and is not multiplied by l_x again. With this
+# definition the function reproduces Table 4 of Yonezawa et al. (2000):
+# L = 13.399 (Miz) and L = 8.353 (Nan).
 
-.compute_L_clonal <- function(T_mat, F_vec, x_max = 500L) {
+.compute_L_clonal <- function(T_mat, F_vec, x_max = 500L, recruit_row = 1L) {
   # Compute generation time L using the Yonezawa (2000) definition.
   #
   # Args:
-  #   T_mat : s x s survival/transition matrix
-  #   F_vec : length-s fecundity vector (newborns per stage per year)
-  #   x_max : maximum age to iterate to (default 500; paper uses 500)
+  #   T_mat       : s x s survival/transition matrix
+  #   F_vec       : length-s fecundity vector (newborns per stage per year)
+  #   x_max       : maximum age to iterate to (default 500; paper uses 500)
+  #   recruit_row : stage (matrix row) that newborns enter (default 1)
   #
   # Returns: L as a single numeric value (years)
 
   s <- nrow(T_mat)
-  F_mat <- matrix(0, s, s)
-  F_mat[1, ] <- F_vec # fecundity goes into row 1 of the full matrix
 
-  # Stable stage distribution: dominant right eigenvector of A = T + F_mat
-  A <- T_mat + F_mat
-  ev <- eigen(A)
-  w <- Re(ev$vectors[, which.max(Re(ev$values))])
-  w <- abs(w) / sum(abs(w)) # normalise to sum = 1
-
-  # Iterate T^x from x = 1 to x_max, accumulating numerator and denominator
+  # Follow a cohort of newborns entering stage recruit_row at age 0.
+  # Column recruit_row of T^x is the stage distribution at age x of that
+  # cohort, so sum(F_vec * T^x[, recruit_row]) is l_x * m_x (expected
+  # offspring at age x per newborn). Survival is already included and is
+  # not multiplied in a second time.
   Tx <- diag(s) # T^0 = identity matrix
-  num <- 0 # accumulates sum(x * m_bar_x * l_bar_x)
-  den <- 0 # accumulates sum(m_bar_x * l_bar_x)
+  num <- 0 # accumulates sum(x * l_x * m_x)
+  den <- 0 # accumulates sum(l_x * m_x)
 
   for (x in seq_len(x_max)) {
-    Tx <- T_mat %*% Tx # left-multiply to advance one year: T^x = T * T^(x-1)
-
-    # Population-average survivorship and fecundity at age x,
-    # weighted by stable stage distribution w
-    l_bar_x <- 0
-    m_bar_x <- 0
-    for (i in seq_len(s)) {
-      u_jxi <- Tx[, i] # stage distribution at age x, given start in stage i
-      l_bar_x <- l_bar_x + w[i] * sum(u_jxi)
-      m_bar_x <- m_bar_x + w[i] * sum(F_vec * u_jxi)
-    }
-
-    num <- num + x * m_bar_x * l_bar_x
-    den <- den + m_bar_x * l_bar_x
+    Tx <- T_mat %*% Tx # T^x = T * T^(x-1)
+    lm_x <- sum(F_vec * Tx[, recruit_row])
+    num <- num + x * lm_x
+    den <- den + lm_x
   }
 
   if (den <= 0) {
@@ -304,8 +289,8 @@
 #'
 #' @param F_vec  Numeric vector of length s. Fecundity of each stage: the
 #'               mean number of clonal propagules produced per individual per
-#'               year. Used only to compute L (generation time) via the
-#'               stable stage distribution of A = T_mat + F_mat.
+#'               year. Used only to compute L (generation time), the mean
+#'               age of reproduction of a newborn cohort.
 #'               Set F_vec = NULL if supplying L directly.
 #'
 #' @param D      Numeric vector of length s. The stage frequency distribution:
@@ -333,6 +318,12 @@
 #'               added to the output. Default NULL.
 #' @param population  Character string. Optional label for the population,
 #'               used in printed output and the returned list.
+#' @param recruit_row Integer. The stage (matrix row) that newborns enter,
+#'               i.e. where the fecundity vector F_vec is placed in
+#'               F_mat. Default 1 (the first stage is the recruitment stage).
+#'               Set to a later stage when the first stage is dormancy, e.g.
+#'               a seed bank: recruit_row = 2 sends newborns to the active
+#'               recruitment stage instead. Must name exactly one valid stage.
 #'
 #' @return A named list with the following elements:
 #'   \describe{
@@ -428,7 +419,8 @@ Ne_clonal_Y2000 <- function(
   x_max = 500L,
   Ne_target = 50,
   census_N = NULL,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   # ------------------------------------------------------------------
   # Step 1: Validate all inputs before any computation
@@ -440,6 +432,7 @@ Ne_clonal_Y2000 <- function(
   if (!is.null(F_vec)) {
     .validate_F_vec(F_vec, s)
   }
+  .validate_recruit_row(recruit_row, s)
   if (!is.null(L)) {
     .validate_L(L)
   }
@@ -466,7 +459,12 @@ Ne_clonal_Y2000 <- function(
     L_use <- as.numeric(L)
     L_source <- "user" # user supplied L directly
   } else {
-    L_use <- .compute_L_clonal(T_mat, F_vec, x_max = as.integer(x_max))
+    L_use <- .compute_L_clonal(
+      T_mat,
+      F_vec,
+      x_max = as.integer(x_max),
+      recruit_row = recruit_row
+    )
     L_source <- "computed" # computed internally via T^x iteration
   }
 
@@ -604,6 +602,9 @@ print.Ne_clonal_Y2000 <- function(x, digits = 3, ...) {
 #'               size. If supplied, Ne_at_census = NeN * census_N is
 #'               added to the output. Default NULL.
 #' @param population  Character label for the population.
+#' @param recruit_row Integer. Stage (matrix row) that newborns enter; where
+#'               F_vec is placed in F_mat. Default 1. Set to a later stage
+#'               when the first stage is dormancy (e.g. a seed bank).
 #'
 #' @return A list with two Ne_clonal_Y2000 result objects:
 #'   \describe{
@@ -638,13 +639,13 @@ Ne_clonal_Y2000_both <- function(
   L = NULL,
   Ne_target = 50,
   census_N = NULL,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 ) {
   # Derive D_exp from the stable stage distribution if not supplied
   if (is.null(D_exp)) {
     s <- nrow(T_mat)
-    F_mat <- matrix(0, s, s)
-    F_mat[1, ] <- F_vec
+    F_mat <- .build_F_mat(F_vec, s, recruit_row)
     A <- T_mat + F_mat
     ev <- eigen(A)
     w <- Re(ev$vectors[, which.max(Re(ev$values))])
@@ -664,7 +665,8 @@ Ne_clonal_Y2000_both <- function(
       L = L,
       Ne_target = Ne_target,
       census_N = census_N,
-      population = paste0(pop_label, " (observed D)")
+      population = paste0(pop_label, " (observed D)"),
+      recruit_row = recruit_row
     ),
     expected = Ne_clonal_Y2000(
       T_mat = T_mat,
@@ -673,7 +675,8 @@ Ne_clonal_Y2000_both <- function(
       L = L,
       Ne_target = Ne_target,
       census_N = census_N,
-      population = paste0(pop_label, " (expected D)")
+      population = paste0(pop_label, " (expected D)"),
+      recruit_row = recruit_row
     )
   )
 }

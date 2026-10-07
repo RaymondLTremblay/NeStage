@@ -18,7 +18,8 @@ Ne_sensitivity_Vk(
   a = 0,
   L = NULL,
   Ne_target = 5000,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 )
 }
 \arguments{
@@ -56,6 +57,10 @@ Default rep(1, s).}
 \item{Ne_target}{Ne conservation threshold. Default 5000.}
 
 \item{population}{Character label.}
+
+\item{recruit_row}{Integer. Stage (matrix row) that newborns enter; where
+F_vec is placed in F_mat. Default 1. Set to a later stage
+when the first stage is dormancy (e.g. a seed bank).}
 }
 \value{
 A list with:

@@ -17,7 +17,8 @@ Ne_mixed_Y2000_both(
   Ne_target = 50,
   census_N = NULL,
   show_Ny = FALSE,
-  population = NULL
+  population = NULL,
+  recruit_row = 1L
 )
 }
 \arguments{
@@ -53,6 +54,10 @@ added to the output. Default NULL.}
 \item{show_Ny}{Logical. Compute Ny/N? (default FALSE).}
 
 \item{population}{Character label for the population.}
+
+\item{recruit_row}{Integer. Stage (matrix row) that newborns enter; where
+F_vec is placed in F_mat. Default 1. Set to a later stage
+when the first stage is dormancy (e.g. a seed bank).}
 }
 \value{
 A list with two Ne_mixed_Y2000 result objects:

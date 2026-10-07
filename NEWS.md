@@ -1,3 +1,5 @@
+# NeStage (development version)
+
 # NeStage 0.8.1 (2026-10-07)
 
 ## Bug fix: internally computed generation time L

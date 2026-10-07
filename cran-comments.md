@@ -1,32 +1,22 @@
-## R CMD check results (NeStage 0.8.0)
+## Update (NeStage 0.8.1)
 
-0 errors | 0 warnings | 4 notes
+This is a patch release fixing a bug in the internally computed generation
+time L (used when the user does not supply `L`). Survival was counted twice
+and the cohort was started from the stable stage distribution instead of
+from newborns, so L was underestimated and Ne/N overestimated. L now
+reproduces Table 4 of Yonezawa et al. (2000) exactly. Results obtained with
+a user-supplied `L` are unchanged. New regression tests cover the fix.
 
-- NOTE: New submission
-- NOTE: unable to verify current time (network issue on test machine)
-- NOTE: pandoc not installed locally (README/NEWS check skipped)
-- NOTE: local HTML tidy version outdated (HTML validation skipped)
+The DESCRIPTION License field is GPL-3, as in the published 0.8.0.
 
-## Resubmission
-Previous submission was rejected due to install.packages() calls in vignettes.
-These have been removed. All vignettes now use rmarkdown::html_vignette.
+## R CMD check results
 
-NeStage computes effective population size (Ne) and the Ne/N ratio for
-stage-structured populations using matrix population models, following the
-framework of Yonezawa (2000, doi:10.1046/j.1365-2540.2000.00747.x).
-Functions are provided for sexually reproducing, clonally reproducing, and
-mixed (sexual + clonal) populations, along with sensitivity and elasticity
-analyses for Ne/N with respect to vital rates.
+Local, macOS Tahoe 26.6.2, R 4.6.1 (`devtools::check()`, --as-cran):
+0 errors | 0 warnings | 0 notes
 
-## Known build warning (not a check issue)
-
-During R CMD build, R 4.5.2 emits:
-  "Invalid ORCID iD: 'https://orcid.org/0000-0001-6896-5844'"
-This is a known bug in R 4.5.2's person() validator which incorrectly
-rejects the full URL format. The ORCID is valid and uses the format
-recommended by CRAN policy. This warning does not appear in R CMD check
-results.
+win-builder, R-devel (2026-10-05 r90641 ucrt):
+0 errors | 0 warnings | 0 notes
 
 ## Downstream dependencies
 
-None — this is a new package.
+There are currently no downstream dependencies for this package.

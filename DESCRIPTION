@@ -1,8 +1,8 @@
 Package: NeStage
 Type: Package
 Title: Effective Population Size from Stage-Structured Populations
-Version: 0.8.0
-Date: 2026-03-07
+Version: 0.8.1
+Date: 2026-10-07
 Authors@R: person("Raymond L.", "Tremblay",
            email = "raymond.tremblay@gmail.com",
            role  = c("aut", "cre"),
